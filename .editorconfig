@@ -1,0 +1,8 @@
+﻿[*.cs]
+
+# Roslynator
+# Add parentheses when necessary
+dotnet_diagnostic.rcs1123.severity = none
+
+# IDE1006: Naming Styles
+dotnet_diagnostic.IDE1006.severity = none

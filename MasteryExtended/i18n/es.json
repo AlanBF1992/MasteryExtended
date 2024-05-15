@@ -1,0 +1,9 @@
+{
+    "invest-button": "Invertir",
+    "back-button": "Atrás",
+    "next-button": "Adelante",
+    "menu-title-skills": "Invertir Maestría",
+    "menu-title-profession": "Invertir en {{skill}}",
+    "hover-skill": "Desbloquea una mejora de {{skill}}",
+    "added-profession": "{{skill}}: Profesión {{prof}} añadida."
+}

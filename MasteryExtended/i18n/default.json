@@ -1,0 +1,9 @@
+{
+    "invest-button": "Invest",
+    "back-button": "Back",
+    "next-button": "Next",
+    "menu-title-skills": "Invest Mastery Points",
+    "menu-title-profession": "{{skill}} Investment",
+    "hover-skill": "Unlock a {{skill}} Upgrade",
+    "added-profession": "{{skill}}: {{prof}} profession added."
+}

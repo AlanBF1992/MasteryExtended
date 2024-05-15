@@ -1,0 +1,10 @@
+{
+    "Name": "MasteryExtended",
+    "Author": "AlanBF",
+    "Version": "1.1.0",
+    "Description": "Adds new things to do with the Mastery System",
+    "UniqueID": "AlanBF.MasteryExtended",
+    "EntryDll": "MasteryExtended.dll",
+    "MinimumApiVersion": "4.0.0",
+    "UpdateKeys": [ "Nexus:23697" ]
+}
