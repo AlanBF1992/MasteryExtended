@@ -3,25 +3,32 @@ using StardewValley.Menus;
 using StardewValley;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
+using SpaceCore.Interface;
 
 namespace MasteryExtended.SC.Patches
 {
     internal static class NewSkillsPagePatch
     {
         internal static IMonitor LogMonitor = ModEntry.LogMonitor;
-        internal static void drawPrefix(SkillsPage __instance, out string __state)
+        internal static void drawPrefix(NewSkillsPage __instance, out string __state)
         {
-            __state = $"{(string)__instance.GetInstanceField("hoverTitle")!}-:-{(string)__instance.GetInstanceField("hoverText")!}";
+            const string newStart = NewSkillsPage.CustomSkillPrefix == "C" ? "Z" : "C";
+
+            __state = $"{(string)__instance.GetInstanceField("hoverTitle")!}-:-{(string)__instance.GetInstanceField("hoverText")!}-:-{newStart}";
             __instance.SetInstanceField("hoverTitle", "");
             __instance.SetInstanceField("hoverText", "");
+
+            foreach (var skillbar in __instance.skillBars)
+            {
+                if (skillbar.name.StartsWith(NewSkillsPage.CustomSkillPrefix))
+                {
+                    skillbar.name = String.Concat(newStart, skillbar.name);
+                }
+            }
         }
 
-        internal static void drawPostfix(SkillsPage __instance, SpriteBatch b, string __state)
+        internal static void drawPostfix(NewSkillsPage __instance, SpriteBatch b, string __state)
         {
-            string[] parsedText = __state.Split("-:-");
-            __instance.SetInstanceField("hoverTitle", parsedText[0]);
-            __instance.SetInstanceField("hoverText", parsedText[1]);
-
             // Modificar lo que se muestra compare
             if (Game1.stats.Get("MasteryExp") == 0) return;
 
@@ -79,6 +86,62 @@ namespace MasteryExtended.SC.Patches
             NumberSprite.draw(masterySpent, b, new Vector2(xOffset + __instance.xPositionOnScreen + 329 + (int)(584f * width), yOffset + __instance.yPositionOnScreen + 4), Color.Black * 0.35f, 1f, 0.85f, 1f, 0);
             NumberSprite.draw(masterySpent, b, new Vector2(xOffset + __instance.xPositionOnScreen + 333 + (int)(584f * width), yOffset + __instance.yPositionOnScreen),
                 (masterySpent >= MasteryExtended.ModEntry.MaxMasteryPoints ? new(70, 210, 90) : (masterySpent == masteryLevel ? Color.OrangeRed : Color.SandyBrown)) * ((masteryLevel == 0) ? 0.75f : 1f), 1f, 0.87f, 1f, 0);
+
+            /***************
+             * HOVER THINGS
+             ***************/
+
+            // FIX THE TITLE AND TEXT
+            string[] parsedText = __state.Split("-:-");
+            __instance.SetInstanceField("hoverTitle", parsedText[0]);
+            __instance.SetInstanceField("hoverText", parsedText[1]);
+            string newStart = parsedText[2];
+            foreach (var skillbar in __instance.skillBars)
+            {
+                if (!skillbar.name.StartsWith(newStart)) continue;
+                skillbar.name = skillbar.name[1..];
+            }
+
+            // FIX THE IMAGE
+
+            // Add Scroll Offset
+            foreach (ClickableTextureComponent skillBar in __instance.skillBars)
+                skillBar.bounds = new Rectangle(skillBar.bounds.Left, skillBar.bounds.Top - (int)__instance.GetInstanceField("skillScrollOffset")! * 56, skillBar.bounds.Width, skillBar.bounds.Height);
+
+            // Configure the Image, Title and Text
+            foreach (ClickableTextureComponent skillBar in __instance.skillBars)
+            {
+                if (!skillBar.name.StartsWith(NewSkillsPage.CustomSkillPrefix))
+                    continue;
+                if (skillBar.scale == 0.0)
+                {
+                    IClickableMenu.drawTextureBox(b, Game1.menuTexture, new Rectangle(0, 256, 60, 60), skillBar.bounds.X - 16 - 8, skillBar.bounds.Y - 16 - 16, 96, 96, Color.White, 1f, false);
+
+                    if (skillBar.name.StartsWith(NewSkillsPage.CustomSkillPrefix))
+                    {
+                        skillBar.scale = Game1.pixelZoom;
+                        if (skillBar.containsPoint(Game1.getMouseX(), Game1.getMouseY()) && !skillBar.name.Equals("-1") && skillBar.hoverText.Length > 0)
+                        {
+                            var SkillsByNameField = ModEntry.ModHelper.Reflection.GetField<Dictionary<string, SpaceCore.Skills.Skill>>(typeof(SpaceCore.Skills), "SkillsByName");
+                            var professions = SkillsByNameField.GetValue().SelectMany(s => s.Value.Professions).ToList();
+                            var profession = professions.Find(p => NewSkillsPage.CustomSkillPrefix + p.Id == skillBar.name)!;
+
+                            __instance.SetInstanceField("hoverTitle", profession.GetName());
+                            __instance.SetInstanceField("hoverText", profession.GetDescription());
+
+                            Texture2D actuallyAProfessionImage = profession.Icon ?? Game1.staminaRect;
+                            skillBar.scale = 0.0f;
+                            b.Draw(texture: actuallyAProfessionImage,
+                                position: new Vector2(skillBar.bounds.X - (Game1.pixelZoom * 2), skillBar.bounds.Y - (Game1.tileSize / 2) + (Game1.tileSize / 4)),
+                                sourceRectangle: new Rectangle(0, 0, 16, 16),
+                                Color.White, rotation: 0.0f, origin: Vector2.Zero, scale: 4f, SpriteEffects.None, layerDepth: 1f);
+                        }
+                    }
+                }
+            }
+            // Delete Scroll Offset
+            foreach (ClickableTextureComponent skillBar in __instance.skillBars)
+                skillBar.bounds = new Rectangle(skillBar.bounds.Left, skillBar.bounds.Top + (int)__instance.GetInstanceField("skillScrollOffset")! * 56, skillBar.bounds.Width, skillBar.bounds.Height);
 
             if (((string)__instance.GetInstanceField("hoverText")!).Length > 0)
             {

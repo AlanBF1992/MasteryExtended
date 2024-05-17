@@ -17,6 +17,15 @@ namespace MasteryExtended.Patches
     {
         internal static IMonitor LogMonitor = ModEntry.LogMonitor;
 
+        internal static bool getMasteryExpNeededForLevelPrefix(int level, ref int __result)
+        {
+            if (level <= 5) { return true; }
+
+            __result = MasteryTrackerMenu.getMasteryExpNeededForLevel(5) + (level - 5) * ModEntry.Config.MasteryExpPerLevel;
+
+            return false;
+        }
+
         /// <summary>Permite que el nivel de maestría sea mayor a 5.</summary>
         internal static void getCurrentMasteryLevelPostfix(ref int __result)
         {
@@ -28,7 +37,7 @@ namespace MasteryExtended.Patches
 
                 for (int i = 1; i <= ModEntry.MaxMasteryPoints - 5; i++)
                 {
-                    if (masteryExp >= MasteryTrackerMenu.getMasteryExpNeededForLevel(5) + ModEntry.Config.MasteryExpPerLevel * i)
+                    if (masteryExp >= MasteryTrackerMenu.getMasteryExpNeededForLevel(5 + i))
                     {
                         level++;
                     }
@@ -53,13 +62,9 @@ namespace MasteryExtended.Patches
                 int masteryLevelAchieved = MasteryTrackerMenu.getCurrentMasteryLevel();
                 int masterySpent = (int)Game1.stats.Get("masteryLevelsSpent");
 
-                float currentProgressXP = masteryLevelAchieved <= 5 ?
-                    masteryExp - MasteryTrackerMenu.getMasteryExpNeededForLevel(masteryLevelAchieved) :
-                    masteryExp - MasteryTrackerMenu.getMasteryExpNeededForLevel(5) - ModEntry.Config.MasteryExpPerLevel * (masteryLevelAchieved - 5);
+                float currentProgressXP = masteryExp - MasteryTrackerMenu.getMasteryExpNeededForLevel(masteryLevelAchieved);
 
-                float expNeededToReachNextLevel = masteryLevelAchieved < 5 ?
-                    MasteryTrackerMenu.getMasteryExpNeededForLevel(masteryLevelAchieved + 1) - MasteryTrackerMenu.getMasteryExpNeededForLevel(masteryLevelAchieved) :
-                    ModEntry.Config.MasteryExpPerLevel;
+                float expNeededToReachNextLevel = MasteryTrackerMenu.getMasteryExpNeededForLevel(masteryLevelAchieved + 1) - MasteryTrackerMenu.getMasteryExpNeededForLevel(masteryLevelAchieved);
 
                 // El largo de la barra en el menú se debe ajustar porque a niveles mayores el número la cubre
                 if (fullWidthScale != 1f) {

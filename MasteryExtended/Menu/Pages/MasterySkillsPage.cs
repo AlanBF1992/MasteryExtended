@@ -110,7 +110,7 @@ namespace MasteryExtended.Menu.Pages
             //Buttons
             if (previousPageButton != null)
             {
-                const float sScale = 0.5f;
+                const float sScale = 1f;
                 previousPageButton.draw(b, Color.White, 0.88f);
                 string sBack = ModEntry.ModHelper.Translation.Get("back-button");
                 Vector2 sSize = sScale*Game1.dialogueFont.MeasureString(sBack);
@@ -121,8 +121,8 @@ namespace MasteryExtended.Menu.Pages
                 const float sScale = 1f;
                 nextPageButton.draw(b, Color.White, 0.88f);
                 string sNext = ModEntry.ModHelper.Translation.Get("next-button");
-                Vector2 sSize = sScale * Game1.smallFont.MeasureString(sNext);
-                Utility.drawTextWithColoredShadow(b, sNext, Game1.smallFont, nextPageButton.getVector2() + new Vector2((float)(nextPageButton.bounds.Width / 2) - sSize.X / 2f, 32f - sSize.Y / 2f + (float)((nextPageButton.sourceRect.X == 84) ? 8 : 0)), Color.Black * 1f, Color.Black * 0.2f, sScale * 1f, 0.9f);
+                Vector2 sSize = sScale * Game1.dialogueFont.MeasureString(sNext);
+                Utility.drawTextWithColoredShadow(b, sNext, Game1.dialogueFont, nextPageButton.getVector2() + new Vector2((float)(nextPageButton.bounds.Width / 2) - sSize.X / 2f, 32f - sSize.Y / 2f + (float)((nextPageButton.sourceRect.X == 84) ? 8 : 0)), Color.Black * 1f, Color.Black * 0.2f, sScale * 1f, 0.9f);
             }
             // The rest
             foreach (ClickableTextureComponent c in allClickableTextureComponents)

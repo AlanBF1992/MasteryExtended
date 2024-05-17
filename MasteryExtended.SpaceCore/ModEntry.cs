@@ -2,12 +2,13 @@
 using StardewModdingAPI.Events;
 using MasteryExtended.Menu.Pages;
 using MasteryExtended.Skills.Professions;
-using MasteryExtended.Skills;
 using StardewValley;
 using HarmonyLib;
 using SpaceCore.Interface;
 using MasteryExtended.SC.Patches;
 using Microsoft.Xna.Framework.Graphics;
+using static SpaceCore.Skills;
+using Skill = MasteryExtended.Skills.Skill;
 
 namespace MasteryExtended.SC
 {
@@ -15,6 +16,7 @@ namespace MasteryExtended.SC
     {
         /// <summary>Log info.</summary>
         public static IMonitor LogMonitor { get; private set; } = null!;
+        public static IModHelper ModHelper { get; private set; } = null!;
 
         public bool SkillsLoaded { get; set; } = false;
 
@@ -23,6 +25,7 @@ namespace MasteryExtended.SC
         public override void Entry(IModHelper helper)
         {
             LogMonitor = Monitor;
+            ModHelper = helper;
 
             // Patch SpaceCore?
             var harmony = new Harmony(this.ModManifest.UniqueID);
@@ -39,6 +42,40 @@ namespace MasteryExtended.SC
 
             //Events
             helper.Events.GameLoop.SaveLoaded += this.OnSaveLoaded;
+
+            //Console Commands
+            helper.ConsoleCommands.Add(
+                "masteryExtended_RestartProffesionsSpaceCore",
+                "Restart Vanilla Proffesions when you sleep.",
+                (_, __) => { clearAllProfessionsSpaceCore(); MasteryExtended.ModEntry.recountUsedMastery(); });
+        }
+
+        private void clearAllProfessionsSpaceCore()
+        {
+            if (Game1.player is null)
+            {
+                LogMonitor.Log("You need to load a save for the command to work");
+                return;
+            }
+
+            Game1.player.professions.RemoveWhere(p => p < 0 || 29 < p);
+
+            foreach (Skill s in MasterySkillsPage.skills.FindAll(s => s.Id < 0 || 4 < s.Id))
+            {
+                int level = s.getLevel();
+                string skillName = GetSkill(s.GetName()).Id;
+                var tuvi = Helper.Reflection.GetField<List<KeyValuePair<string, int>>>(typeof(SpaceCore.Skills), "NewLevels");
+                var tuviValue = tuvi.GetValue();
+                if (level >= 5)
+                {
+                    tuviValue.Add(new KeyValuePair<string, int>(skillName, 5));
+                }
+                if (level >= 10)
+                {
+                    tuviValue.Add(new KeyValuePair<string, int>(skillName, 10));
+                }
+                tuvi.SetValue(tuviValue);
+            }
         }
 
         [EventPriority(EventPriority.Normal)]

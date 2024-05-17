@@ -6,7 +6,7 @@
     "UniqueID": "AlanBF.MasteryExtended.SC",
     "EntryDll": "MasteryExtended.SC.dll",
     "MinimumApiVersion": "4.0.0",
-    "UpdateKeys": [],
+    "UpdateKeys": [ "Nexus:???" ],
     "Dependencies": [
         {
             "UniqueID": "spacechase0.SpaceCore"
