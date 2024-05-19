@@ -174,35 +174,45 @@ namespace MasteryExtended.Patches
 
                     __instance.drawMouse(b);
                 }
-
-                return;
-            }
-            Game1.stats.Get("MasteryExp");
-            int levelsAchieved = MasteryTrackerMenu.getCurrentMasteryLevel();
-            int levelsNotSpent = levelsAchieved - (int)Game1.stats.Get("masteryLevelsSpent");
-
-            for (int i = 0; i < 5; i++)
+            } else
             {
-                b.Draw(Game1.mouseCursors_1_6,
-                    new Vector2((float)(__instance.xPositionOnScreen + __instance.width / 2) - 110f + (float)(i * 11 * 4), __instance.yPositionOnScreen + 220),
-                    new Rectangle((i >= ModEntry.Data.claimedRewards && i < levelsAchieved) ?
-                        (43 + (int)Game1.currentGameTime.TotalGameTime.TotalMilliseconds % 600 / 100 * 10) :
-                        ((ModEntry.Data.claimedRewards > i) ? 33 : 23), //23 = vacío, 33 el dorado
-                        89, 10, 11),
-                    Color.White, 0f, Vector2.Zero, 4f, SpriteEffects.None, 0.88f);
+                Game1.stats.Get("MasteryExp");
+                int levelsAchieved = MasteryTrackerMenu.getCurrentMasteryLevel();
+                int levelsNotSpent = levelsAchieved - (int)Game1.stats.Get("masteryLevelsSpent");
+
+                for (int i = 0; i < 5; i++)
+                {
+                    b.Draw(Game1.mouseCursors_1_6,
+                        new Vector2((float)(__instance.xPositionOnScreen + __instance.width / 2) - 110f + (float)(i * 11 * 4), __instance.yPositionOnScreen + 220),
+                        new Rectangle((i >= ModEntry.Data.claimedRewards && i < levelsAchieved) ?
+                            (43 + (int)Game1.currentGameTime.TotalGameTime.TotalMilliseconds % 600 / 100 * 10) :
+                            ((ModEntry.Data.claimedRewards > i) ? 33 : 23), //23 = vacío, 33 el dorado
+                            89, 10, 11),
+                        Color.White, 0f, Vector2.Zero, 4f, SpriteEffects.None, 0.88f);
+                }
+
+                // Add the button
+                if (__instance.mainButton != null)
+                {
+                    __instance.mainButton.draw(b, (levelsNotSpent > 0) ? Color.White : (Color.White * 0.5f), 0.88f);
+                    string s = ModEntry.ModHelper.Translation.Get("invest-button");
+                    Utility.drawTextWithColoredShadow(b, s, Game1.dialogueFont,
+                        __instance.mainButton.getVector2() + new Vector2(
+                            (float)(__instance.mainButton.bounds.Width / 2) - Game1.dialogueFont.MeasureString(s).X / 2f,
+                            29 - (int)Math.Ceiling(Game1.dialogueFont.MeasureString(s).Y / 2) + (float)((__instance.mainButton.sourceRect.X == 84) ? 8 : 0)),
+                        Color.Black * ((levelsNotSpent > 0) ? 1f : 0.5f), Color.Black * 0.2f, 1f, 0.9f);
+                }
             }
 
-            // Add the button
             if (__instance.mainButton != null)
             {
-                __instance.mainButton.draw(b, (levelsNotSpent > 0) ? Color.White : (Color.White * 0.5f), 0.88f);
-                string s = ModEntry.ModHelper.Translation.Get("invest-button");
-                Utility.drawTextWithColoredShadow(b, s, Game1.dialogueFont,
-                    __instance.mainButton.getVector2() + new Vector2(
-                        (float)(__instance.mainButton.bounds.Width / 2) - Game1.dialogueFont.MeasureString(s).X / 2f,
-                        29 - (int)Math.Ceiling(Game1.dialogueFont.MeasureString(s).Y / 2)  + (float)((__instance.mainButton.sourceRect.X == 84) ? 8 : 0)),
-                    Color.Black * ((levelsNotSpent > 0) ? 1f : 0.5f), Color.Black * 0.2f, 1f, 0.9f);
+                IClickableMenu.drawHoverText(b,
+                    __instance.mainButton.name,
+                    Game1.smallFont,
+                    boxTexture: Game1.mouseCursors_1_6, boxSourceRect: new Rectangle(1, 85, 21, 21),
+                    textShadowColor: Color.Black * 0.2f, boxScale: 1f);
             }
+
             __instance.drawMouse(b);
         }
 
@@ -273,6 +283,29 @@ namespace MasteryExtended.Patches
                 }
             }
             return false;
+        }
+
+        internal static void performHoverActionPostfix(MasteryTrackerMenu __instance, int x, int y)
+        {
+            int which = (int)__instance.GetInstanceField("which")!;
+            if (__instance.mainButton != null)
+            {
+                __instance.mainButton.name = "";
+            }
+            if (__instance.mainButton?.containsPoint(x, y) == true && !(bool)__instance.GetInstanceField("canClaim")!)
+            {
+                bool freeLevel = MasteryTrackerMenu.getCurrentMasteryLevel() > (int)Game1.stats.Get("masteryLevelsSpent");
+
+                if (which != -1)
+                {
+                    bool enoughProfessions = MasterySkillsPage.skills.Find(s => s.Id == which)!.Professions.FindAll(p => p.IsProfessionUnlocked()).Count >= 3;
+
+                    __instance.mainButton.name +=
+                        (!enoughProfessions ? "You need 3 professions in this Skill." : "") +
+                        (!enoughProfessions && !freeLevel ? "\n" : "");
+                }
+                __instance.mainButton.name += (!freeLevel ? "You need an extra Mastery Level." : "");
+            }
         }
     }
 }

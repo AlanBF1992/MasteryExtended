@@ -62,8 +62,8 @@ namespace MasteryExtended
                 (_, __) => recountExpMastery());
 
             helper.ConsoleCommands.Add(
-                "masteryExtended_RestartProffesions",
-                "Restart Vanilla Proffesions when you sleep.",
+                "masteryExtended_RestartProfessions",
+                "Restart Vanilla Professions when you sleep.",
                 (_, __) => { clearAllProfessions(); recountUsedMastery(); });
         }
 
@@ -123,9 +123,9 @@ namespace MasteryExtended
                 prefix: new HarmonyMethod(typeof(GameLocationPatch), nameof(GameLocationPatch.performActionPrefix))
             );
 
-            /************************
-             * Mastery Cave Pedestal
-             ************************/
+            /**********************************
+             * Mastery Cave Pedestal & Pillars
+             **********************************/
             // Modifica el menú del pedestal. Lo hace más alto y crea un botón
             harmony.Patch(
                 original: AccessTools.Constructor(typeof(MasteryTrackerMenu), new Type[] { typeof(int) }),
@@ -148,6 +148,21 @@ namespace MasteryExtended
             harmony.Patch(
                 original: AccessTools.Method(typeof(MasteryTrackerMenu), nameof(MasteryTrackerMenu.update)),
                 prefix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.updatePrefix))
+            );
+
+            // Permite que el botón muestre el porqué no se puede aclamar
+            harmony.Patch(
+                original: AccessTools.Method(typeof(MasteryTrackerMenu), nameof(MasteryTrackerMenu.performHoverAction)),
+                postfix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.performHoverActionPostfix))
+            );
+
+            /***************
+             * Mastery Cave
+             ***************/
+            // Update the Mastery Cave map when needed
+            harmony.Patch(
+                original: AccessTools.Method(typeof(GameLocation), nameof(GameLocation.MakeMapModifications)),
+                postfix: new HarmonyMethod(typeof(GameLocationPatch), nameof(GameLocationPatch.MakeMapModificationsPostfix))
             );
         }
 

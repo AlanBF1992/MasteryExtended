@@ -227,12 +227,15 @@ namespace MasteryExtended.Menu.Pages
                     // Add the profession and spend the mastery
                     var professionToAdd = innerSkill.Professions.Find(p => p.Id == c.myID)!;
                     professionToAdd.AddProfessionToPlayer();
-
                     Game1.stats.Increment("masteryLevelsSpent");
 
+                    // Show which one was added
                     Game1.drawObjectDialogue(
                         ModEntry.ModHelper.Translation.Get("added-profession", new { skill = innerSkill.GetName(), prof = professionToAdd.GetName() })
                     );
+
+                    // Update the map
+                    Game1.currentLocation.MakeMapModifications(true);
                 }
             }
 

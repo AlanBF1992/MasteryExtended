@@ -45,8 +45,8 @@ namespace MasteryExtended.SC
 
             //Console Commands
             helper.ConsoleCommands.Add(
-                "masteryExtended_RestartProffesionsSpaceCore",
-                "Restart Vanilla Proffesions when you sleep.",
+                "masteryExtended_RestartProfessionsSpaceCore",
+                "Restart Vanilla Professions when you sleep.",
                 (_, __) => { clearAllProfessionsSpaceCore(); MasteryExtended.ModEntry.recountUsedMastery(); });
         }
 

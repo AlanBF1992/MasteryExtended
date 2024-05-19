@@ -4,8 +4,11 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-	  <EnableHarmony>true</EnableHarmony>
-	<MSBuildWarningsAsMessages>MSB3277</MSBuildWarningsAsMessages>
+    <EnableHarmony>true</EnableHarmony>
+    <MSBuildWarningsAsMessages>MSB3277</MSBuildWarningsAsMessages>
+    <EnableModZip>False</EnableModZip>
+    <GamePath>C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley</GamePath>
+    <GameModsPath>$(GamePath)\Mods\MasteryExtended</GameModsPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,10 +23,8 @@
 
   <ItemGroup>
     <Reference Include="SpaceCore">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley\Mods\SpaceCore\SpaceCore.dll</HintPath>
+      <HintPath>$(GamePath)\Mods\SpaceCore\SpaceCore.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
-
-
 </Project>

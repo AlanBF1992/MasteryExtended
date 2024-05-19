@@ -2,6 +2,7 @@
 using StardewValley;
 using xTile.Dimensions;
 using StardewValley.Menus;
+using MasteryExtended.Menu.Pages;
 
 namespace MasteryExtended.Patches
 {
@@ -60,6 +61,26 @@ namespace MasteryExtended.Patches
             {
                 LogMonitor.Log($"Failed in {nameof(performActionPrefix)}:\n{ex}", LogLevel.Error);
                 return true;
+            }
+        }
+
+        // Modificar mapa
+        internal static void MakeMapModificationsPostfix(GameLocation __instance)
+        {
+            if (__instance.Name == "MasteryCave")
+            {
+                for (int which = 0; which < 5; which++)
+                {
+                    bool enoughProfessions = MasterySkillsPage.skills.Find(s => s.Id == which)!.unlockedProfessions() >= 3;
+
+                    Game1.stats.Get("MasteryExp");
+                    bool freeLevel = MasteryTrackerMenu.getCurrentMasteryLevel() > (int)Game1.stats.Get("masteryLevelsSpent");
+
+                    if (!enoughProfessions || !freeLevel)
+                    {
+                        Game1.currentLocation.removeTemporarySpritesWithID(8765 + which);
+                    }
+                }
             }
         }
     }

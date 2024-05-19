@@ -1,7 +1,7 @@
 {
     "Name": "MasteryExtended.SC",
     "Author": "AlanBF",
-    "Version": "1.1.0",
+    "Version": "1.1.1",
     "Description": "Compatibility for Mastery Extended with SpaceCore Skills",
     "UniqueID": "AlanBF.MasteryExtended.SC",
     "EntryDll": "MasteryExtended.SC.dll",
