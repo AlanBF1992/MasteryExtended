@@ -172,14 +172,18 @@ namespace MasteryExtended.Menu.Pages
                     string s = ModEntry.ModHelper.Translation.Get("next-button");
                     Utility.drawTextWithColoredShadow(b, s, Game1.dialogueFont, nextPageButton.getVector2() + new Vector2((float)(nextPageButton.bounds.Width / 2) - Game1.dialogueFont.MeasureString(s).X / 2f, 6f + (float)((nextPageButton.sourceRect.X == 84) ? 8 : 0)), Color.Black * 1f, Color.Black * 0.2f, 1f, 0.9f);
                 }
-
-                // Draw hover here. Hacer override para que no tenga shadow
-                IClickableMenu.drawHoverText(b,
-                    hoverText,
-                    Game1.smallFont,
-                    boxTexture: Game1.mouseCursors_1_6, boxSourceRect: new Rectangle(1, 85, 21, 21),
-                    textShadowColor: Color.Black * 0.2f, boxScale: 1f);
             }
+
+            if (MasteryTrackerMenu.getCurrentMasteryLevel() <= (int)Game1.stats.Get("masteryLevelsSpent"))
+            {
+                Utilities.newDrawHoverText(b, ModEntry.ModHelper.Translation.Get("look-only"), Game1.smallFont, overrideX: 0, overrideY: 0,
+                    boxTexture: Game1.mouseCursors_1_6, boxSourceRect: new Rectangle(1, 85, 21, 21),
+                    textColor: Color.Black, textShadowColor: Color.Black * 0.2f, boxScale: 2f);
+            }
+            Utilities.newDrawHoverText(b, hoverText, Game1.smallFont,
+                boxTexture: Game1.mouseCursors_1_6,
+                boxSourceRect: new Rectangle(1, 85, 21, 21),
+                textColor: Color.Black, textShadowColor: Color.Black * 0.2f, boxScale: 2f);
 
             base.draw(b);
             base.drawMouse(b); // Adds the mouse
@@ -199,6 +203,10 @@ namespace MasteryExtended.Menu.Pages
 
                     // Set highlight background
                     if (c.visible)
+                    {
+                        c.myAlternateID = 1;
+                    }
+                    if (innerSkill.Professions.Find(p => p.Id == c.myID)!.IsProfessionUnlocked())
                     {
                         c.myAlternateID = 1;
                     }

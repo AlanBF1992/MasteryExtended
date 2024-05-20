@@ -5,11 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
 using StardewValley.Constants;
-using MasteryExtended.Skills;
-using System.Security.Claims;
 using MasteryExtended.Menu.Pages;
-using System.Collections.Generic;
-using System;
 
 namespace MasteryExtended.Patches
 {
@@ -135,6 +131,8 @@ namespace MasteryExtended.Patches
         /// <summary>Modifica el tamaño del menu pedestal y hace visible el botón</summary>
         internal static void MasteryTrackerMenuPostfix(MasteryTrackerMenu __instance, int whichSkill = -1)
         {
+            int levelsNotSpent = MasteryTrackerMenu.getCurrentMasteryLevel() - (int)Game1.stats.Get("masteryLevelsSpent");
+
             if (whichSkill == -1)
             {
                 // Add more height for the button
@@ -145,15 +143,15 @@ namespace MasteryExtended.Patches
                 // Crear el botón
                 if (Game1.player.stats.Get(StatKeys.Mastery(-1)) == 0)
                 {
-                    __instance.mainButton = new ClickableTextureComponent(new Rectangle(__instance.xPositionOnScreen + __instance.width / 2 - 168/2, __instance.yPositionOnScreen + __instance.height - 112, 168, 80), Game1.mouseCursors_1_6, new Rectangle(0, 123, 42, 21), 4f)
+                    __instance.mainButton = new ClickableTextureComponent(new Rectangle(__instance.xPositionOnScreen + __instance.width / 2 - 168 / 2, __instance.yPositionOnScreen + __instance.height - 112, 168, 80), Game1.mouseCursors_1_6, new Rectangle(0, 123, 42, 21), 4f)
                     {
                         visible = true,
-                        myID = 0
+                        myID = 0,
+                        myAlternateID = levelsNotSpent
                     };
                 }
             } else
             {
-                int levelsNotSpent = MasteryTrackerMenu.getCurrentMasteryLevel() - (int)Game1.stats.Get("masteryLevelsSpent");
                 int numUnlockedProfessions = MasterySkillsPage.skills.Find(s => s.Id == whichSkill)!.Professions.FindAll(p => p.IsProfessionUnlocked()).Count;
                 bool claim = levelsNotSpent > 0 && numUnlockedProfessions >= 3;
 
@@ -178,8 +176,8 @@ namespace MasteryExtended.Patches
             {
                 Game1.stats.Get("MasteryExp");
                 int levelsAchieved = MasteryTrackerMenu.getCurrentMasteryLevel();
-                int levelsNotSpent = levelsAchieved - (int)Game1.stats.Get("masteryLevelsSpent");
 
+                //Stars
                 for (int i = 0; i < 5; i++)
                 {
                     b.Draw(Game1.mouseCursors_1_6,
@@ -194,23 +192,22 @@ namespace MasteryExtended.Patches
                 // Add the button
                 if (__instance.mainButton != null)
                 {
-                    __instance.mainButton.draw(b, (levelsNotSpent > 0) ? Color.White : (Color.White * 0.5f), 0.88f);
+                    __instance.mainButton.draw(b, Color.White, 0.88f);
                     string s = ModEntry.ModHelper.Translation.Get("invest-button");
                     Utility.drawTextWithColoredShadow(b, s, Game1.dialogueFont,
                         __instance.mainButton.getVector2() + new Vector2(
                             (float)(__instance.mainButton.bounds.Width / 2) - Game1.dialogueFont.MeasureString(s).X / 2f,
                             29 - (int)Math.Ceiling(Game1.dialogueFont.MeasureString(s).Y / 2) + (float)((__instance.mainButton.sourceRect.X == 84) ? 8 : 0)),
-                        Color.Black * ((levelsNotSpent > 0) ? 1f : 0.5f), Color.Black * 0.2f, 1f, 0.9f);
+                        Color.Black, Color.Black * 0.2f, 1f, 0.9f);
                 }
             }
 
             if (__instance.mainButton != null)
             {
-                IClickableMenu.drawHoverText(b,
-                    __instance.mainButton.name,
-                    Game1.smallFont,
-                    boxTexture: Game1.mouseCursors_1_6, boxSourceRect: new Rectangle(1, 85, 21, 21),
-                    textShadowColor: Color.Black * 0.2f, boxScale: 1f);
+                Utilities.newDrawHoverText(b, __instance.mainButton.name, Game1.smallFont,
+                boxTexture: Game1.mouseCursors_1_6,
+                boxSourceRect: new Rectangle(1, 85, 21, 21),
+                textColor: Color.Black, textShadowColor: Color.Black * 0.2f, boxScale: 2f);
             }
 
             __instance.drawMouse(b);
@@ -240,12 +237,9 @@ namespace MasteryExtended.Patches
                     }
                     __instance.exitThisMenu();
                 }
-                // Botón de maestrías
-                Game1.stats.Get("MasteryExp");
-                int levelsAchieved = MasteryTrackerMenu.getCurrentMasteryLevel();
-                int levelsNotSpent = levelsAchieved - (int)Game1.stats.Get("masteryLevelsSpent");
 
-                if (__instance.mainButton != null && levelsNotSpent > 0 && __instance.mainButton.containsPoint(x, y) && (float)__instance.GetInstanceField("pressedButtonTimer")! <= 0f)
+                // Botón de maestrías
+                if (__instance.mainButton?.containsPoint(x, y) == true && (float)__instance.GetInstanceField("pressedButtonTimer")! <= 0f)
                 {
                     Game1.playSound("cowboy_monsterhit");
                     DelayedAction.playSoundAfterDelay("cowboy_monsterhit", 100);
@@ -301,10 +295,14 @@ namespace MasteryExtended.Patches
                     bool enoughProfessions = MasterySkillsPage.skills.Find(s => s.Id == which)!.Professions.FindAll(p => p.IsProfessionUnlocked()).Count >= 3;
 
                     __instance.mainButton.name +=
-                        (!enoughProfessions ? "You need 3 professions in this Skill." : "") +
-                        (!enoughProfessions && !freeLevel ? "\n" : "");
+                        (!enoughProfessions ? ModEntry.ModHelper.Translation.Get("need-more-professions") : "") +
+                        (!enoughProfessions && !freeLevel ? "\n" : "") +
+                        (!freeLevel ? ModEntry.ModHelper.Translation.Get("need-more-levels") : "");
+                } else {
+                    __instance.mainButton.name +=
+                        (!freeLevel ? ModEntry.ModHelper.Translation.Get("need-more-levels") : "") +
+                        (!freeLevel ? $"\n{ModEntry.ModHelper.Translation.Get("cant-spend")}" : "");
                 }
-                __instance.mainButton.name += (!freeLevel ? "You need an extra Mastery Level." : "");
             }
         }
     }

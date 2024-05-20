@@ -134,6 +134,10 @@ namespace MasteryExtended.Menu.Pages
                 {
                     drawTextureBox(b, Game1.mouseCursors, new Rectangle(403, 373, 9, 9), c.bounds.X, c.bounds.Y, c.bounds.Width, c.bounds.Height, Color.Black * 0.75f, 3f, false);
                 }
+                if (skills.Find(s => s.Id == c.myID)!.unlockedProfessions() >= 6)
+                {
+                    drawTextureBox(b, Game1.mouseCursors, new Rectangle(403, 373, 9, 9), c.bounds.X, c.bounds.Y, c.bounds.Width, c.bounds.Height, Color.Yellow * 0.4f, 3f, false);
+                }
 
                 // Dibuja el icono
                 float iconScale = 16 / Math.Max(c.sourceRect.Height, c.sourceRect.Width);
@@ -142,12 +146,20 @@ namespace MasteryExtended.Menu.Pages
                 Utility.drawTextWithColoredShadow(b, c.name, Game1.dialogueFont,
                     c.getVector2() + new Vector2(72f, c.bounds.Height/2) - new Vector2(0, (int)Math.Ceiling(Game1.dialogueFont.MeasureString(c.name).Y / 2) - 3),
                     Color.Black, Color.Black * 0.15f);
-
-                // Draw hover here. Hacer override para que no tenga shadow
-                drawHoverText(b, hoverText, Game1.smallFont,
-                    boxTexture: Game1.mouseCursors_1_6, boxSourceRect: new Rectangle(1, 85, 21, 21),
-                    textShadowColor: Color.Black * 0.2f, boxScale: 1f);
             }
+
+            if(MasteryTrackerMenu.getCurrentMasteryLevel() <= (int)Game1.stats.Get("masteryLevelsSpent"))
+            {
+                Utilities.newDrawHoverText(b, ModEntry.ModHelper.Translation.Get("look-only"), Game1.smallFont, overrideX: 0, overrideY: 0,
+                    boxTexture: Game1.mouseCursors_1_6, boxSourceRect: new Rectangle(1, 85, 21, 21),
+                    textColor: Color.Black, textShadowColor: Color.Black * 0.2f, boxScale: 2f);
+            }
+
+            Utilities.newDrawHoverText(b, hoverText, Game1.smallFont,
+                boxTexture: Game1.mouseCursors_1_6,
+                boxSourceRect: new Rectangle(1, 85, 21, 21),
+                textColor: Color.Black, textShadowColor: Color.Black * 0.2f, boxScale: 2f);
+
             base.draw(b);
             drawMouse(b); // Adds the mouse
         }
@@ -164,14 +176,25 @@ namespace MasteryExtended.Menu.Pages
                     Game1.SetFreeCursorDrag();
 
                     // Set highlight background
-                    if (c.visible)
+                    if (!c.visible)
                     {
+                        hoverText = ModEntry.ModHelper.Translation.Get("need-more-levels", new { skill = c.name});
+                    } else
+                    {
+                        // For the hover color
                         c.myAlternateID = 1;
-                    }
 
-                    if (!string.IsNullOrEmpty(c.hoverText))
-                    {
-                        hoverText = c.hoverText;
+                        // Set hover text
+                        if (skills.Find(s => s.Id == c.myID)!.unlockedProfessions() >= 6)
+                        {
+                            hoverText = ModEntry.ModHelper.Translation.Get("every-profession-unlocked", new { skill = c.name });
+                        } else
+                        {
+                            if (!string.IsNullOrEmpty(c.hoverText))
+                            {
+                                hoverText = c.hoverText;
+                            }
+                        }
                     }
                 }
             }
