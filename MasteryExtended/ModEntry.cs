@@ -54,17 +54,22 @@ namespace MasteryExtended
             helper.ConsoleCommands.Add(
                 "masteryExtended_RecountUsed",
                 "Recounts the player's Mastery Level Used.",
-                (_, __) => recountUsedMastery());
+                (_, __) => recountUsedMasteryLevels());
 
             helper.ConsoleCommands.Add(
-                "masteryExtended_RestartExp",
-                "Sets the Mastery Level to the minimum possible.",
-                (_, __) => recountExpMastery());
+                "masteryExtended_ResetExp",
+                "Sets the Mastery Exp to the minimum possible.",
+                (_, __) => resetMasteryExp());
 
             helper.ConsoleCommands.Add(
-                "masteryExtended_RestartProfessions",
-                "Restart Vanilla Professions when you sleep.",
-                (_, __) => { clearAllProfessions(); recountUsedMastery(); });
+                "masteryExtended_ResetProfessions",
+                "Reset Vanilla Professions when you sleep.",
+                (_, __) => { resetAllProfessionsVanilla(); recountUsedMasteryLevels(); });
+
+            helper.ConsoleCommands.Add(
+                "masteryExtended_AddMasteryLevel",
+                "Add Mastery Levels. <value> is an optional argument.",
+                addMasteryLevel);
         }
 
         /*********
@@ -187,15 +192,21 @@ namespace MasteryExtended
 
             if (a is not null) return;
 
-            recountUsedMastery();
-            recountExpMastery();
+            recountUsedMasteryLevels();
+            resetMasteryExp();
         }
 
-        public static void recountUsedMastery()
+        /// <summary>Save the data when the game is saved.</summary>
+        private void OnSaving(object? sender, SavingEventArgs e)
         {
-            if (Game1.player is null)
+            Helper.Data.WriteSaveData("AlanBF.MasteryExtended", Data);
+        }
+
+        public static void recountUsedMasteryLevels()
+        {
+            if (!Context.IsWorldReady)
             {
-                LogMonitor.Log("You need to load a save for the command to work");
+                LogMonitor.Log("You need to load a save to use this command.", LogLevel.Error);
                 return;
             }
 
@@ -208,7 +219,7 @@ namespace MasteryExtended
 
             foreach (Skill s in MasterySkillsPage.skills)
             {
-                spentLevelsInProfessions += Math.Max(s.unlockedProfessions() - 2, 0);
+                spentLevelsInProfessions += Math.Max(s.unlockedProfessions() - Math.Min((int)Math.Floor(s.getLevel() / 5f), 2), 0);
             }
 
             int totalSpentLevels = spentLevelsInMasteryPillar + spentLevelsInProfessions;
@@ -216,32 +227,32 @@ namespace MasteryExtended
             Game1.stats.Set("masteryLevelsSpent", totalSpentLevels);
         }
 
-        private static void recountExpMastery()
+        private static void resetMasteryExp()
         {
-            if (Game1.player is null)
+            if (!Context.IsWorldReady)
             {
-                LogMonitor.Log("You need to load a save for the command to work");
+                LogMonitor.Log("You need to load a save to use this command.", LogLevel.Error);
                 return;
             }
+
             int totalSpentLevels = (int)Game1.stats.Get("masteryLevelsSpent");
-            int currentMasteryExp = (int)Game1.stats.Get("MasteryExp");
-            int expToSet = totalSpentLevels <= 5
-                ? Math.Max(MasteryTrackerMenu.getMasteryExpNeededForLevel(totalSpentLevels), Math.Min(currentMasteryExp, MasteryTrackerMenu.getMasteryExpNeededForLevel(5)))
-                : MasteryTrackerMenu.getMasteryExpNeededForLevel(totalSpentLevels);
+
+            int expToSet = MasteryTrackerMenu.getMasteryExpNeededForLevel(totalSpentLevels);
+
             Game1.stats.Set("MasteryExp", expToSet);
         }
 
-        private static void clearAllProfessions()
+        private static void resetAllProfessionsVanilla()
         {
-            if (Game1.player is null)
+            if (!Context.IsWorldReady)
             {
-                LogMonitor.Log("You need to load a save for the command to work");
+                LogMonitor.Log("You need to load a save to use this command.", LogLevel.Error);
                 return;
             }
 
-            Game1.player.professions.RemoveWhere(p => 0<=p && p <= 29);
+            Game1.player.professions.RemoveWhere(p => 0 <= p && p <= 29);
 
-            foreach (Skill s in MasterySkillsPage.skills.FindAll(s => 0<= s.Id && s.Id <= 4))
+            foreach (Skill s in MasterySkillsPage.skills.FindAll(s => 0 <= s.Id && s.Id <= 4))
             {
                 int level = s.getLevel();
 
@@ -256,10 +267,43 @@ namespace MasteryExtended
             }
         }
 
-        /// <summary>Save the data when the game is saved.</summary>
-        private void OnSaving(object? sender, SavingEventArgs e)
+        private static void addMasteryLevel(string command, string[] args)
         {
-            Helper.Data.WriteSaveData("AlanBF.MasteryExtended", Data);
+            if (!Context.IsWorldReady)
+            {
+                LogMonitor.Log("You need to load a save to use this command.", LogLevel.Error);
+                return;
+            }
+
+            int levels = 1;
+            if (args.Length > 0)
+            {
+                try
+                {
+                    levels = int.Parse(args[0]);
+                }
+                catch
+                {
+                    LogMonitor.Log("Parameter should be an integer", LogLevel.Error);
+                    return;
+                }
+            }
+            int currentLevel = MasteryTrackerMenu.getCurrentMasteryLevel();
+            int spentLevels = (int)Game1.stats.Get("masteryLevelsSpent");
+            int expToSet;
+            if (levels >= 0)
+            {
+                if (currentLevel >= MaxMasteryPoints) return;
+                int newLevel = Math.Min(MaxMasteryPoints, currentLevel + levels);
+                expToSet = MasteryTrackerMenu.getMasteryExpNeededForLevel(newLevel);
+            } else
+            {
+                if (currentLevel <= spentLevels) return;
+                int newLevel = Math.Max(spentLevels, currentLevel + levels);
+                expToSet = MasteryTrackerMenu.getMasteryExpNeededForLevel(newLevel);
+            }
+
+            Game1.stats.Set("MasteryExp", expToSet);
         }
     }
 }

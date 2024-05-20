@@ -45,37 +45,9 @@ namespace MasteryExtended.SC
 
             //Console Commands
             helper.ConsoleCommands.Add(
-                "masteryExtended_RestartProfessionsSpaceCore",
-                "Restart Vanilla Professions when you sleep.",
-                (_, __) => { clearAllProfessionsSpaceCore(); MasteryExtended.ModEntry.recountUsedMastery(); });
-        }
-
-        private void clearAllProfessionsSpaceCore()
-        {
-            if (Game1.player is null)
-            {
-                LogMonitor.Log("You need to load a save for the command to work");
-                return;
-            }
-
-            Game1.player.professions.RemoveWhere(p => p < 0 || 29 < p);
-
-            foreach (Skill s in MasterySkillsPage.skills.FindAll(s => s.Id < 0 || 4 < s.Id))
-            {
-                int level = s.getLevel();
-                string skillName = GetSkill(s.GetName()).Id;
-                var tuvi = Helper.Reflection.GetField<List<KeyValuePair<string, int>>>(typeof(SpaceCore.Skills), "NewLevels");
-                var tuviValue = tuvi.GetValue();
-                if (level >= 5)
-                {
-                    tuviValue.Add(new KeyValuePair<string, int>(skillName, 5));
-                }
-                if (level >= 10)
-                {
-                    tuviValue.Add(new KeyValuePair<string, int>(skillName, 10));
-                }
-                tuvi.SetValue(tuviValue);
-            }
+                "masteryExtended_ResetProfessionsSpaceCore",
+                "Reset SpaceCore Professions when you sleep.",
+                (_, __) => { resetAllProfessionsSpaceCore(); MasteryExtended.ModEntry.recountUsedMasteryLevels(); });
         }
 
         [EventPriority(EventPriority.Normal)]
@@ -113,6 +85,35 @@ namespace MasteryExtended.SC
 
                 MasterySkillsPage.skills.Add(mySkill);
                 MasteryExtended.ModEntry.MaxMasteryPoints += 4;
+            }
+        }
+
+        private void resetAllProfessionsSpaceCore()
+        {
+            if (!Context.IsWorldReady)
+            {
+                LogMonitor.Log("You need to load a save to use this command.", LogLevel.Error);
+                return;
+            }
+
+            Game1.player.professions.RemoveWhere(p => p < 0 || 29 < p);
+
+            foreach (Skill s in MasterySkillsPage.skills.FindAll(s => s.Id < 0 || 4 < s.Id))
+            {
+                int level = s.getLevel();
+                string skillName = GetSkill(s.GetName()).Id;
+                // SpaceCore NewLevels is the same as vanilla newLevels.
+                var NewLevels = Helper.Reflection.GetField<List<KeyValuePair<string, int>>>(typeof(SpaceCore.Skills), "NewLevels");
+                var currentNewLevels = NewLevels.GetValue();
+                if (level >= 5)
+                {
+                    currentNewLevels.Add(new KeyValuePair<string, int>(skillName, 5));
+                }
+                if (level >= 10)
+                {
+                    currentNewLevels.Add(new KeyValuePair<string, int>(skillName, 10));
+                }
+                NewLevels.SetValue(currentNewLevels);
             }
         }
     }

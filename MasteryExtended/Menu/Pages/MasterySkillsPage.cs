@@ -178,7 +178,7 @@ namespace MasteryExtended.Menu.Pages
                     // Set highlight background
                     if (!c.visible)
                     {
-                        hoverText = ModEntry.ModHelper.Translation.Get("need-more-levels", new { skill = c.name});
+                        hoverText = ModEntry.ModHelper.Translation.Get("cant-access-skill", new { skill = c.name});
                     } else
                     {
                         // For the hover color
