@@ -147,8 +147,23 @@ namespace MasteryExtended.Patches
                     {
                         visible = true,
                         myID = 0,
-                        myAlternateID = levelsNotSpent
+                        myAlternateID = levelsNotSpent,
+                        upNeighborID = __instance.upperRightCloseButton.myID
                     };
+                }
+                // Snap
+                if (Game1.options.SnappyMenus)
+                {
+                    __instance.populateClickableComponentList();
+                    if (__instance.mainButton == null)
+                    {
+                        __instance.currentlySnappedComponent = __instance.getComponentWithID(__instance.upperRightCloseButton.myID);
+                    }
+                    else
+                    {
+                        __instance.currentlySnappedComponent = __instance.getComponentWithID(0);
+                    }
+                    __instance.snapCursorToCurrentSnappedComponent();
                 }
             } else
             {

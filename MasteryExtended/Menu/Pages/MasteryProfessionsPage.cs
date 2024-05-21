@@ -68,20 +68,20 @@ namespace MasteryExtended.Menu.Pages
                 Profession pI = LeftProfessionTree[i];
                 Profession pR = RightProfessionTree[i];
 
-                allClickableTextureComponents.Add(new ClickableTextureComponent(new Rectangle(xPosition[i], yPosition[i], professionWidth, professionHeight), pI.TextureSource, pI.TextureBounds, 1f, drawShadow: true)
+                pageTextureComponents.Add(new ClickableTextureComponent(new Rectangle(xPosition[i], yPosition[i], professionWidth, professionHeight), pI.TextureSource, pI.TextureBounds, 1f, drawShadow: true)
                 {
                     name = pI.GetName(),
                     hoverText = pI.GetDescription(),
-                    visible = !pI.IsProfessionUnlocked() && (pI.RequiredProfessions?.IsProfessionUnlocked() != false),
-                    myID = pI.Id
+                    myID = pI.Id,
+                    myAlternateID = !pI.IsProfessionUnlocked() && (pI.RequiredProfessions?.IsProfessionUnlocked() != false) ? 1 : 0
                 });
 
-                allClickableTextureComponents.Add(new ClickableTextureComponent(new Rectangle(xPosition[i] + spacingSecondTree, yPosition[i], professionWidth, professionHeight), pR.TextureSource, pR.TextureBounds, 1f, drawShadow: true)
+                pageTextureComponents.Add(new ClickableTextureComponent(new Rectangle(xPosition[i] + spacingSecondTree, yPosition[i], professionWidth, professionHeight), pR.TextureSource, pR.TextureBounds, 1f, drawShadow: true)
                 {
                     name = pR.GetName(),
                     hoverText = pR.GetDescription(),
-                    visible = !pR.IsProfessionUnlocked() && (pR.RequiredProfessions?.IsProfessionUnlocked() != false),
-                    myID = pR.Id
+                    myID = pR.Id,
+                    myAlternateID = !pR.IsProfessionUnlocked() && (pR.RequiredProfessions?.IsProfessionUnlocked() != false)? 1: 0
                 });
             }
 
@@ -94,18 +94,60 @@ namespace MasteryExtended.Menu.Pages
             int num = base.yPositionOnScreen;
             base.yPositionOnScreen = (int)Utility.getTopLeftPositionForCenteringOnScreen(800, base.height).Y;
             int offset = num - base.yPositionOnScreen;
-            foreach (ClickableTextureComponent c in this.allClickableTextureComponents)
+            foreach (ClickableTextureComponent c in this.pageTextureComponents)
             {
                 c.bounds.Y -= offset;
             }
             base.upperRightCloseButton.bounds.Y -= offset;
 
             // Agregar botón atrás para ir al menú de skills
-
             previousPageButton = new ClickableTextureComponent(new Rectangle(xPositionOnScreen + width / 2 - 84, yPositionOnScreen + height - 112, 168, 80), Game1.mouseCursors_1_6, new Rectangle(0, 123, 42, 21), 4f)
             {
-                visible = true
+                visible = true,
+                myID = 999
             };
+
+            if (Game1.options.SnappyMenus)
+            {
+                populateClickableComponentList();
+
+                //First row
+                pageTextureComponents[0].upNeighborID = upperRightCloseButton.myID;
+                pageTextureComponents[1].upNeighborID = upperRightCloseButton.myID;
+                pageTextureComponents[0].downNeighborID = pageTextureComponents[2].myID;
+                pageTextureComponents[1].downNeighborID = pageTextureComponents[3].myID;
+
+                pageTextureComponents[0].rightNeighborID = pageTextureComponents[1].myID;
+                pageTextureComponents[1].leftNeighborID = pageTextureComponents[0].myID;
+
+                //Second Row
+                pageTextureComponents[2].rightNeighborID = pageTextureComponents[4].myID;
+                pageTextureComponents[4].leftNeighborID = pageTextureComponents[2].myID;
+
+                pageTextureComponents[4].rightNeighborID = pageTextureComponents[3].myID;
+                pageTextureComponents[3].leftNeighborID = pageTextureComponents[4].myID;
+
+                pageTextureComponents[3].rightNeighborID = pageTextureComponents[5].myID;
+                pageTextureComponents[5].rightNeighborID = pageTextureComponents[3].myID;
+
+                pageTextureComponents[2].upNeighborID = pageTextureComponents[0].myID;
+                pageTextureComponents[4].upNeighborID = pageTextureComponents[0].myID;
+
+                pageTextureComponents[3].upNeighborID = pageTextureComponents[1].myID;
+                pageTextureComponents[5].upNeighborID = pageTextureComponents[1].myID;
+
+                pageTextureComponents[2].downNeighborID = previousPageButton.myID;
+                pageTextureComponents[4].downNeighborID = previousPageButton.myID;
+                pageTextureComponents[3].downNeighborID = previousPageButton.myID;
+                pageTextureComponents[5].downNeighborID = previousPageButton.myID;
+
+                // Button
+                previousPageButton.upNeighborID = pageTextureComponents[3].myID;
+
+                currentlySnappedComponent = previousPageButton;
+
+                snapCursorToCurrentSnappedComponent();
+            }
         }
 
         // Agregar cada profesión de forma bonita.
@@ -116,17 +158,17 @@ namespace MasteryExtended.Menu.Pages
             SpriteText.drawStringHorizontallyCenteredAt(b, MenuTitle, xPositionOnScreen + width / 2, yPositionOnScreen + 48, 9999, -1, 9999, 1f, 0.88f, junimoText: false, Color.Black);
 
             // AHORA SI LOS BOTONES Y WEÁ
-            foreach (ClickableTextureComponent c in allClickableTextureComponents)
+            foreach (ClickableTextureComponent c in pageTextureComponents)
             {
                 // TEXTURA DE BOTÓN
-                drawTextureBox(b, Game1.mouseCursors, new Rectangle(403, 373, 9, 9), c.bounds.X, c.bounds.Y, c.bounds.Width, c.bounds.Height, c.myAlternateID == 0 ? backItemColor : backItemColorHover, 3f, false);
+                drawTextureBox(b, Game1.mouseCursors, new Rectangle(403, 373, 9, 9), c.bounds.X, c.bounds.Y, c.bounds.Width, c.bounds.Height, c.region == 0 ? backItemColor : backItemColorHover, 3f, false);
 
                 // Agregar una capa de color a los adquiridos o no adquiribles
-                if (!c.visible)
+                if (c.myAlternateID == 0)
                 {
-                    Color coverColor = innerSkill.Professions.Find(p => p.Id == c.myID)!.IsProfessionUnlocked() ? Color.Yellow * 0.4f : Color.Black;
+                    Color coverColor = innerSkill.Professions.Find(p => p.Id == c.myID)!.IsProfessionUnlocked() ? Color.Yellow * 0.3f : Color.Black * (c.region == 0 ? 0.75f : 0.6f);
                     drawTextureBox(b, Game1.mouseCursors, new Rectangle(403, 373, 9, 9), c.bounds.X, c.bounds.Y, c.bounds.Width, c.bounds.Height,
-                        coverColor * 0.75f,
+                        coverColor,
                         3f, false);
                 }
 
@@ -194,22 +236,15 @@ namespace MasteryExtended.Menu.Pages
             hoverText = "";
 
             // Profesiones
-            foreach (ClickableTextureComponent c in allClickableTextureComponents)
+            foreach (ClickableTextureComponent c in pageTextureComponents)
             {
-                c.myAlternateID = 0;
+                c.region = 0;
                 if (c.bounds.Contains(x, y))
                 {
                     Game1.SetFreeCursorDrag();
 
                     // Set highlight background
-                    if (c.visible)
-                    {
-                        c.myAlternateID = 1;
-                    }
-                    if (innerSkill.Professions.Find(p => p.Id == c.myID)!.IsProfessionUnlocked())
-                    {
-                        c.myAlternateID = 1;
-                    }
+                    c.region = 1;
 
                     if (!string.IsNullOrEmpty(c.hoverText))
                     {
@@ -228,9 +263,9 @@ namespace MasteryExtended.Menu.Pages
             int levelsAchieved = MasteryTrackerMenu.getCurrentMasteryLevel();
             int levelsNotSpent = levelsAchieved - (int)Game1.stats.Get("masteryLevelsSpent");
 
-            foreach (ClickableTextureComponent c in allClickableTextureComponents)
+            foreach (ClickableTextureComponent c in pageTextureComponents)
             {
-                if (c.bounds.Contains(x,y) && c.visible && levelsNotSpent > 0)
+                if (c.bounds.Contains(x,y) && c.myAlternateID == 1 && levelsNotSpent > 0)
                 {
                     // Add the profession and spend the mastery
                     var professionToAdd = innerSkill.Professions.Find(p => p.Id == c.myID)!;

@@ -105,5 +105,12 @@ namespace MasteryExtended
             //Text
             b.DrawString(font, text, new Vector2(x + 16, y + 16 + 4), textColor.Value * 0.9f * alpha);
         }
+
+        public static float EncloseNumber(float min, float number, float max)
+        {
+            if (number <= min) return min;
+            if (number >= max) return max;
+            return number;
+        }
     }
 }

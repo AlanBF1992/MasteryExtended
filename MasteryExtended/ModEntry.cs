@@ -177,18 +177,7 @@ namespace MasteryExtended
         {
             // From here it checks the Data
             ModData? a = Helper.Data.ReadSaveData<ModData>("AlanBF.MasteryExtended");
-            ModData? b = Helper.Data.ReadJsonFile<ModData>($"data/{Constants.SaveFolderName}.json");
             Data = a ?? new ModData();
-
-            if (b is not null)
-            {
-                Data.claimedRewards = b.claimedRewards;
-                LogMonitor.Log("The data was loaded correctly. The json has been deleted.", LogLevel.Warn);
-                Helper.Data.WriteSaveData("AlanBF.MasteryExtended", Data);
-                string dataFolder = Path.Combine(Helper.DirectoryPath, "data");
-                Directory.Delete(dataFolder, true);
-                return;
-            }
 
             if (a is not null) return;
 
@@ -290,18 +279,8 @@ namespace MasteryExtended
             }
             int currentLevel = MasteryTrackerMenu.getCurrentMasteryLevel();
             int spentLevels = (int)Game1.stats.Get("masteryLevelsSpent");
-            int expToSet;
-            if (levels >= 0)
-            {
-                if (currentLevel >= MaxMasteryPoints) return;
-                int newLevel = Math.Min(MaxMasteryPoints, currentLevel + levels);
-                expToSet = MasteryTrackerMenu.getMasteryExpNeededForLevel(newLevel);
-            } else
-            {
-                if (currentLevel <= spentLevels) return;
-                int newLevel = Math.Max(spentLevels, currentLevel + levels);
-                expToSet = MasteryTrackerMenu.getMasteryExpNeededForLevel(newLevel);
-            }
+            int newLevel = (int)Utilities.EncloseNumber(spentLevels, currentLevel + levels, MaxMasteryPoints);
+            int expToSet = MasteryTrackerMenu.getMasteryExpNeededForLevel(newLevel);
 
             Game1.stats.Set("MasteryExp", expToSet);
         }

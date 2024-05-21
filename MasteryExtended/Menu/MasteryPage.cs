@@ -2,11 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using StardewValley.Menus;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MasteryExtended.Menu
 {
@@ -28,11 +23,11 @@ namespace MasteryExtended.Menu
 
         public ClickableTextureComponent? previousPageButton;
 
-        public List<ClickableTextureComponent> allClickableTextureComponents = new();
+        public List<ClickableTextureComponent> pageTextureComponents = new();
 
         public Color backItemColor = new(132, 160, 255, 220); // Same Color as BG: alpha = 246
 
-        public Color backItemColorHover = new(132, 160, 255, 180);
+        public Color backItemColorHover = new(132, 160, 255, 150);
 
         protected MasteryPage(int x, int y, int width, int height, bool showUpperRightCloseButton = false)
             : base(x, y, width, height, showUpperRightCloseButton)
@@ -62,43 +57,6 @@ namespace MasteryExtended.Menu
             }
 
             base.performHoverAction(x, y);
-        }
-
-        public ClickableTextureComponent? getTextureComponentWithID(int id)
-        {
-            if (id == -500)
-            {
-                return null;
-            }
-            if (allClickableTextureComponents != null)
-            {
-                for (int j = 0; j < allClickableTextureComponents.Count; j++)
-                {
-                    if (allClickableTextureComponents[j] != null && allClickableTextureComponents[j].myID == id)
-                    {
-                        return allClickableTextureComponents[j];
-                    }
-                }
-            }
-            return null;
-        }
-        public ClickableTextureComponent? getTextureComponentWithAlternateID(int id)
-        {
-            if (id == -500)
-            {
-                return null;
-            }
-            if (allClickableTextureComponents != null)
-            {
-                for (int i = 0; i < allClickableTextureComponents.Count; i++)
-                {
-                    if (allClickableTextureComponents[i] != null && allClickableTextureComponents[i].myAlternateID == id)
-                    {
-                        return allClickableTextureComponents[i];
-                    }
-                }
-            }
-            return null;
         }
 
         public void backgroundDraw(SpriteBatch b)
