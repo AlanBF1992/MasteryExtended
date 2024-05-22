@@ -1,6 +1,4 @@
-﻿using StardewModdingAPI;
-
-namespace MasteryExtended
+﻿namespace MasteryExtended
 {
     internal class ModConfig
     {

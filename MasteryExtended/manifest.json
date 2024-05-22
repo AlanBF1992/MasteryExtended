@@ -5,6 +5,6 @@
     "Description": "Adds new things to do with the Mastery System",
     "UniqueID": "AlanBF.MasteryExtended",
     "EntryDll": "MasteryExtended.dll",
-    "MinimumApiVersion": "4.0.0",
+    "MinimumApiVersion": "4.0.8",
     "UpdateKeys": [ "Nexus:23697" ]
 }
