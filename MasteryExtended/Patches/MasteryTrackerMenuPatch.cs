@@ -3,7 +3,6 @@ using StardewValley.Menus;
 using StardewValley;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
 using StardewValley.Constants;
 using MasteryExtended.Menu.Pages;
 
@@ -197,9 +196,9 @@ namespace MasteryExtended.Patches
                 {
                     b.Draw(Game1.mouseCursors_1_6,
                         new Vector2((float)(__instance.xPositionOnScreen + __instance.width / 2) - 110f + (float)(i * 11 * 4), __instance.yPositionOnScreen + 220),
-                        new Rectangle((i >= ModEntry.Data.claimedRewards && i < levelsAchieved) ?
+                        new Rectangle((i >= ModEntry.countClaimedPillars() && i < levelsAchieved) ?
                             (43 + (int)Game1.currentGameTime.TotalGameTime.TotalMilliseconds % 600 / 100 * 10) :
-                            ((ModEntry.Data.claimedRewards > i) ? 33 : 23), //23 = vacío, 33 el dorado
+                            ((ModEntry.countClaimedPillars() > i) ? 33 : 23), //23 = vacío, 33 el dorado
                             89, 10, 11),
                         Color.White, 0f, Vector2.Zero, 4f, SpriteEffects.None, 0.88f);
                 }

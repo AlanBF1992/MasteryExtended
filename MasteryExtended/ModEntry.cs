@@ -37,9 +37,7 @@ namespace MasteryExtended
         public override void Entry(IModHelper helper)
         {
             Config = helper.ReadConfig<ModConfig>();
-
             ModHelper = helper;
-
             LogMonitor = Monitor; // Solo aca empieza a existir
 
             /// Insertar Parches necesarios
@@ -175,20 +173,32 @@ namespace MasteryExtended
         [EventPriority(EventPriority.Low)]
         private void OnSaveLoaded(object? sender, SaveLoadedEventArgs e)
         {
-            // From here it checks the Data
-            ModData? a = Helper.Data.ReadSaveData<ModData>("AlanBF.MasteryExtended");
-            Data = a ?? new ModData();
+            if (Context.IsMainPlayer)
+            {
+                // From here it checks the Data
+                ModData? a = Helper.Data.ReadSaveData<ModData>("AlanBF.MasteryExtended");
+                Data = a ?? new ModData();
 
-            if (a is not null) return;
+                if (a is not null) return;
 
-            recountUsedMasteryLevels();
-            resetMasteryExp();
+                recountUsedMasteryLevels();
+                resetMasteryExp();
+            } else
+            {
+                Data = new ModData
+                {
+                    claimedRewards = countClaimedPillars()
+                };
+            }
         }
 
         /// <summary>Save the data when the game is saved.</summary>
         private void OnSaving(object? sender, SavingEventArgs e)
         {
-            Helper.Data.WriteSaveData("AlanBF.MasteryExtended", Data);
+            if (Context.IsMainPlayer)
+            {
+                Helper.Data.WriteSaveData("AlanBF.MasteryExtended", Data);
+            }
         }
 
         public static void recountUsedMasteryLevels()
@@ -199,11 +209,6 @@ namespace MasteryExtended
                 return;
             }
 
-            List<string> checkRecipeList = new() { "Statue Of Blessings", "Heavy Furnace", "Challenge Bait", "Treasure Totem", "Anvil" };
-            int spentLevelsInMasteryPillar = checkRecipeList.Count(x => Game1.player.craftingRecipes.ContainsKey(x));
-
-            Data.claimedRewards = spentLevelsInMasteryPillar;
-
             int spentLevelsInProfessions = 0;
 
             foreach (Skill s in MasterySkillsPage.skills)
@@ -211,7 +216,8 @@ namespace MasteryExtended
                 spentLevelsInProfessions += Math.Max(s.unlockedProfessions() - Math.Min((int)Math.Floor(s.getLevel() / 5f), 2), 0);
             }
 
-            int totalSpentLevels = spentLevelsInMasteryPillar + spentLevelsInProfessions;
+            Data.claimedRewards = countClaimedPillars();
+            int totalSpentLevels = countClaimedPillars() + spentLevelsInProfessions;
 
             Game1.stats.Set("masteryLevelsSpent", totalSpentLevels);
         }
@@ -283,6 +289,12 @@ namespace MasteryExtended
             int expToSet = MasteryTrackerMenu.getMasteryExpNeededForLevel(newLevel);
 
             Game1.stats.Set("MasteryExp", expToSet);
+        }
+        public static int countClaimedPillars()
+        {
+            List<string> checkRecipeList = new() { "Statue Of Blessings", "Heavy Furnace", "Challenge Bait", "Treasure Totem", "Anvil" };
+            int spentLevelsInMasteryPillar = checkRecipeList.Count(x => Game1.player.craftingRecipes.ContainsKey(x));
+            return spentLevelsInMasteryPillar;
         }
     }
 }
