@@ -5,7 +5,7 @@ using StardewValley.Menus;
 
 namespace MasteryExtended
 {
-    internal static class Utilities
+    public static class Utilities
     {
         /// <summary>
         /// Replacement for IClickable.drawHoverText
