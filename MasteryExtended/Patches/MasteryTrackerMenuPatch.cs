@@ -167,7 +167,7 @@ namespace MasteryExtended.Patches
             } else
             {
                 int numUnlockedProfessions = MasterySkillsPage.skills.Find(s => s.Id == whichSkill)!.Professions.FindAll(p => p.IsProfessionUnlocked()).Count;
-                bool claim = levelsNotSpent > 0 && numUnlockedProfessions >= 3;
+                bool claim = levelsNotSpent > 0 && numUnlockedProfessions>= (ModEntry.Config.ExtraRequiredProfession? 3: 2);
 
                 __instance.SetInstanceField("canClaim", claim);
             }
@@ -306,10 +306,10 @@ namespace MasteryExtended.Patches
 
                 if (which != -1)
                 {
-                    bool enoughProfessions = MasterySkillsPage.skills.Find(s => s.Id == which)!.Professions.FindAll(p => p.IsProfessionUnlocked()).Count >= 3;
+                    bool enoughProfessions = MasterySkillsPage.skills.Find(s => s.Id == which)!.Professions.FindAll(p => p.IsProfessionUnlocked()).Count >= (ModEntry.Config.ExtraRequiredProfession? 3 : 2);
 
                     __instance.mainButton.name +=
-                        (!enoughProfessions ? ModEntry.ModHelper.Translation.Get("need-more-professions") : "") +
+                        (!enoughProfessions ? ModEntry.ModHelper.Translation.Get("need-more-professions", new {amount = ModEntry.Config.ExtraRequiredProfession ? 3 : 2 }) : "") +
                         (!enoughProfessions && !freeLevel ? "\n" : "") +
                         (!freeLevel ? ModEntry.ModHelper.Translation.Get("need-more-levels") : "");
                 } else {

@@ -10,7 +10,7 @@ namespace MasteryExtended.Patches
     {
         internal static IMonitor LogMonitor = ModEntry.LogMonitor;
 
-        // Ganar maestría antes de maxear todo, solo con 1 listo.
+        // Acceder a la cueva antes
         internal static bool performActionPrefix(GameLocation __instance, string[] action, Farmer who, Location tileLocation, ref bool __result)
         {
             try
@@ -41,7 +41,7 @@ namespace MasteryExtended.Patches
                         {
                             Game1.drawObjectDialogue(new List<string> {
                                 Game1.content.LoadString("Strings\\1_6_Strings:MasteryCave", totalSkills).Replace(".",""),
-                                $"or one that transcended mortal knowledge. ({masteryLevel}/{masteryRequired})"
+                                ModEntry.ModHelper.Translation.Get("transcend-mortal-knowledge") + $" ({masteryLevel}/{masteryRequired})"
                             });
                         }
                         __result = true;
@@ -64,23 +64,30 @@ namespace MasteryExtended.Patches
             }
         }
 
-        // Modificar mapa
+        // Mostrar bien cuál pilar se puede obtener.
         internal static void MakeMapModificationsPostfix(GameLocation __instance)
         {
-            if (__instance.Name == "MasteryCave")
+            try
             {
-                for (int which = 0; which < 5; which++)
+            if (__instance.Name == "MasteryCave")
                 {
-                    bool enoughProfessions = MasterySkillsPage.skills.Find(s => s.Id == which)!.unlockedProfessions() >= 3;
-
-                    Game1.stats.Get("MasteryExp");
-                    bool freeLevel = MasteryTrackerMenu.getCurrentMasteryLevel() > (int)Game1.stats.Get("masteryLevelsSpent");
-
-                    if (!enoughProfessions || !freeLevel)
+                    for (int which = 0; which < 5; which++)
                     {
-                        Game1.currentLocation.removeTemporarySpritesWithID(8765 + which);
+                        bool enoughProfessions = MasterySkillsPage.skills.Find(s => s.Id == which)!.unlockedProfessions() >= (ModEntry.Config.ExtraRequiredProfession ? 3 : 2);
+
+                        Game1.stats.Get("MasteryExp");
+                        bool freeLevel = MasteryTrackerMenu.getCurrentMasteryLevel() > (int)Game1.stats.Get("masteryLevelsSpent");
+
+                        if (!enoughProfessions || !freeLevel)
+                        {
+                            Game1.currentLocation.removeTemporarySpritesWithID(8765 + which);
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                LogMonitor.Log($"Failed in {nameof(MakeMapModificationsPostfix)}:\n{ex}", LogLevel.Error);
             }
         }
     }

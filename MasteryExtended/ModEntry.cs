@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using GenericModConfigMenu;
+using HarmonyLib;
 using MasteryExtended.Menu.Pages;
 using MasteryExtended.Patches;
 using MasteryExtended.Skills;
@@ -45,6 +46,7 @@ namespace MasteryExtended
             applyPatches(harmony);
 
             //Events
+            helper.Events.GameLoop.GameLaunched += this.OnGameLaunched;
             helper.Events.GameLoop.SaveLoaded += this.OnSaveLoaded;
             helper.Events.GameLoop.Saving += this.OnSaving;
 
@@ -69,7 +71,6 @@ namespace MasteryExtended
                 "Add Mastery Levels. <value> is an optional argument.",
                 addMasteryLevel);
         }
-
         /*********
         ** Private methods
         *********/
@@ -167,6 +168,12 @@ namespace MasteryExtended
                 original: AccessTools.Method(typeof(GameLocation), nameof(GameLocation.MakeMapModifications)),
                 postfix: new HarmonyMethod(typeof(GameLocationPatch), nameof(GameLocationPatch.MakeMapModificationsPostfix))
             );
+        }
+
+        /// <summary> GMCM</summary>
+        private void OnGameLaunched(object? sender, GameLaunchedEventArgs e)
+        {
+            GMCMConfig();
         }
 
         /// <summary>Reads and applies the data when the save is loaded.</summary>
@@ -290,11 +297,59 @@ namespace MasteryExtended
 
             Game1.stats.Set("MasteryExp", expToSet);
         }
+
         public static int countClaimedPillars()
         {
             List<string> checkRecipeList = new() { "Statue Of Blessings", "Heavy Furnace", "Challenge Bait", "Treasure Totem", "Anvil" };
             int spentLevelsInMasteryPillar = checkRecipeList.Count(x => Game1.player.craftingRecipes.ContainsKey(x));
             return spentLevelsInMasteryPillar;
+        }
+
+        private void GMCMConfig()
+        {
+            // get Generic Mod Config Menu's API (if it's installed)
+            var configMenu = ModHelper.ModRegistry.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu");
+            if (configMenu is null)
+                return;
+            // register mod
+            configMenu.Register(
+                mod: this.ModManifest,
+                reset: () => Config = new ModConfig(),
+                save: () => ModHelper.WriteConfig(Config)
+            );
+
+            // Mastery Exp per level
+            configMenu.AddNumberOption(
+                mod: ModManifest,
+                getValue: () => Config.MasteryExpPerLevel,
+                setValue: (value) => Config.MasteryExpPerLevel = value,
+                name: () => "Mastery Experience for Level",
+                tooltip: () => "Default: 30000",
+                min: 15000,
+                max: 50000,
+                interval: 5000
+            );
+
+            // Mastery Exp per level
+            configMenu.AddNumberOption(
+                mod: ModManifest,
+                getValue: () => Config.MasteryRequiredForCave,
+                setValue: (value) => Config.MasteryRequiredForCave = value,
+                name: () => "Mastery Levels for the cave",
+                tooltip: () => "Default: 5",
+                min: 0,
+                max: 10,
+                interval: 1
+            );
+
+            // Mastery Exp per level
+            configMenu.AddBoolOption(
+                mod: ModManifest,
+                getValue: () => Config.ExtraRequiredProfession,
+                setValue: (value) => Config.ExtraRequiredProfession = value,
+                name: () => "3 Professions for pillars",
+                tooltip: () => "Default: true"
+            );
         }
     }
 }
