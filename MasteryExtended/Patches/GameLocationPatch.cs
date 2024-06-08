@@ -11,19 +11,17 @@ namespace MasteryExtended.Patches
         internal static IMonitor LogMonitor = ModEntry.LogMonitor;
 
         // Acceder a la cueva antes
-        internal static bool performActionPrefix(GameLocation __instance, string[] action, Farmer who, Location tileLocation, ref bool __result)
+        internal static void performActionPostfix(GameLocation __instance, string[] action, Farmer who, Location tileLocation, ref bool __result)
         {
             try
             {
                 if (__instance.ShouldIgnoreAction(action, who, tileLocation))
                 {
                     __result = false;
-                    return false;
                 }
                 if (!ArgUtility.TryGet(action, 0, out var actionType, out var error))
                 {
                     __result = false;
-                    return false;
                 }
                 if (who.IsLocalPlayer)
                 {
@@ -45,22 +43,17 @@ namespace MasteryExtended.Patches
                             });
                         }
                         __result = true;
-                        return false;
                     }
                     if (actionType == "MasteryCave_Pedestal")
                     {
                         Game1.activeClickableMenu = new MasteryTrackerMenu();
                         __result = true;
-                        return false;
                     }
                 }
-
-                return true;
             }
             catch (Exception ex)
             {
-                LogMonitor.Log($"Failed in {nameof(performActionPrefix)}:\n{ex}", LogLevel.Error);
-                return true;
+                LogMonitor.Log($"Failed in {nameof(performActionPostfix)}:\n{ex}", LogLevel.Error);
             }
         }
 
@@ -69,7 +62,7 @@ namespace MasteryExtended.Patches
         {
             try
             {
-            if (__instance.Name == "MasteryCave")
+                if (__instance.Name == "MasteryCave")
                 {
                     for (int which = 0; which < 5; which++)
                     {
@@ -87,6 +80,7 @@ namespace MasteryExtended.Patches
             }
             catch (Exception ex)
             {
+                Console.WriteLine("Fication");
                 LogMonitor.Log($"Failed in {nameof(MakeMapModificationsPostfix)}:\n{ex}", LogLevel.Error);
             }
         }

@@ -7,7 +7,6 @@ using HarmonyLib;
 using SpaceCore.Interface;
 using MasteryExtended.SC.Patches;
 using Microsoft.Xna.Framework.Graphics;
-using static SpaceCore.Skills;
 using Skill = MasteryExtended.Skills.Skill;
 
 namespace MasteryExtended.SC
@@ -27,14 +26,24 @@ namespace MasteryExtended.SC
             LogMonitor = Monitor;
             ModHelper = helper;
 
-            // Patch SpaceCore?
+            // Patch SpaceCore
             var harmony = new Harmony(this.ModManifest.UniqueID);
 
+            /*************
+             * Experience
+             *************/
+            harmony.Patch(
+                original: AccessTools.Method(typeof(SpaceCore.Skills), nameof(SpaceCore.Skills.AddExperience)),
+                prefix: new HarmonyMethod(typeof(SkillsPatch), nameof(SkillsPatch.AddExperiencePrefix))
+            );
+
+            /************
+             * SkillPage
+             ************/
             harmony.Patch(
                 original: AccessTools.Method(typeof(NewSkillsPage), nameof(NewSkillsPage.draw), new Type[] { typeof(SpriteBatch) }),
                 prefix: new HarmonyMethod(typeof(NewSkillsPagePatch), nameof(NewSkillsPagePatch.drawPrefix))
             );
-
             harmony.Patch(
                 original: AccessTools.Method(typeof(NewSkillsPage), nameof(NewSkillsPage.draw), new Type[] { typeof(SpriteBatch) }),
                 postfix: new HarmonyMethod(typeof(NewSkillsPagePatch), nameof(NewSkillsPagePatch.drawPostfix))
@@ -101,7 +110,7 @@ namespace MasteryExtended.SC
             foreach (Skill s in MasterySkillsPage.skills.FindAll(s => s.Id < 0 || 4 < s.Id))
             {
                 int level = s.getLevel();
-                string skillName = GetSkill(s.GetName()).Id;
+                string skillName = SpaceCore.Skills.GetSkill(s.GetName()).Id;
                 // SpaceCore NewLevels is the same as vanilla newLevels.
                 var NewLevels = Helper.Reflection.GetField<List<KeyValuePair<string, int>>>(typeof(SpaceCore.Skills), "NewLevels");
                 var currentNewLevels = NewLevels.GetValue();

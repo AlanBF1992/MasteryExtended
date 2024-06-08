@@ -1,4 +1,5 @@
-﻿using StardewModdingAPI;
+﻿using MasteryExtended.Menu.Pages;
+using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Menus;
 
@@ -7,6 +8,11 @@ namespace MasteryExtended.Patches
     internal static class FarmerPatch
     {
         internal static IMonitor LogMonitor = ModEntry.LogMonitor;
+
+        internal static void LevelPostfix (Farmer __instance, ref int __result)
+        {
+            __result = (__instance.farmingLevel.Value + __instance.fishingLevel.Value + __instance.foragingLevel.Value + __instance.combatLevel.Value + __instance.miningLevel.Value) / 2;
+        }
 
         /// <summary>Permite ganar maestría en la habilidad que tenga nivel mayor a 10.</summary>
         internal static void gainExperiencePrefix(Farmer __instance, int which, int howMuch)

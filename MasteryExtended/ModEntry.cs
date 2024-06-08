@@ -9,7 +9,6 @@ using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Menus;
-using xTile.Dimensions;
 
 namespace MasteryExtended
 {
@@ -81,7 +80,12 @@ namespace MasteryExtended
             /**********************
              * Farmer Mastery Gain
              **********************/
-            // Permite ganar Mastery desde que se llega al máximo de la primera profesión
+            //// Permite ganar Mastery desde que se llega al máximo de la primera profesión
+            harmony.Patch(
+                original: AccessTools.Method(typeof(Farmer), "get_Level"),
+                postfix: new HarmonyMethod(typeof(FarmerPatch), nameof(FarmerPatch.LevelPostfix))
+            );
+
             harmony.Patch(
                 original: AccessTools.Method(typeof(Farmer), nameof(Farmer.gainExperience)),
                 prefix: new HarmonyMethod(typeof(FarmerPatch), nameof(FarmerPatch.gainExperiencePrefix))
@@ -123,8 +127,8 @@ namespace MasteryExtended
              ********************/
             // Al hacer click en la puerta, te permite acceder antes y te dice como
             harmony.Patch(
-                original: AccessTools.Method(typeof(GameLocation), nameof(GameLocation.performAction), new Type[] { typeof(string[]), typeof(Farmer), typeof(Location) }),
-                prefix: new HarmonyMethod(typeof(GameLocationPatch), nameof(GameLocationPatch.performActionPrefix))
+                original: AccessTools.Method(typeof(GameLocation), nameof(GameLocation.performAction), new Type[] { typeof(string[]), typeof(Farmer), typeof(xTile.Dimensions.Location) }),
+                postfix: new HarmonyMethod(typeof(GameLocationPatch), nameof(GameLocationPatch.performActionPostfix))
             );
 
             /**********************************
