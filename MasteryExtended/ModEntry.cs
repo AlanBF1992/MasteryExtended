@@ -240,8 +240,14 @@ namespace MasteryExtended
                 LogMonitor.Log("You need to load a save to use this command.", LogLevel.Error);
                 return;
             }
+            int spentLevelsInProfessions = 0;
 
-            int totalSpentLevels = (int)Game1.stats.Get("masteryLevelsSpent");
+            foreach (Skill s in MasterySkillsPage.skills)
+            {
+                spentLevelsInProfessions += Math.Max(s.unlockedProfessions() - Math.Min((int)Math.Floor(s.getLevel() / 5f), 2), 0);
+            }
+
+            int totalSpentLevels = countClaimedPillars() + spentLevelsInProfessions;
 
             int expToSet = MasteryTrackerMenu.getMasteryExpNeededForLevel(totalSpentLevels);
 
