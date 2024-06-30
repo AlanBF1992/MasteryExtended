@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MasteryExtended", "MasteryE
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MasteryExtended.SC", "MasteryExtended.SpaceCore\MasteryExtended.SC.csproj", "{4D9344DB-8089-4A33-8131-EF3B7C24D51F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MasteryExtended.WoL", "MasteryExtended.WoL\MasteryExtended.WoL.csproj", "{1C7803A8-9C41-4707-A02E-C3CACFAFAA53}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{4D9344DB-8089-4A33-8131-EF3B7C24D51F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4D9344DB-8089-4A33-8131-EF3B7C24D51F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4D9344DB-8089-4A33-8131-EF3B7C24D51F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C7803A8-9C41-4707-A02E-C3CACFAFAA53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C7803A8-9C41-4707-A02E-C3CACFAFAA53}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C7803A8-9C41-4707-A02E-C3CACFAFAA53}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C7803A8-9C41-4707-A02E-C3CACFAFAA53}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -40,16 +40,25 @@ namespace MasteryExtended
             ModHelper = helper;
             LogMonitor = Monitor; // Solo aca empieza a existir
 
-            /// Insertar Parches necesarios
+            // Insertar Parches necesarios
             var harmony = new Harmony(this.ModManifest.UniqueID);
             applyPatches(harmony);
 
-            //Events
+            // Console command
+            addConsoleCommands(helper);
+
+            // Events
             helper.Events.GameLoop.GameLaunched += this.OnGameLaunched;
             helper.Events.GameLoop.SaveLoaded += this.OnSaveLoaded;
             helper.Events.GameLoop.Saving += this.OnSaving;
+        }
 
-            //Console command
+        /*****************
+        * Private methods
+        ******************/
+        /// <summary>Add commands to debug</summary>
+        private static void addConsoleCommands(IModHelper helper)
+        {
             helper.ConsoleCommands.Add(
                 "masteryExtended_RecountUsed",
                 "Recounts the player's Mastery Level Used.",
@@ -70,9 +79,7 @@ namespace MasteryExtended
                 "Add Mastery Levels. <value> is an optional argument.",
                 addMasteryLevel);
         }
-        /*********
-        ** Private methods
-        *********/
+
         /// <summary>Apply the patches for the mod.</summary>
         /// <param name="harmony">Harmony instance used to patch the game.</param>
         private void applyPatches(Harmony harmony)
@@ -80,7 +87,7 @@ namespace MasteryExtended
             /**********************
              * Farmer Mastery Gain
              **********************/
-            //// Permite ganar Mastery desde que se llega al máximo de la primera profesión
+            // Permite ganar Mastery desde que se llega al máximo de la primera profesión
             harmony.Patch(
                 original: AccessTools.Method(typeof(Farmer), "get_Level"),
                 postfix: new HarmonyMethod(typeof(FarmerPatch), nameof(FarmerPatch.LevelPostfix))
@@ -174,7 +181,7 @@ namespace MasteryExtended
             );
         }
 
-        /// <summary> GMCM</summary>
+        /// <summary>GMCM Compat</summary>
         private void OnGameLaunched(object? sender, GameLaunchedEventArgs e)
         {
             GMCMConfig();
