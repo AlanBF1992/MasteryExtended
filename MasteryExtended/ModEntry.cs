@@ -15,9 +15,9 @@ namespace MasteryExtended
     /// <summary>The mod entry point.</summary>
     public class ModEntry : Mod
     {
-        /************************
+        /*********
         ** Fields
-        ************************/
+        **********/
         /// <summary>The mod configuration from the player.</summary>
         internal static ModConfig Config = null!;
         /// <summary>The mod data for the player.</summary>
@@ -29,9 +29,9 @@ namespace MasteryExtended
         // Helper?
         public static IModHelper ModHelper { get; private set; } = null!;
 
-        /*********
+        /*****************
         ** Public methods
-        *********/
+        ******************/
         /// <summary>The mod entry point, called after the mod is first loaded.</summary>
         /// <param name="helper">Provides simplified APIs for writing mods.</param>
         public override void Entry(IModHelper helper)
