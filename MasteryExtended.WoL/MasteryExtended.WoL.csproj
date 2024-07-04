@@ -42,4 +42,11 @@
 		</Reference>
 	</ItemGroup>
 
+	<ItemGroup>
+		<Reference Include="Ardalis.SmartEnum">
+			<HintPath>$(GamePath)\Mods\DaLion.Professions\Ardalis.SmartEnum.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+	</ItemGroup>
+
 </Project>

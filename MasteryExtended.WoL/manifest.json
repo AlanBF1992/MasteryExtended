@@ -9,8 +9,7 @@
     "UpdateKeys": [ "Nexus:???" ],
     "Dependencies": [
         {
-            "UniqueID": "DaLion.Professions",
-            "MinimumVersion": "0.4.1"
+            "UniqueID": "DaLion.Professions"
         },
         {
             "UniqueID": "AlanBF.MasteryExtended",

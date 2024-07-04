@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using DaLion.Professions;
+using HarmonyLib;
 using MasteryExtended.Skills.Professions;
 using MasteryExtended.WoL.Patches;
 using Microsoft.Xna.Framework.Graphics;
@@ -19,8 +20,6 @@ namespace MasteryExtended.WoL
         public static IMonitor LogMonitor { get; private set; } = null!;
         /// <summary>Helper.</summary>
         public static IModHelper ModHelper { get; private set; } = null!;
-        /// <summary> Professions to add to WoL Data</summary>
-        public static List<int> ProfessionsToSave { get; } = new();
 
         /*****************
         ** Public methods
@@ -34,28 +33,30 @@ namespace MasteryExtended.WoL
             // Insertar Parches necesarios
             var harmony = new Harmony(this.ModManifest.UniqueID);
             applyPatches(harmony);
-
-            // Events
-            helper.Events.GameLoop.SaveLoaded += OnSaveLoaded;
-        }
-
-        private void OnSaveLoaded(object? sender, SaveLoadedEventArgs e)
-        {
-            ProfessionsToSave.Clear();
         }
 
         private void applyPatches(Harmony harmony)
         {
-            // Marca una profession para guardarla luego
+            /********************
+             * MAESTRIAS CON WoL
+             ********************/
+
+            // Al agregar una profesión con maestría, la agrega a WoL
             harmony.Patch(
                 original: AccessTools.Method(typeof(Profession), nameof(Profession.AddProfessionToPlayer)),
                 postfix: new HarmonyMethod(typeof(ProfessionPatch), nameof(ProfessionPatch.AddProfessionToPlayerPostfix))
             );
-            // Agrega las profesiones que no guardó WoL
+
+            // No haga nada al cargar la partida
             harmony.Patch(
-                original: AccessTools.Method("DaLion.Professions.Framework.Events.GameLoop.ProfessionSavingEvent:OnSavingImpl"),
-                postfix: new HarmonyMethod(typeof(ProfessionSavingEventPatch), nameof(ProfessionSavingEventPatch.OnSavingImplPostfix))
+                original: AccessTools.Method("DaLion.Professions.Framework.Events.GameLoop.ProfessionSaveLoadedEvent:OnSaveLoadedImpl"),
+                postfix: new HarmonyMethod(typeof(VanillaSkillPatch), nameof(VanillaSkillPatch.OnSaveLoadedImplPostfix))
             );
+
+            /**************************
+             * CAMBIAR DE COMBAT LIMIT
+             **************************/
+
             // Accede al menú y reactiva el main button
             harmony.Patch(
                 original: AccessTools.Constructor(typeof(MasteryTrackerMenu), new Type[] { typeof(int) }),
@@ -75,7 +76,7 @@ namespace MasteryExtended.WoL
                 prefix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.receiveLeftClickPrefix))
             );
 
-            // Permite que el botón muestre el porqué no se puede aclamar
+            // Highlight
             harmony.Patch(
                 original: AccessTools.Method(typeof(MasteryTrackerMenu), nameof(MasteryTrackerMenu.performHoverAction)),
                 postfix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.performHoverActionPostfix))

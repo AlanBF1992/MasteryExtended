@@ -1,5 +1,9 @@
-﻿using StardewModdingAPI;
-using MasteryExtended.Skills.Professions;
+﻿using DaLion.Professions;
+using HarmonyLib;
+using Sickhead.Engine.Util;
+using StardewModdingAPI;
+using System.Reflection;
+using Profession = MasteryExtended.Skills.Professions.Profession;
 
 namespace MasteryExtended.WoL.Patches
 {
@@ -9,7 +13,11 @@ namespace MasteryExtended.WoL.Patches
 
         internal static void AddProfessionToPlayerPostfix(Profession __instance)
         {
-            ModEntry.ProfessionsToSave.Add(__instance.Id);
+            var State = ModEntry.ModHelper.Reflection.GetMethod(typeof(ProfessionsMod), "get_State").Invoke<object>();
+            var OrderedProfessions = (List<int>)State.GetInstanceField("_orderedProfessions")!;
+
+            OrderedProfessions.Add(__instance.Id);
+            State.SetInstanceField("_orderedProfessions", OrderedProfessions);
         }
     }
 }

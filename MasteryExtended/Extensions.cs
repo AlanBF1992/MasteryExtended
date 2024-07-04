@@ -1,4 +1,5 @@
 ﻿using StardewModdingAPI;
+using StardewValley;
 using System.Reflection;
 
 namespace MasteryExtended
