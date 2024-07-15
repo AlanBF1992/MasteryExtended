@@ -1,19 +1,19 @@
 {
     "Name": "Mastery Extended - Walk of Life Compat",
     "Author": "AlanBF",
-    "Version": "1.4.0",
+    "Version": "1.5.0",
     "Description": "Compatibility for Mastery Extended with Walk of Life",
     "UniqueID": "AlanBF.MasteryExtended.WoL",
     "EntryDll": "MasteryExtended.WoL.dll",
     "MinimumApiVersion": "4.0.8",
-    "UpdateKeys": [ "Nexus:???" ],
+    "UpdateKeys": [ "Nexus:23697@WoL" ],
     "Dependencies": [
         {
             "UniqueID": "DaLion.Professions"
         },
         {
             "UniqueID": "AlanBF.MasteryExtended",
-            "MinimumVersion": "1.4.0"
+            "MinimumVersion": "1.5.0"
         }
     ]
 }

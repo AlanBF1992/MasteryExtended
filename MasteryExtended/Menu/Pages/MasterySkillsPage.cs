@@ -175,7 +175,7 @@ namespace MasteryExtended.Menu.Pages
                 // Si está completo, hacerlo amarillo
                 if (skills.Find(s => s.Id == c.myID)!.unlockedProfessions() >= 6)
                 {
-                    drawTextureBox(b, Game1.mouseCursors, new Rectangle(403, 373, 9, 9), c.bounds.X, c.bounds.Y, c.bounds.Width, c.bounds.Height, Color.Yellow * 0.4f, 3f, false);
+                    drawTextureBox(b, Game1.mouseCursors, new Rectangle(403, 373, 9, 9), c.bounds.X, c.bounds.Y, c.bounds.Width, c.bounds.Height, Color.Green * 0.3f, 3f, false);
                 }
 
                 // Dibuja el icono
@@ -190,13 +190,14 @@ namespace MasteryExtended.Menu.Pages
             if(MasteryTrackerMenu.getCurrentMasteryLevel() <= (int)Game1.stats.Get("masteryLevelsSpent"))
             {
                 Utilities.newDrawHoverText(b, ModEntry.ModHelper.Translation.Get("look-only"), Game1.smallFont, overrideX: 0, overrideY: 0,
-                    boxTexture: Game1.mouseCursors_1_6, boxSourceRect: new Rectangle(1, 85, 21, 21),
+                    boxTexture: Game1.mouseCursors_1_6, boxSourceRect: new Rectangle(1, 85, 21, 21), boxShadowColor: Color.Black,
                     textColor: Color.Black, textShadowColor: Color.Black * 0.2f, boxScale: 2f);
             }
 
             Utilities.newDrawHoverText(b, hoverText, Game1.smallFont,
                 boxTexture: Game1.mouseCursors_1_6,
                 boxSourceRect: new Rectangle(1, 85, 21, 21),
+                boxShadowColor: Color.Black,
                 textColor: Color.Black, textShadowColor: Color.Black * 0.2f, boxScale: 2f);
 
             base.draw(b);

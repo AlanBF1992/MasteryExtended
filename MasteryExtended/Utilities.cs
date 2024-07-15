@@ -19,7 +19,7 @@ namespace MasteryExtended
             boxColor ??= Color.White;
             textColor ??= Game1.textColor;
             textShadowColor ??= Game1.textShadowColor;
-            boxShadowColor ??= Color.Black;
+            boxShadowColor ??= Color.Transparent;
 
             Vector2 bold_text_size = (boldTitleText != null)? Game1.dialogueFont.MeasureString(boldTitleText): new(0,0);
 

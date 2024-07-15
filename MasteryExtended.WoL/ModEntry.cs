@@ -1,10 +1,10 @@
 ﻿using DaLion.Professions;
 using HarmonyLib;
+using MasteryExtended.Menu.Pages;
 using MasteryExtended.Skills.Professions;
 using MasteryExtended.WoL.Patches;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
-using StardewModdingAPI.Events;
 using StardewValley.Menus;
 
 namespace MasteryExtended.WoL
@@ -26,13 +26,15 @@ namespace MasteryExtended.WoL
         ******************/
         public override void Entry(IModHelper helper)
         {
-            Config = helper.ReadConfig<ModConfig>();
+            //Config = helper.ReadConfig<ModConfig>();
             ModHelper = helper;
             LogMonitor = Monitor; // Solo aca empieza a existir
 
             // Insertar Parches necesarios
             var harmony = new Harmony(this.ModManifest.UniqueID);
             applyPatches(harmony);
+
+            MasteryExtended.ModEntry.MaxMasteryPoints += 20; //5 skill * 4 prestiges
         }
 
         private void applyPatches(Harmony harmony)
@@ -59,13 +61,13 @@ namespace MasteryExtended.WoL
 
             // Accede al menú y reactiva el main button
             harmony.Patch(
-                original: AccessTools.Constructor(typeof(MasteryTrackerMenu), new Type[] { typeof(int) }),
+                original: AccessTools.Constructor(typeof(MasteryTrackerMenu), [typeof(int)]),
                 postfix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.MasteryTrackerMenuPostfix))
             );
 
             // Dibuja el botón
             harmony.Patch(
-                original: AccessTools.Method(typeof(MasteryTrackerMenu), nameof(MasteryTrackerMenu.draw), new Type[] { typeof(SpriteBatch) }),
+                original: AccessTools.Method(typeof(MasteryTrackerMenu), nameof(MasteryTrackerMenu.draw), [typeof(SpriteBatch)]),
                 prefix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.drawPrefix)),
                 postfix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.drawPostfix))
             );
@@ -80,6 +82,39 @@ namespace MasteryExtended.WoL
             harmony.Patch(
                 original: AccessTools.Method(typeof(MasteryTrackerMenu), nameof(MasteryTrackerMenu.performHoverAction)),
                 postfix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.performHoverActionPostfix))
+            );
+
+            /***************
+             * LVL 15 AL 20
+             ***************/
+            harmony.Patch(
+                original: AccessTools.Constructor(typeof(MasteryProfessionsPage), [typeof(MasteryExtended.Skills.Skill)]),
+                postfix: new HarmonyMethod(typeof(MasteryProfessionsPagePatch), nameof(MasteryProfessionsPagePatch.MasteryProfessionsPagePatchPostfix))
+            );
+
+            harmony.Patch(
+                original: AccessTools.Method(typeof(MasteryProfessionsPage), nameof(MasteryProfessionsPage.draw), [typeof(SpriteBatch)]),
+                postfix: new HarmonyMethod(typeof(MasteryProfessionsPagePatch), nameof(MasteryProfessionsPagePatch.drawPostfix))
+            );
+
+            harmony.Patch(
+                original: AccessTools.Method(typeof(MasteryProfessionsPage), nameof(MasteryProfessionsPage.receiveLeftClick)),
+                postfix: new HarmonyMethod(typeof(MasteryProfessionsPagePatch), nameof(MasteryProfessionsPagePatch.receiveLeftClickPostfix))
+            );
+
+            harmony.Patch(
+                original: AccessTools.Method(typeof(MasteryProfessionsPage), nameof(MasteryProfessionsPage.performHoverAction)),
+                postfix: new HarmonyMethod(typeof(MasteryProfessionsPagePatch), nameof(MasteryProfessionsPagePatch.performHoverActionPostfix))
+            );
+
+            harmony.Patch(
+                original: AccessTools.Method("DaLion.Professions.Framework.Patchers.Prestige.LevelUpMenuUpdatePatcher:LevelUpMenuUpdatePrefix"),
+                prefix: new HarmonyMethod(typeof(DaLionUnpatcher), nameof(DaLionUnpatcher.LevelUpMenuUpdateUnpatcherPrefix))
+            );
+
+            harmony.Patch(
+                original: AccessTools.Method(typeof(LevelUpMenu), nameof(LevelUpMenu.update)),
+                prefix: new HarmonyMethod(typeof(LevelUpMenuUpdatePatch), nameof(LevelUpMenuUpdatePatch.LevelUpMenuUpdatePrefix))
             );
         }
     }

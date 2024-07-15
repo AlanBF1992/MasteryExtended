@@ -73,7 +73,7 @@ namespace MasteryExtended.Menu.Pages
                     name = pI.GetName(),
                     hoverText = pI.GetDescription(),
                     myID = pI.Id,
-                    myAlternateID = !pI.IsProfessionUnlocked() && (pI.RequiredProfessions?.IsProfessionUnlocked() != false) ? 1 : 0
+                    myAlternateID = !pI.IsProfessionUnlocked() && (pI.RequiredProfessions?.IsProfessionUnlocked() != false) ? 0 : 1
                 });
 
                 pageTextureComponents.Add(new ClickableTextureComponent(new Rectangle(xPosition[i] + spacingSecondTree, yPosition[i], professionWidth, professionHeight), pR.TextureSource, pR.TextureBounds, 1f, drawShadow: true)
@@ -81,7 +81,7 @@ namespace MasteryExtended.Menu.Pages
                     name = pR.GetName(),
                     hoverText = pR.GetDescription(),
                     myID = pR.Id,
-                    myAlternateID = !pR.IsProfessionUnlocked() && (pR.RequiredProfessions?.IsProfessionUnlocked() != false)? 1: 0
+                    myAlternateID = !pR.IsProfessionUnlocked() && (pR.RequiredProfessions?.IsProfessionUnlocked() != false)? 0: 1
                 });
             }
 
@@ -164,9 +164,9 @@ namespace MasteryExtended.Menu.Pages
                 drawTextureBox(b, Game1.mouseCursors, new Rectangle(403, 373, 9, 9), c.bounds.X, c.bounds.Y, c.bounds.Width, c.bounds.Height, c.region == 0 ? backItemColor : backItemColorHover, 3f, false);
 
                 // Agregar una capa de color a los adquiridos o no adquiribles
-                if (c.myAlternateID == 0)
+                if (c.myAlternateID >= 1)
                 {
-                    Color coverColor = innerSkill.Professions.Find(p => p.Id == c.myID)!.IsProfessionUnlocked() ? Color.Yellow * 0.3f : Color.Black * (c.region == 0 ? 0.75f : 0.6f);
+                    Color coverColor = innerSkill.Professions.Find(p => p.Id == c.myID)!.IsProfessionUnlocked() ? Color.Green * 0.3f : Color.Black * (c.region == 0 ? 0.75f : 0.6f);
                     drawTextureBox(b, Game1.mouseCursors, new Rectangle(403, 373, 9, 9), c.bounds.X, c.bounds.Y, c.bounds.Width, c.bounds.Height,
                         coverColor,
                         3f, false);
@@ -219,12 +219,13 @@ namespace MasteryExtended.Menu.Pages
             if (MasteryTrackerMenu.getCurrentMasteryLevel() <= (int)Game1.stats.Get("masteryLevelsSpent"))
             {
                 Utilities.newDrawHoverText(b, ModEntry.ModHelper.Translation.Get("look-only"), Game1.smallFont, overrideX: 0, overrideY: 0,
-                    boxTexture: Game1.mouseCursors_1_6, boxSourceRect: new Rectangle(1, 85, 21, 21),
+                    boxTexture: Game1.mouseCursors_1_6, boxSourceRect: new Rectangle(1, 85, 21, 21), boxShadowColor: Color.Black,
                     textColor: Color.Black, textShadowColor: Color.Black * 0.2f, boxScale: 2f);
             }
-            Utilities.newDrawHoverText(b, hoverText, Game1.smallFont,
+            Utilities.newDrawHoverText(b, Game1.parseText(hoverText, Game1.smallFont, 500), Game1.smallFont,
                 boxTexture: Game1.mouseCursors_1_6,
                 boxSourceRect: new Rectangle(1, 85, 21, 21),
+                boxShadowColor: innerSkill.getLevel() <= 10 ? Color.Black : null,
                 textColor: Color.Black, textShadowColor: Color.Black * 0.2f, boxScale: 2f);
 
             base.draw(b);
@@ -265,7 +266,7 @@ namespace MasteryExtended.Menu.Pages
 
             foreach (ClickableTextureComponent c in pageTextureComponents)
             {
-                if (c.bounds.Contains(x,y) && c.myAlternateID == 1 && levelsNotSpent > 0)
+                if (c.bounds.Contains(x,y) && c.myAlternateID == 0 && levelsNotSpent > 0)
                 {
                     // Add the profession and spend the mastery
                     var professionToAdd = innerSkill.Professions.Find(p => p.Id == c.myID)!;
