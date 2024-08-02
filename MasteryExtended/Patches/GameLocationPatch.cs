@@ -84,5 +84,14 @@ namespace MasteryExtended.Patches
                 LogMonitor.Log($"Failed in {nameof(MakeMapModificationsPostfix)}:\n{ex}", LogLevel.Error);
             }
         }
+        
+        
+       // Profession Forget After Recount Used Mastery Levels
+        internal static void answerDialogueActionPostFix(GameLocation __instance, string questionAndAnswer)
+        {
+            if (!questionAndAnswer.StartsWith("professionForget_")) return;
+            
+            ModEntry.recountUsedMasteryLevels();
+        }
     }
 }
