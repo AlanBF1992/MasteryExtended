@@ -179,6 +179,16 @@ namespace MasteryExtended
                 original: AccessTools.Method(typeof(GameLocation), nameof(GameLocation.MakeMapModifications)),
                 postfix: new HarmonyMethod(typeof(GameLocationPatch), nameof(GameLocationPatch.MakeMapModificationsPostfix))
             );
+            
+            /***************
+             * Dog Statue
+             ***************/
+             // Profession Forget Event
+            harmony.Patch(
+                original: AccessTools.Method(typeof(GameLocation), nameof(GameLocation.answerDialogueAction)),
+                postfix: new HarmonyMethod(typeof(GameLocationPatch), nameof(GameLocationPatch.answerDialogueActionPostFix))
+            );
+
         }
 
         /// <summary>GMCM Compat</summary>
