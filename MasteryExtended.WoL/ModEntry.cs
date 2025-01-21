@@ -1,10 +1,11 @@
 ﻿using DaLion.Professions;
+using DaLion.Shared.Extensions.Collections;
 using HarmonyLib;
 using MasteryExtended.Menu.Pages;
-using MasteryExtended.Skills.Professions;
 using MasteryExtended.WoL.Patches;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
+using StardewModdingAPI.Events;
 using StardewValley.Menus;
 
 namespace MasteryExtended.WoL
@@ -35,19 +36,48 @@ namespace MasteryExtended.WoL
             applyPatches(harmony);
 
             MasteryExtended.ModEntry.MaxMasteryPoints += 20; //5 skill * 4 prestiges
+
+            // SpaceCore solo hasta lvl 10
+            helper.Events.GameLoop.SaveLoaded += this.fixExperienceCurve;
+        }
+
+        /// <summary>Makes SpaceCore Skills to be able to go up to level 10 only </summary>
+        private void fixExperienceCurve(object? sender, SaveLoadedEventArgs e)
+        {
+            int[] ExperienceCurve =
+                [
+                    100,
+                    380,
+                    770,
+                    1300,
+                    2150,
+                    3300,
+                    4800,
+                    6900,
+                    10000,
+                    15000,
+                    int.MaxValue
+                ];
+
+            foreach (string skill in SpaceCore.Skills.GetSkillList())
+            {
+                SpaceCore.Skills.GetSkill(skill).ExperienceCurve = ExperienceCurve;
+            }
         }
 
         private void applyPatches(Harmony harmony)
         {
-            /********************
-             * MAESTRIAS CON WoL
-             ********************/
-
-            // Al agregar una profesión con maestría, la agrega a WoL
+            /*************************************
+             * Vanilla Skill Experience with WoL *
+             *************************************/
             harmony.Patch(
-                original: AccessTools.Method(typeof(Profession), nameof(Profession.AddProfessionToPlayer)),
-                postfix: new HarmonyMethod(typeof(ProfessionPatch), nameof(ProfessionPatch.AddProfessionToPlayerPostfix))
+                original: AccessTools.Method("DaLion.Professions.Framework.Patchers.Prestige.FarmerGainExperiencePatcher:FarmerGainExperiencePrefix"),
+                transpiler: new HarmonyMethod(typeof(GainExperiencePatch), nameof(GainExperiencePatch.FarmerGainExperiencePrefixTranspiler))
             );
+
+            /********************
+             * MAESTRÍAS CON WoL
+             ********************/
 
             // No haga nada al cargar la partida
             harmony.Patch(
@@ -109,12 +139,13 @@ namespace MasteryExtended.WoL
 
             harmony.Patch(
                 original: AccessTools.Method("DaLion.Professions.Framework.Patchers.Prestige.LevelUpMenuUpdatePatcher:LevelUpMenuUpdatePrefix"),
-                prefix: new HarmonyMethod(typeof(DaLionUnpatcher), nameof(DaLionUnpatcher.LevelUpMenuUpdateUnpatcherPrefix))
+                transpiler: new HarmonyMethod(typeof(LevelUpMenuUpdatePatch), nameof(LevelUpMenuUpdatePatch.LevelUpMenuUpdatePrefixTranspiler))
             );
 
+            //For now SpaceCore skills can only go to level 10
             harmony.Patch(
-                original: AccessTools.Method(typeof(LevelUpMenu), nameof(LevelUpMenu.update)),
-                prefix: new HarmonyMethod(typeof(LevelUpMenuUpdatePatch), nameof(LevelUpMenuUpdatePatch.LevelUpMenuUpdatePrefix))
+                original: AccessTools.Method("DaLion.Professions.Framework.Patchers.Prestige.Integration.SkillLevelUpMenuUpdatePatcher:SkillLevelUpMenuUpdatePrefix"),
+                prefix: new HarmonyMethod(typeof(DaLionUnpatcher), nameof(DaLionUnpatcher.UnpatcherPrefix))
             );
         }
     }

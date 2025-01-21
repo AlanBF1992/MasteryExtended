@@ -8,6 +8,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MasteryExtended.SC", "MasteryExtended.SpaceCore\MasteryExtended.SC.csproj", "{4D9344DB-8089-4A33-8131-EF3B7C24D51F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MasteryExtended.WoL", "MasteryExtended.WoL\MasteryExtended.WoL.csproj", "{1C7803A8-9C41-4707-A02E-C3CACFAFAA53}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4D9344DB-8089-4A33-8131-EF3B7C24D51F} = {4D9344DB-8089-4A33-8131-EF3B7C24D51F}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

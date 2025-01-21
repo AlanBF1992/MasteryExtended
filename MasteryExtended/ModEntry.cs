@@ -1,5 +1,4 @@
-﻿using GenericModConfigMenu;
-using HarmonyLib;
+﻿using HarmonyLib;
 using MasteryExtended.Menu.Pages;
 using MasteryExtended.Patches;
 using MasteryExtended.Skills;
@@ -62,17 +61,17 @@ namespace MasteryExtended
             helper.ConsoleCommands.Add(
                 "masteryExtended_RecountUsed",
                 "Recounts the player's Mastery Level Used.",
-                (_, __) => recountUsedMasteryLevels());
+                (_, _) => recountUsedMasteryLevels());
 
             helper.ConsoleCommands.Add(
                 "masteryExtended_ResetExp",
                 "Sets the Mastery Exp to the minimum possible.",
-                (_, __) => resetMasteryExp());
+                (_, _) => resetMasteryExp());
 
             helper.ConsoleCommands.Add(
                 "masteryExtended_ResetProfessions",
                 "Reset Vanilla Professions when you sleep.",
-                (_, __) => { resetAllProfessionsVanilla(); recountUsedMasteryLevels(); });
+                (_, _) => { resetAllProfessionsVanilla(); recountUsedMasteryLevels(); });
 
             helper.ConsoleCommands.Add(
                 "masteryExtended_AddMasteryLevel",
@@ -87,21 +86,30 @@ namespace MasteryExtended
             /**********************
              * Farmer Mastery Gain
              **********************/
-            // Permite ganar Mastery desde que se llega al máximo de la primera profesión
+            // Cambia la forma en la que se calcula el nivel
             harmony.Patch(
                 original: AccessTools.Method(typeof(Farmer), "get_Level"),
-                postfix: new HarmonyMethod(typeof(FarmerPatch), nameof(FarmerPatch.LevelPostfix))
+                transpiler: new HarmonyMethod(typeof(FarmerPatch), nameof(FarmerPatch.LevelTranspiler))
             );
 
+            // Cambia la forma en la que se entrega la info para el título
+            harmony.Patch(
+                original: AccessTools.Method(typeof(Farmer), nameof(Farmer.getTitle)),
+                transpiler: new HarmonyMethod(typeof(FarmerPatch), nameof(FarmerPatch.getTitleTranspiler))
+            );
+
+            // Permite ganar Mastery desde que se llega al máximo de la primera profesión
             harmony.Patch(
                 original: AccessTools.Method(typeof(Farmer), nameof(Farmer.gainExperience)),
-                prefix: new HarmonyMethod(typeof(FarmerPatch), nameof(FarmerPatch.gainExperiencePrefix))
+                transpiler: new HarmonyMethod(typeof(FarmerPatch), nameof(FarmerPatch.gainExperienceTranspiler))
             );
+
             // Aumenta el máximo nivel de Mastery
             harmony.Patch(
                 original: AccessTools.Method(typeof(MasteryTrackerMenu), nameof(MasteryTrackerMenu.getCurrentMasteryLevel)),
                 postfix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.getCurrentMasteryLevelPostfix))
             );
+
             // Devuelve la experiencia necesaria
             harmony.Patch(
                 original: AccessTools.Method(typeof(MasteryTrackerMenu), nameof(MasteryTrackerMenu.getMasteryExpNeededForLevel)),
@@ -117,25 +125,26 @@ namespace MasteryExtended
                 prefix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.drawBarPrefix))
             );
 
-            // Modificaciones para que eliminar el hover
+            // Modificaciones para eliminar el hover
             harmony.Patch(
-                original: AccessTools.Method(typeof(SkillsPage), nameof(SkillsPage.draw), new Type[] { typeof(SpriteBatch) }),
+                original: AccessTools.Method(typeof(SkillsPage), nameof(SkillsPage.draw), [typeof(SpriteBatch)]),
                 prefix: new HarmonyMethod(typeof(SkillsPagePatch), nameof(SkillsPagePatch.drawPrefix))
             );
 
             // Modifica el nivel mostrado y devuelve el hover en la página de habilidades
             harmony.Patch(
-                original: AccessTools.Method(typeof(SkillsPage), nameof(SkillsPage.draw), new Type[] { typeof(SpriteBatch) }),
+                original: AccessTools.Method(typeof(SkillsPage), nameof(SkillsPage.draw), [typeof(SpriteBatch)]),
                 postfix: new HarmonyMethod(typeof(SkillsPagePatch), nameof(SkillsPagePatch.drawPostfix))
             );
 
             /********************
              * Mastery Cave Door
              ********************/
-            // Al hacer click en la puerta, te permite acceder antes y te dice como
+            // Al hacer clic en la puerta, te permite acceder antes y te dice como
             harmony.Patch(
-                original: AccessTools.Method(typeof(GameLocation), nameof(GameLocation.performAction), new Type[] { typeof(string[]), typeof(Farmer), typeof(xTile.Dimensions.Location) }),
-                postfix: new HarmonyMethod(typeof(GameLocationPatch), nameof(GameLocationPatch.performActionPostfix))
+                original: AccessTools.Method(typeof(GameLocation), nameof(GameLocation.performAction), [typeof(string[]), typeof(Farmer), typeof(xTile.Dimensions.Location)]),
+                //postfix: new HarmonyMethod(typeof(GameLocationPatch), nameof(GameLocationPatch.performActionPostfix))
+                transpiler: new HarmonyMethod(typeof(GameLocationPatch), nameof(GameLocationPatch.performActionTranspiler))
             );
 
             /**********************************
@@ -143,13 +152,13 @@ namespace MasteryExtended
              **********************************/
             // Modifica el menú del pedestal. Lo hace más alto y crea un botón
             harmony.Patch(
-                original: AccessTools.Constructor(typeof(MasteryTrackerMenu), new Type[] { typeof(int) }),
+                original: AccessTools.Constructor(typeof(MasteryTrackerMenu), [typeof(int)]),
                 postfix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.MasteryTrackerMenuPostfix))
             );
 
             // Dibuja el botón
             harmony.Patch(
-                original: AccessTools.Method(typeof(MasteryTrackerMenu), nameof(MasteryTrackerMenu.draw), new Type[] { typeof(SpriteBatch) }),
+                original: AccessTools.Method(typeof(MasteryTrackerMenu), nameof(MasteryTrackerMenu.draw), [typeof(SpriteBatch)]),
                 postfix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.drawPostfix))
             );
 
@@ -171,6 +180,12 @@ namespace MasteryExtended
                 postfix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.performHoverActionPostfix))
             );
 
+            // Bloquea el "arreglo" a la falta de profesión de nivel 10
+            harmony.Patch(
+                original: AccessTools.Method(typeof(LevelUpMenu), nameof(LevelUpMenu.AddMissedProfessionChoices)),
+                prefix: new HarmonyMethod(typeof(LevelUpMenuPatch), nameof(LevelUpMenuPatch.AddMissedProfessionChoicesPrefix))
+            );
+
             /***************
              * Mastery Cave
              ***************/
@@ -179,7 +194,7 @@ namespace MasteryExtended
                 original: AccessTools.Method(typeof(GameLocation), nameof(GameLocation.MakeMapModifications)),
                 postfix: new HarmonyMethod(typeof(GameLocationPatch), nameof(GameLocationPatch.MakeMapModificationsPostfix))
             );
-            
+
             /***************
              * Dog Statue
              ***************/
@@ -188,7 +203,6 @@ namespace MasteryExtended
                 original: AccessTools.Method(typeof(GameLocation), nameof(GameLocation.answerDialogueAction)),
                 postfix: new HarmonyMethod(typeof(GameLocationPatch), nameof(GameLocationPatch.answerDialogueActionPostFix))
             );
-
         }
 
         /// <summary>GMCM Compat</summary>
@@ -279,9 +293,9 @@ namespace MasteryExtended
                 return;
             }
 
-            Game1.player.professions.RemoveWhere(p => 0 <= p && p <= 29);
+            Game1.player.professions.RemoveWhere(p => p is >= 0 and <= 29);
 
-            foreach (Skill s in MasterySkillsPage.skills.FindAll(s => 0 <= s.Id && s.Id <= 4))
+            foreach (Skill s in MasterySkillsPage.skills.FindAll(s => s.Id is >= 0 and <= 4))
             {
                 int level = s.getLevel();
 
@@ -327,7 +341,7 @@ namespace MasteryExtended
 
         public static int countClaimedPillars()
         {
-            List<string> checkRecipeList = new() { "Statue Of Blessings", "Heavy Furnace", "Challenge Bait", "Treasure Totem", "Anvil" };
+            List<string> checkRecipeList = ["Statue Of Blessings", "Heavy Furnace", "Challenge Bait", "Treasure Totem", "Anvil"];
             int spentLevelsInMasteryPillar = checkRecipeList.Count(x => Game1.player.craftingRecipes.ContainsKey(x));
             return spentLevelsInMasteryPillar;
         }

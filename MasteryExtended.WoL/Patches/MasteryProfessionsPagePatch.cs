@@ -36,7 +36,7 @@ namespace MasteryExtended.WoL.Patches
                 var reqProf = __instance.innerSkill.Professions.Find(p => p.Id == c.myID)!.RequiredProfessions;
 
                 bool prestiged = Game1.player.professions.Contains(c.myID + 100);
-                bool canPrestige = prestiged? true: (reqProf == null? true: Game1.player.professions.Contains(reqProf.Id + 100));
+                bool canPrestige = prestiged || reqProf == null || Game1.player.professions.Contains(reqProf.Id + 100);
                 if (!canPrestige) continue;
                 b.Draw(Game1.mouseCursors_1_6, new Vector2(c.bounds.Right - 40, c.bounds.Top + 10), new Rectangle(prestiged? 33: 23, 89, 10, 11), Color.White, 0f, Vector2.Zero, 3f, SpriteEffects.None, 0.88f);
             }
@@ -90,13 +90,14 @@ namespace MasteryExtended.WoL.Patches
                     Game1.SetFreeCursorDrag();
                     var dalionProf = DaLion.Professions.Framework.VanillaProfession.FromValue(c.myID);
 
-                    if (c.myAlternateID == 1)
+                    switch (c.myAlternateID)
                     {
-                        __instance.hoverText += "\n\nPrestiged: " + dalionProf.GetTitle(true) + "\n" + dalionProf.GetDescription(true);
-                    }
-                    if (c.myAlternateID == 2)
-                    {
-                        __instance.hoverText = "= Already prestiged =\n"+ dalionProf.GetDescription(true);
+                        case 1:
+                            __instance.hoverText += "\n\nPrestiged: " + dalionProf.GetTitle(true) + "\n" + dalionProf.GetDescription(true);
+                            break;
+                        case 2:
+                            __instance.hoverText = "= Already prestiged =\n"+ dalionProf.GetDescription(true);
+                            break;
                     }
                 }
             }

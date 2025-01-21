@@ -93,9 +93,9 @@ namespace MasteryExtended.Patches
                     Color dark = new(0, 60, 30);
                     if (masteryLevelAchieved >= ModEntry.MaxMasteryPoints && fullWidthScale == 1f)
                     {
-                        light = new(220, 220, 220);
-                        med = new(140, 140, 140);
-                        medDark = new(80, 80, 80);
+                        light = new Color(220, 220, 220);
+                        med = new Color(140, 140, 140);
+                        medDark = new Color(80, 80, 80);
                         dark = med;
                     }
                     if (fullWidthScale != 1f)
@@ -154,14 +154,7 @@ namespace MasteryExtended.Patches
                 if (Game1.options.SnappyMenus)
                 {
                     __instance.populateClickableComponentList();
-                    if (__instance.mainButton == null)
-                    {
-                        __instance.currentlySnappedComponent = __instance.getComponentWithID(__instance.upperRightCloseButton.myID);
-                    }
-                    else
-                    {
-                        __instance.currentlySnappedComponent = __instance.getComponentWithID(0);
-                    }
+                    __instance.currentlySnappedComponent = __instance.getComponentWithID(__instance.mainButton == null ? __instance.upperRightCloseButton.myID : 0);
                     __instance.snapCursorToCurrentSnappedComponent();
                 }
             } else

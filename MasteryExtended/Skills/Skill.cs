@@ -9,7 +9,7 @@ namespace MasteryExtended.Skills
     {
         public Func<string> GetName = () => "";
         public int Id { get; set; }
-        public List<Profession> Professions { get; set; } = new List<Profession>();
+        public List<Profession> Professions { get; set; } = [];
         public Texture2D TextureSource { get; set; } = Game1.content.Load<Texture2D>("Maps\\springobjects");
         public Rectangle TextureBounds { get; set; } = new Rectangle(0, 0, 16, 16);
 

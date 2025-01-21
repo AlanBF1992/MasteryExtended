@@ -17,7 +17,7 @@ namespace MasteryExtended.SC
         public static IMonitor LogMonitor { get; private set; } = null!;
         public static IModHelper ModHelper { get; private set; } = null!;
 
-        public bool SkillsLoaded { get; set; } = false;
+        public bool SkillsLoaded { get; set; }
 
         /// <summary>The mod entry point, called after the mod is first loaded.</summary>
         /// <param name="helper">Provides simplified APIs for writing mods.</param>
@@ -34,18 +34,18 @@ namespace MasteryExtended.SC
              *************/
             harmony.Patch(
                 original: AccessTools.Method(typeof(SpaceCore.Skills), nameof(SpaceCore.Skills.AddExperience)),
-                prefix: new HarmonyMethod(typeof(SkillsPatch), nameof(SkillsPatch.AddExperiencePrefix))
+                transpiler: new HarmonyMethod(typeof(SkillsPatch), nameof(SkillsPatch.AddExperienceTranspiler))
             );
 
             /************
              * SkillPage
              ************/
             harmony.Patch(
-                original: AccessTools.Method(typeof(NewSkillsPage), nameof(NewSkillsPage.draw), new Type[] { typeof(SpriteBatch) }),
+                original: AccessTools.Method(typeof(NewSkillsPage), nameof(NewSkillsPage.draw), [typeof(SpriteBatch)]),
                 prefix: new HarmonyMethod(typeof(NewSkillsPagePatch), nameof(NewSkillsPagePatch.drawPrefix))
             );
             harmony.Patch(
-                original: AccessTools.Method(typeof(NewSkillsPage), nameof(NewSkillsPage.draw), new Type[] { typeof(SpriteBatch) }),
+                original: AccessTools.Method(typeof(NewSkillsPage), nameof(NewSkillsPage.draw), [typeof(SpriteBatch)]),
                 postfix: new HarmonyMethod(typeof(NewSkillsPagePatch), nameof(NewSkillsPagePatch.drawPostfix))
             );
 
@@ -56,7 +56,7 @@ namespace MasteryExtended.SC
             helper.ConsoleCommands.Add(
                 "masteryExtended_ResetProfessionsSpaceCore",
                 "Reset SpaceCore Professions when you sleep.",
-                (_, __) => { resetAllProfessionsSpaceCore(); MasteryExtended.ModEntry.recountUsedMasteryLevels(); });
+                (_, _) => { resetAllProfessionsSpaceCore(); MasteryExtended.ModEntry.recountUsedMasteryLevels(); });
         }
 
         [EventPriority(EventPriority.Normal)]
@@ -74,7 +74,7 @@ namespace MasteryExtended.SC
 
                 IOrderedEnumerable<SpaceCore.Skills.Skill.ProfessionPair> actualSCProfessions = actualSCSkill.ProfessionsForLevels.OrderBy(p => p.Level);
 
-                List<Profession> myProfessions = new();
+                List<Profession> myProfessions = [];
 
                 foreach (var i in actualSCProfessions)
                 {
@@ -112,8 +112,7 @@ namespace MasteryExtended.SC
                 int level = s.getLevel();
                 string skillName = SpaceCore.Skills.GetSkill(s.GetName()).Id;
                 // SpaceCore NewLevels is the same as vanilla newLevels.
-                var NewLevels = Helper.Reflection.GetField<List<KeyValuePair<string, int>>>(typeof(SpaceCore.Skills), "NewLevels");
-                var currentNewLevels = NewLevels.GetValue();
+                var currentNewLevels = Helper.Reflection.GetProperty<List<KeyValuePair<string, int>>>(typeof(SpaceCore.Skills), "NewLevels").GetValue();
                 if (level >= 5)
                 {
                     currentNewLevels.Add(new KeyValuePair<string, int>(skillName, 5));
@@ -122,7 +121,6 @@ namespace MasteryExtended.SC
                 {
                     currentNewLevels.Add(new KeyValuePair<string, int>(skillName, 10));
                 }
-                NewLevels.SetValue(currentNewLevels);
             }
         }
     }

@@ -1,20 +1,20 @@
 {
     "Name": "Mastery Extended - SpaceCore Compat",
     "Author": "AlanBF",
-    "Version": "1.5.0",
+    "Version": "1.5.1",
     "Description": "Compatibility for Mastery Extended with SpaceCore Skills",
     "UniqueID": "AlanBF.MasteryExtended.SC",
     "EntryDll": "MasteryExtended.SC.dll",
-    "MinimumApiVersion": "4.0.8",
+    "MinimumApiVersion": "4.1.10",
     "UpdateKeys": [ "Nexus:???" ],
     "Dependencies": [
         {
             "UniqueID": "spacechase0.SpaceCore",
-            "MinimumVersion": "1.23.0"
+            "MinimumVersion": "1.27.0"
         },
         {
             "UniqueID": "AlanBF.MasteryExtended",
-            "MinimumVersion": "1.5.0"
+            "MinimumVersion": "1.5.1"
         }
     ]
 }

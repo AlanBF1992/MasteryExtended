@@ -5,7 +5,7 @@ using StardewValley.Menus;
 
 namespace MasteryExtended.Menu
 {
-    public abstract class MasteryPage : IClickableMenu
+    public abstract class MasteryPage(int x, int y, int width, int height, bool showUpperRightCloseButton = false) : IClickableMenu(x, y, width, height, showUpperRightCloseButton)
     {
         public string MenuTitle { get; internal set; } = "";
 
@@ -23,20 +23,15 @@ namespace MasteryExtended.Menu
 
         public ClickableTextureComponent? previousPageButton;
 
-        public List<ClickableTextureComponent> pageTextureComponents = new();
+        public List<ClickableTextureComponent> pageTextureComponents = [];
 
         public Color backItemColor = new(132, 160, 255, 220); // Same Color as BG: alpha = 246
 
         public Color backItemColorHover = new(132, 160, 255, 150);
 
-        protected MasteryPage(int x, int y, int width, int height, bool showUpperRightCloseButton = false)
-            : base(x, y, width, height, showUpperRightCloseButton)
-        {
-        }
-
         public override void performHoverAction(int x, int y)
         {
-            // Boton atrás
+            // Botón atrás
             if (previousPageButton?.containsPoint(x, y) == true)
             {
                 previousPageButton.sourceRect.X = 42;

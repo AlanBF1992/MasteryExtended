@@ -12,7 +12,7 @@ namespace MasteryExtended.Menu.Pages
     /// </summary>
     public class MasterySkillsPage : MasteryPage
     {
-        public static List<Skill> skills { get; } = new List<Skill> { Skill.Farming, Skill.Mining, Skill.Foraging, Skill.Fishing, Skill.Combat };
+        public static List<Skill> skills { get; } = [Skill.Farming, Skill.Mining, Skill.Foraging, Skill.Fishing, Skill.Combat];
 
         public MasterySkillsPage(int page)
             : base((int)Utility.getTopLeftPositionForCenteringOnScreen(720, 320).X, (int)Utility.getTopLeftPositionForCenteringOnScreen(720, 320).Y, 720, 320, showUpperRightCloseButton: true)

@@ -37,7 +37,7 @@ namespace MasteryExtended.Patches
                 float widthRatio = masterySpent >= 10 ? 0.725f : (masteryLevel >= 10 ? 0.7875f : 0.85f); //.725f cuando máximo, 0.7875f, .85f cuando mínimo
                 float newWidth = widthRatio * width;
 
-                // Parchar la parte de números
+                // Parchear la parte de números
                 b.Draw(Game1.menuTexture, new Rectangle(
                     __instance.xPositionOnScreen + xOffset + 388 + (int)(584f * newWidth), //x
                     __instance.yPositionOnScreen + yOffset - 20, //y

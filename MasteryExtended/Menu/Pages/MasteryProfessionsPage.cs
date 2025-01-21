@@ -14,8 +14,8 @@ namespace MasteryExtended.Menu.Pages
     public class MasteryProfessionsPage: MasteryPage
     {
         public Skill innerSkill = null!;
-        public List<Profession> LeftProfessionTree = new();
-        public List<Profession> RightProfessionTree = new();
+        public List<Profession> LeftProfessionTree = [];
+        public List<Profession> RightProfessionTree = [];
         public MasteryProfessionsPage(Skill innerSkill)
             : base((int)Utility.getTopLeftPositionForCenteringOnScreen(1280, 160).X, (int)Utility.getTopLeftPositionForCenteringOnScreen(1280, 160).Y, 1280, 160, showUpperRightCloseButton: true)
         {
@@ -46,19 +46,19 @@ namespace MasteryExtended.Menu.Pages
             int professionWidth = (width - 2 * xPadding - 2 * xSpaceBetweenProfessions - xSpaceBetweenTrees) / 4;
             const int professionHeight = 152;
 
-            List<int> xPosition = new()
-            {
+            List<int> xPosition =
+            [
                 xPositionOnScreen + xPadding + professionWidth /2 + xSpaceBetweenProfessions/2,
                 xPositionOnScreen + xPadding,
                 xPositionOnScreen + xPadding + professionWidth + xSpaceBetweenProfessions
-            };
+            ];
 
-            List<int> yPosition = new()
-            {
+            List<int> yPosition =
+            [
                 yPositionOnScreen + yTopPadding,
                 yPositionOnScreen + yTopPadding + professionHeight + ySpaceBetweenProfessions,
                 yPositionOnScreen + yTopPadding + professionHeight + ySpaceBetweenProfessions
-            };
+            ];
 
             int spacingSecondTree = -xPadding + width / 2 + xSpaceBetweenTrees / 2;
 
