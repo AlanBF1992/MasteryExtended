@@ -1,7 +1,7 @@
 {
-    "Name": "Mastery Extended - Walk of Life Compat",
+    "Name": "Mastery Extended - WoL Compat",
     "Author": "AlanBF",
-    "Version": "1.5.1",
+    "Version": "1.6.0",
     "Description": "Compatibility for Mastery Extended with Walk of Life",
     "UniqueID": "AlanBF.MasteryExtended.WoL",
     "EntryDll": "MasteryExtended.WoL.dll",
@@ -13,11 +13,11 @@
         },
         {
           "UniqueID": "AlanBF.MasteryExtended.SC",
-          "MinimumVersion": "1.5.1"
+          "MinimumVersion": "1.6.0"
         },
         {
             "UniqueID": "AlanBF.MasteryExtended",
-            "MinimumVersion": "1.5.1"
+            "MinimumVersion": "1.6.0"
         }
     ]
 }

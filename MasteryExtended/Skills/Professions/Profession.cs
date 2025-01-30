@@ -25,7 +25,13 @@ namespace MasteryExtended.Skills.Professions
          **************/
         public Profession() { }
 
-        public Profession(int id, Func<string>? name, int levelRequired, Func<string>? description = null, Texture2D? textureSource = null, Rectangle? textureBounds = null, Profession? requiredProfession = null)
+        public Profession(int id,
+                          Func<string>? name,
+                          int levelRequired,
+                          Func<string>? description = null,
+                          Texture2D? textureSource = null,
+                          Rectangle? textureBounds = null,
+                          Profession? requiredProfession = null)
         {
             Id = id;
             if (name != null)

@@ -1,6 +1,4 @@
-﻿using DaLion.Professions;
-using DaLion.Shared.Extensions.Collections;
-using HarmonyLib;
+﻿using HarmonyLib;
 using MasteryExtended.Menu.Pages;
 using MasteryExtended.WoL.Patches;
 using Microsoft.Xna.Framework.Graphics;
@@ -145,6 +143,12 @@ namespace MasteryExtended.WoL
             //For now SpaceCore skills can only go to level 10
             harmony.Patch(
                 original: AccessTools.Method("DaLion.Professions.Framework.Patchers.Prestige.Integration.SkillLevelUpMenuUpdatePatcher:SkillLevelUpMenuUpdatePrefix"),
+                prefix: new HarmonyMethod(typeof(DaLionUnpatcher), nameof(DaLionUnpatcher.UnpatcherPrefix))
+            );
+
+            //Fix Message
+            harmony.Patch(
+                original: AccessTools.Method("DaLion.Professions.Framework.Patchers.Prestige.GameLocationPerformActionPatcher:GameLocationPerformActionPrefix"),
                 prefix: new HarmonyMethod(typeof(DaLionUnpatcher), nameof(DaLionUnpatcher.UnpatcherPrefix))
             );
         }

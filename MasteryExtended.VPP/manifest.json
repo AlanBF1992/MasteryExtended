@@ -1,0 +1,24 @@
+{
+  "Name": "Mastery Extended - VPP Compat",
+  "Author": "AlanBF",
+  "Version": "1.6.0",
+  "Description": "Compatibility for Mastery Extended with Vanilla Plus Professions",
+  "UniqueID": "AlanBF.MasteryExtended.VPP",
+  "EntryDll": "MasteryExtended.VPP.dll",
+  "MinimumApiVersion": "4.1.10",
+  "UpdateKeys": [ "Nexus:23697@VPP" ],
+  "Dependencies": [
+    {
+      "UniqueID": "KediDili.VanillaPlusProfessions",
+      "MinimumVersion": "1.0.3"
+    },
+    {
+      "UniqueID": "AlanBF.MasteryExtended.SC",
+      "MinimumVersion": "1.6.0"
+    },
+    {
+      "UniqueID": "AlanBF.MasteryExtended",
+      "MinimumVersion": "1.6.0"
+    }
+  ]
+}

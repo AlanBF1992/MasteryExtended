@@ -18,7 +18,7 @@ namespace MasteryExtended.Menu.Pages
             : base((int)Utility.getTopLeftPositionForCenteringOnScreen(720, 320).X, (int)Utility.getTopLeftPositionForCenteringOnScreen(720, 320).Y, 720, 320, showUpperRightCloseButton: true)
         {
             closeSound = "stone_button";
-            MenuTitle = ModEntry.ModHelper.Translation.Get("menu-title-skills");
+            MenuTitle = Game1.content.LoadString("Strings\\UI:MasteryExtended_MenuTitleSkills");
 
             List <Skill> shownSkills = skills.FindAll(s => s.showSkill());
 
@@ -32,7 +32,7 @@ namespace MasteryExtended.Menu.Pages
                 pageTextureComponents.Add(new ClickableTextureComponent(Rectangle.Empty, s.TextureSource, s.TextureBounds, 4f, drawShadow: true)
                 {
                     name = s.GetName(),
-                    hoverText = ModEntry.ModHelper.Translation.Get("hover-skill", new { skill = s.GetName() }),
+                    hoverText = Game1.content.LoadString("Strings\\UI:MasteryExtended_HoverSkill", s.GetName()),
                     myID = s.Id, // Skill of the button
                     region = 0, // For the highlight
                     myAlternateID = s.getLevel() >= 10 && s.unlockedProfessions() >= 2? 1: 0 //Visible o no
@@ -150,7 +150,7 @@ namespace MasteryExtended.Menu.Pages
             {
                 const float sScale = 1f;
                 previousPageButton.draw(b, Color.White, 0.88f);
-                string sBack = ModEntry.ModHelper.Translation.Get("back-button");
+                string sBack = Game1.content.LoadString("Strings\\UI:MasteryExtended_BackButton");
                 Vector2 sSize = sScale*Game1.dialogueFont.MeasureString(sBack);
                 Utility.drawTextWithColoredShadow(b, sBack, Game1.dialogueFont, previousPageButton.getVector2() + new Vector2((float)(previousPageButton.bounds.Width / 2) - sSize.X / 2f, 32f - sSize.Y / 2f + (float)((previousPageButton.sourceRect.X == 84) ? 8 : 0)), Color.Black * 1f, Color.Black * 0.2f, sScale * 1f, 0.9f);
             }
@@ -158,7 +158,7 @@ namespace MasteryExtended.Menu.Pages
             {
                 const float sScale = 1f;
                 nextPageButton.draw(b, Color.White, 0.88f);
-                string sNext = ModEntry.ModHelper.Translation.Get("next-button");
+                string sNext = Game1.content.LoadString("Strings\\UI:MasteryExtended_NextButton");
                 Vector2 sSize = sScale * Game1.dialogueFont.MeasureString(sNext);
                 Utility.drawTextWithColoredShadow(b, sNext, Game1.dialogueFont, nextPageButton.getVector2() + new Vector2((float)(nextPageButton.bounds.Width / 2) - sSize.X / 2f, 32f - sSize.Y / 2f + (float)((nextPageButton.sourceRect.X == 84) ? 8 : 0)), Color.Black * 1f, Color.Black * 0.2f, sScale * 1f, 0.9f);
             }
@@ -173,7 +173,7 @@ namespace MasteryExtended.Menu.Pages
                     drawTextureBox(b, Game1.mouseCursors, new Rectangle(403, 373, 9, 9), c.bounds.X, c.bounds.Y, c.bounds.Width, c.bounds.Height, Color.Black * (c.region == 0 ? 0.75f : 0.6f), 3f, false);
                 }
                 // Si está completo, hacerlo amarillo
-                if (skills.Find(s => s.Id == c.myID)!.unlockedProfessions() >= 6)
+                if (skills.Find(s => s.Id == c.myID)!.unlockedProfessions() >= skills.Find(s => s.Id == c.myID)!.Professions.Count)
                 {
                     drawTextureBox(b, Game1.mouseCursors, new Rectangle(403, 373, 9, 9), c.bounds.X, c.bounds.Y, c.bounds.Width, c.bounds.Height, Color.Green * 0.3f, 3f, false);
                 }
@@ -189,7 +189,7 @@ namespace MasteryExtended.Menu.Pages
 
             if(MasteryTrackerMenu.getCurrentMasteryLevel() <= (int)Game1.stats.Get("masteryLevelsSpent"))
             {
-                Utilities.newDrawHoverText(b, ModEntry.ModHelper.Translation.Get("look-only"), Game1.smallFont, overrideX: 0, overrideY: 0,
+                Utilities.newDrawHoverText(b, Game1.content.LoadString("Strings\\UI:MasteryExtended_LookOnly"), Game1.smallFont, overrideX: 0, overrideY: 0,
                     boxTexture: Game1.mouseCursors_1_6, boxSourceRect: new Rectangle(1, 85, 21, 21), boxShadowColor: Color.Black,
                     textColor: Color.Black, textShadowColor: Color.Black * 0.2f, boxScale: 2f);
             }
@@ -221,13 +221,13 @@ namespace MasteryExtended.Menu.Pages
                     // Set hover text
                     if (c.myAlternateID == 0)
                     {
-                        hoverText = ModEntry.ModHelper.Translation.Get("cant-access-skill", new { skill = c.name});
+                        hoverText = Game1.content.LoadString("Strings\\UI:MasteryExtended_CantAccessSkill", c.name);
                     } else
                     {
                         // Set hover text
-                        if (skills.Find(s => s.Id == c.myID)!.unlockedProfessions() >= 6)
+                        if (skills.Find(s => s.Id == c.myID)!.unlockedProfessions() >= skills.Find(s => s.Id == c.myID)!.Professions.Count)
                         {
-                            hoverText = ModEntry.ModHelper.Translation.Get("every-profession-unlocked", new { skill = c.name });
+                            hoverText = Game1.content.LoadString("Strings\\UI:MasteryExtended_EveryProfessionUnlocked", c.name);
                         } else
                         {
                             if (!string.IsNullOrEmpty(c.hoverText))

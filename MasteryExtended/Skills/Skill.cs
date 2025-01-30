@@ -42,5 +42,10 @@ namespace MasteryExtended.Skills
         {
             return Professions.Count(prof => prof.IsProfessionUnlocked());
         }
+
+        public int unlockedProfessions(int lvl)
+        {
+            return Professions.Count(prof => prof.IsProfessionUnlocked() && prof.LevelRequired == lvl);
+        }
     }
 }

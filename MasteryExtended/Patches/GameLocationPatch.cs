@@ -25,7 +25,6 @@ namespace MasteryExtended.Patches
 
                 MethodInfo masteryConfigInfo = AccessTools.Method(typeof(GameLocationPatch), nameof(masteryRequired));
                 MethodInfo currentMasteryInfo = AccessTools.Method(typeof(MasteryTrackerMenu), nameof(MasteryTrackerMenu.getCurrentMasteryLevel));
-                MethodInfo drawObjectDialogueInfo = AccessTools.Method(typeof(Game1), nameof(Game1.drawObjectDialogue), [typeof(List<string>)]);
                 MethodInfo dialogueStringInfo = AccessTools.Method(typeof(GameLocationPatch), nameof(masteryCaveString));
 
                 //from: Game1.drawObjectDialogue(Game1.content.LoadString("Strings\\1_6_Strings:MasteryCave", num2));
@@ -129,7 +128,7 @@ namespace MasteryExtended.Patches
 
             Game1.drawObjectDialogue([
                 Game1.content.LoadString("Strings\\1_6_Strings:MasteryCave", fullSkills).Replace(".",""),
-                ModEntry.ModHelper.Translation.Get("transcend-mortal-knowledge") + $" ({masteryLevel}/{masteryRequired()})"
+                Game1.content.LoadString("Strings\\UI:MasteryExtended_TrascendMortalKnowledge") + $" ({masteryLevel}/{masteryRequired()})"
                 ]);
         }
     }

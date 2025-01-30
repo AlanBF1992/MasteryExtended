@@ -1,10 +1,10 @@
 {
-    "Name": "Mastery Extended",
-    "Author": "AlanBF",
-    "Version": "1.5.1",
-    "Description": "Adds new things to do with the Mastery System",
-    "UniqueID": "AlanBF.MasteryExtended",
-    "EntryDll": "MasteryExtended.dll",
-    "MinimumApiVersion": "4.1.10",
-    "UpdateKeys": [ "Nexus:23697" ]
+  "Name": "Mastery Extended",
+  "Author": "AlanBF",
+  "Version": "1.6.0",
+  "Description": "Adds new things to do with the Mastery System",
+  "UniqueID": "AlanBF.MasteryExtended",
+  "EntryDll": "MasteryExtended.dll",
+  "MinimumApiVersion": "4.1.10",
+  "UpdateKeys": [ "Nexus:23697" ]
 }

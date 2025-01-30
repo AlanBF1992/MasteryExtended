@@ -6,8 +6,10 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
+using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.Menus;
+using System.Linq;
 
 namespace MasteryExtended
 {
@@ -50,6 +52,7 @@ namespace MasteryExtended
             helper.Events.GameLoop.GameLaunched += this.OnGameLaunched;
             helper.Events.GameLoop.SaveLoaded += this.OnSaveLoaded;
             helper.Events.GameLoop.Saving += this.OnSaving;
+            helper.Events.Content.AssetRequested += this.OnAssetRequested;
         }
 
         /*****************
@@ -143,7 +146,6 @@ namespace MasteryExtended
             // Al hacer clic en la puerta, te permite acceder antes y te dice como
             harmony.Patch(
                 original: AccessTools.Method(typeof(GameLocation), nameof(GameLocation.performAction), [typeof(string[]), typeof(Farmer), typeof(xTile.Dimensions.Location)]),
-                //postfix: new HarmonyMethod(typeof(GameLocationPatch), nameof(GameLocationPatch.performActionPostfix))
                 transpiler: new HarmonyMethod(typeof(GameLocationPatch), nameof(GameLocationPatch.performActionTranspiler))
             );
 
@@ -243,6 +245,38 @@ namespace MasteryExtended
             }
         }
 
+        private void OnAssetRequested(object? sender, AssetRequestedEventArgs e)
+        {
+            if (e.NameWithoutLocale.IsEquivalentTo(PathUtilities.NormalizeAssetName("Strings/UI")))
+            {
+                e.Edit(asset =>
+                {
+                    var editor = asset.AsDictionary<string, string>();
+
+                    editor.Data.Add("MasteryExtended_InvestButton", ModEntry.ModHelper.Translation.Get("invest-button"));
+                    editor.Data.Add("MasteryExtended_BackButton", ModEntry.ModHelper.Translation.Get("back-button"));
+                    editor.Data.Add("MasteryExtended_NextButton", ModEntry.ModHelper.Translation.Get("next-button"));
+                    editor.Data.Add("MasteryExtended_MenuTitleSkills", ModEntry.ModHelper.Translation.Get("menu-title-skills"));
+                    editor.Data.Add("MasteryExtended_MenuTitleProfession", ModEntry.ModHelper.Translation.Get("menu-title-profession"));
+                    editor.Data.Add("MasteryExtended_HoverSkill", ModEntry.ModHelper.Translation.Get("hover-skill"));
+                    editor.Data.Add("MasteryExtended_AddedProfession", ModEntry.ModHelper.Translation.Get("added-profession"));
+                    editor.Data.Add("MasteryExtended_NeedMoreProfessions", ModEntry.ModHelper.Translation.Get("need-more-professions"));
+                    editor.Data.Add("MasteryExtended_NeedMoreLevels", ModEntry.ModHelper.Translation.Get("need-more-levels"));
+                    editor.Data.Add("MasteryExtended_CantSpend", ModEntry.ModHelper.Translation.Get("cant-spend"));
+                    editor.Data.Add("MasteryExtended_LookOnly", ModEntry.ModHelper.Translation.Get("look-only"));
+                    editor.Data.Add("MasteryExtended_CantAccessSkill", ModEntry.ModHelper.Translation.Get("cant-access-skill"));
+                    editor.Data.Add("MasteryExtended_EveryProfessionUnlocked", ModEntry.ModHelper.Translation.Get("every-profession-unlocked"));
+                    editor.Data.Add("MasteryExtended_TrascendMortalKnowledge", ModEntry.ModHelper.Translation.Get("transcend-mortal-knowledge"));
+                    editor.Data.Add("MasteryExtended_AlreadyUnlocked", ModEntry.ModHelper.Translation.Get("already-unlocked"));
+                    editor.Data.Add("MasteryExtended_RequirementsTitle", ModEntry.ModHelper.Translation.Get("requirements-title"));
+                    editor.Data.Add("MasteryExtended_RequirementsProfession", ModEntry.ModHelper.Translation.Get("requirements-profession"));
+                    editor.Data.Add("MasteryExtended_RequirementsLvl10", ModEntry.ModHelper.Translation.Get("requirements-lvl10"));
+                    editor.Data.Add("MasteryExtended_RequirementsLvl15", ModEntry.ModHelper.Translation.Get("requirements-lvl15"));
+                    editor.Data.Add("MasteryExtended_RequirementsLvl20", ModEntry.ModHelper.Translation.Get("requirements-lvl20"));
+                });
+            }
+        }
+
         public static void recountUsedMasteryLevels()
         {
             if (!Context.IsWorldReady)
@@ -293,19 +327,17 @@ namespace MasteryExtended
                 return;
             }
 
-            Game1.player.professions.RemoveWhere(p => p is >= 0 and <= 29);
+            var vanillaSkills = MasterySkillsPage.skills.FindAll(s => s.Id is >= 0 and <= 4);
 
-            foreach (Skill s in MasterySkillsPage.skills.FindAll(s => s.Id is >= 0 and <= 4))
+            vanillaSkills.ForEach(s => s.Professions.ForEach(p => p.RemoveProfessionFromPlayer()));
+
+            foreach (Skill s in vanillaSkills)
             {
-                int level = s.getLevel();
+                int points = s.getLevel()/5;
 
-                if (level >= 5)
+                for (int i = 1; i <= points; i++)
                 {
-                    Game1.player.newLevels.Add(new Point(s.Id, 5));
-                }
-                if (level >= 10)
-                {
-                    Game1.player.newLevels.Add(new Point(s.Id, 10));
+                    Game1.player.newLevels.Add(new Point(s.Id, 5*i));
                 }
             }
         }

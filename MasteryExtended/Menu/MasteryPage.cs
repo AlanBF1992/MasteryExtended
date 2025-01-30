@@ -7,7 +7,7 @@ namespace MasteryExtended.Menu
 {
     public abstract class MasteryPage(int x, int y, int width, int height, bool showUpperRightCloseButton = false) : IClickableMenu(x, y, width, height, showUpperRightCloseButton)
     {
-        public string MenuTitle { get; internal set; } = "";
+        public string MenuTitle = "";
 
         public string hoverText = "";
 

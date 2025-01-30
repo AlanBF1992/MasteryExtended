@@ -93,7 +93,8 @@ namespace MasteryExtended.WoL.Patches
                     switch (c.myAlternateID)
                     {
                         case 1:
-                            __instance.hoverText += "\n\nPrestiged: " + dalionProf.GetTitle(true) + "\n" + dalionProf.GetDescription(true);
+                            __instance.hoverText += "\n\nPrestiged: " + dalionProf.GetTitle(true) + "\n";
+                            __instance.hoverText += dalionProf.GetDescription(true) + "\n";
                             break;
                         case 2:
                             __instance.hoverText = "= Already prestiged =\n"+ dalionProf.GetDescription(true);

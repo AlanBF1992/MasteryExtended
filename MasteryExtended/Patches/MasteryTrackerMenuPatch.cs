@@ -67,7 +67,7 @@ namespace MasteryExtended.Patches
                     widthScale *= masterySpent >= 10 ? 0.725f : (masteryLevelAchieved >= 10 ? 0.7875f : 0.85f);
                     // The first one in each section removes the original
                     // Shadow
-                    b.Draw(Game1.staminaRect, new Rectangle((int)topLeftSpot.X + 103, (int)topLeftSpot.Y + 144, (int)(584f * fullWidthScale) + 4, 40), new Color(242, 177, 107));
+                    b.Draw(Game1.menuTexture, new Rectangle((int)topLeftSpot.X + 103, (int)topLeftSpot.Y + 144, (int)(584f * fullWidthScale) + 4, 40), new Rectangle(120, 172, 8, 8), Color.White);
                     b.Draw(Game1.staminaRect, new Rectangle((int)topLeftSpot.X + 103, (int)topLeftSpot.Y + 144, (int)(584f * widthScale) + 4, 40), Color.Black * 0.35f);
 
                     // Border
@@ -200,7 +200,7 @@ namespace MasteryExtended.Patches
                 if (__instance.mainButton != null)
                 {
                     __instance.mainButton.draw(b, Color.White, 0.88f);
-                    string s = ModEntry.ModHelper.Translation.Get("invest-button");
+                    string s = Game1.content.LoadString("Strings\\UI:MasteryExtended_InvestButton");
                     Utility.drawTextWithColoredShadow(b, s, Game1.dialogueFont,
                         __instance.mainButton.getVector2() + new Vector2(
                             (float)(__instance.mainButton.bounds.Width / 2) - Game1.dialogueFont.MeasureString(s).X / 2f,
@@ -302,13 +302,14 @@ namespace MasteryExtended.Patches
                     bool enoughProfessions = MasterySkillsPage.skills.Find(s => s.Id == which)!.Professions.FindAll(p => p.IsProfessionUnlocked()).Count >= (ModEntry.Config.ExtraRequiredProfession? 3 : 2);
 
                     __instance.mainButton.name +=
-                        (!enoughProfessions ? ModEntry.ModHelper.Translation.Get("need-more-professions", new {amount = ModEntry.Config.ExtraRequiredProfession ? 3 : 2 }) : "") +
+                        (!enoughProfessions ?
+                        Game1.content.LoadString("Strings\\UI:MasteryExtended_NeedMoreProfessions", ModEntry.Config.ExtraRequiredProfession ? 3 : 2) : "") +
                         (!enoughProfessions && !freeLevel ? "\n" : "") +
-                        (!freeLevel ? ModEntry.ModHelper.Translation.Get("need-more-levels") : "");
+                        (!freeLevel ? Game1.content.LoadString("Strings\\UI:MasteryExtended_NeedMoreLevels") : "");
                 } else {
                     __instance.mainButton.name +=
-                        (!freeLevel ? ModEntry.ModHelper.Translation.Get("need-more-levels") : "") +
-                        (!freeLevel ? $"\n{ModEntry.ModHelper.Translation.Get("cant-spend")}" : "");
+                        (!freeLevel ? Game1.content.LoadString("Strings\\UI:MasteryExtended_NeedMoreLevels") : "") +
+                        (!freeLevel ? $"\n{Game1.content.LoadString("Strings\\UI:MasteryExtended_CantSpend")}" : "");
                 }
             }
         }
