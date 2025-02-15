@@ -1,16 +1,20 @@
-﻿using StardewModdingAPI;
-using StardewValley.Menus;
-using StardewValley;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework;
-using StardewValley.Constants;
+﻿using HarmonyLib;
+using MasteryExtended.Menu;
 using MasteryExtended.Menu.Pages;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using StardewModdingAPI;
+using StardewValley;
+using StardewValley.Constants;
+using StardewValley.Menus;
+using System.Reflection;
+using System.Reflection.Emit;
 
 namespace MasteryExtended.Patches
 {
     internal static class MasteryTrackerMenuPatch
     {
-        internal static IMonitor LogMonitor = ModEntry.LogMonitor;
+        internal readonly static IMonitor LogMonitor = ModEntry.LogMonitor;
 
         internal static bool getMasteryExpNeededForLevelPrefix(int level, ref int __result)
         {
@@ -30,7 +34,7 @@ namespace MasteryExtended.Patches
 
                 int level = 0;
 
-                for (int i = 1; i <= ModEntry.MaxMasteryPoints - 5; i++)
+                for (int i = 1; i <= ModEntry.MaxMasteryLevels - 5; i++)
                 {
                     if (masteryExp >= MasteryTrackerMenu.getMasteryExpNeededForLevel(5 + i))
                     {
@@ -47,83 +51,33 @@ namespace MasteryExtended.Patches
         }
 
         /// <summary>Hace más pequeña la barra de maestría en el menú de habilidades y muestra maestrías mayores.</summary>
-        internal static bool drawBarPrefix(SpriteBatch b, Vector2 topLeftSpot, float widthScale = 1f)
+        internal static IEnumerable<CodeInstruction> drawBarTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             try
             {
-                float fullWidthScale = widthScale;
+                CodeMatcher matcher = new(instructions);
 
-                int masteryExp = (int)Game1.stats.Get("MasteryExp");
-                int masteryLevelAchieved = MasteryTrackerMenu.getCurrentMasteryLevel();
-                int masterySpent = (int)Game1.stats.Get("masteryLevelsSpent");
+                MethodInfo MaxMasteryLevelsInfo = AccessTools.PropertyGetter(typeof(ModEntry), nameof(ModEntry.MaxMasteryLevels));
 
-                float currentProgressXP = masteryExp - MasteryTrackerMenu.getMasteryExpNeededForLevel(masteryLevelAchieved);
+                // from: 5
+                // to:   ModEntry.MaxMasteryLevels
+                matcher
+                    .MatchStartForward(new CodeMatch(OpCodes.Ldc_I4_5))
+                    .Set(OpCodes.Call, MaxMasteryLevelsInfo)
+                    .MatchStartForward(new CodeMatch(OpCodes.Ldc_I4_5))
+                    .Set(OpCodes.Call, MaxMasteryLevelsInfo)
+                    .MatchStartForward(new CodeMatch(OpCodes.Ldc_I4_5))
+                    .Set(OpCodes.Call, MaxMasteryLevelsInfo)
+                    .MatchStartForward(new CodeMatch(OpCodes.Ldc_I4_5))
+                    .Set(OpCodes.Call, MaxMasteryLevelsInfo)
+                ;
 
-                float expNeededToReachNextLevel = MasteryTrackerMenu.getMasteryExpNeededForLevel(masteryLevelAchieved + 1) - MasteryTrackerMenu.getMasteryExpNeededForLevel(masteryLevelAchieved);
-
-                // El largo de la barra en el menú se debe ajustar porque a niveles mayores el número la cubre
-                if (fullWidthScale != 1f) {
-                    // A little shorter
-                    widthScale *= masterySpent >= 10 ? 0.725f : (masteryLevelAchieved >= 10 ? 0.7875f : 0.85f);
-                    // The first one in each section removes the original
-                    // Shadow
-                    b.Draw(Game1.menuTexture, new Rectangle((int)topLeftSpot.X + 103, (int)topLeftSpot.Y + 144, (int)(584f * fullWidthScale) + 4, 40), new Rectangle(120, 172, 8, 8), Color.White);
-                    b.Draw(Game1.staminaRect, new Rectangle((int)topLeftSpot.X + 103, (int)topLeftSpot.Y + 144, (int)(584f * widthScale) + 4, 40), Color.Black * 0.35f);
-
-                    // Border
-                    b.Draw(Game1.staminaRect, new Rectangle((int)topLeftSpot.X + 108, (int)topLeftSpot.Y + 140, (int)(146 * 4 * fullWidthScale) + 4, 40), new Color(242, 177, 107));
-                    b.Draw(Game1.staminaRect, new Rectangle((int)topLeftSpot.X + 108, (int)topLeftSpot.Y + 140, (int)((float)(((masteryLevelAchieved >= ModEntry.MaxMasteryPoints) ? 144 : 146) * 4) * widthScale) + 4, 40), new Color(60, 60, 25));
-
-                    // Background
-                    b.Draw(Game1.staminaRect, new Rectangle((int)topLeftSpot.X + 112, (int)topLeftSpot.Y + 144, (int)(576f * widthScale), 32), new Color(173, 129, 79));
-                }
-
-                int barWidth = (int)(576f * currentProgressXP / expNeededToReachNextLevel * widthScale);
-
-                // Experience Bar
-                if (masteryLevelAchieved >= ModEntry.MaxMasteryPoints)
-                {
-                    barWidth = (int)(576f * widthScale);
-                }
-                if (masteryLevelAchieved >= ModEntry.MaxMasteryPoints || barWidth > 0)
-                {
-                    Color light = new(60, 180, 80);
-                    Color med = new(0, 113, 62);
-                    Color medDark = new(0, 80, 50);
-                    Color dark = new(0, 60, 30);
-                    if (masteryLevelAchieved >= ModEntry.MaxMasteryPoints && fullWidthScale == 1f)
-                    {
-                        light = new Color(220, 220, 220);
-                        med = new Color(140, 140, 140);
-                        medDark = new Color(80, 80, 80);
-                        dark = med;
-                    }
-                    if (fullWidthScale != 1f)
-                    {
-                        dark = medDark;
-                    }
-                    b.Draw(Game1.staminaRect, new Rectangle((int)topLeftSpot.X + 112, (int)topLeftSpot.Y + 144, barWidth, 32), med);
-                    b.Draw(Game1.staminaRect, new Rectangle((int)topLeftSpot.X + 112, (int)topLeftSpot.Y + 148, 4, 28), medDark);
-                    if (barWidth > 8)
-                    {
-                        b.Draw(Game1.staminaRect, new Rectangle((int)topLeftSpot.X + 112, (int)topLeftSpot.Y + 172, barWidth - 8, 4), medDark);
-                        b.Draw(Game1.staminaRect, new Rectangle((int)topLeftSpot.X + 116, (int)topLeftSpot.Y + 144, barWidth - 4, 4), light);
-                        b.Draw(Game1.staminaRect, new Rectangle((int)topLeftSpot.X + 104 + barWidth, (int)topLeftSpot.Y + 144, 4, 28), light);
-                        b.Draw(Game1.staminaRect, new Rectangle((int)topLeftSpot.X + 108 + barWidth, (int)topLeftSpot.Y + 144, 4, 32), dark);
-                    }
-                }
-                if (masteryLevelAchieved < ModEntry.MaxMasteryPoints)
-                {
-                    string s = currentProgressXP + "/" + expNeededToReachNextLevel;
-                    b.DrawString(Game1.smallFont, s, new Vector2((float)((int)topLeftSpot.X + 112) + 288f * widthScale - Game1.smallFont.MeasureString(s).X / 2f, (float)(int)topLeftSpot.Y + 146f), Color.White * 0.75f);
-                }
-
-                return false;
+                return matcher.InstructionEnumeration();
             }
             catch (Exception ex)
             {
-                LogMonitor.Log($"Failed in {nameof(drawBarPrefix)}:\n{ex}", LogLevel.Error);
-                return true;
+                LogMonitor.Log($"Failed in {nameof(drawBarTranspiler)}:\n{ex}", LogLevel.Error);
+                return instructions;
             }
         }
 
@@ -157,7 +111,8 @@ namespace MasteryExtended.Patches
                     __instance.currentlySnappedComponent = __instance.getComponentWithID(__instance.mainButton == null ? __instance.upperRightCloseButton.myID : 0);
                     __instance.snapCursorToCurrentSnappedComponent();
                 }
-            } else
+            }
+            else
             {
                 int numUnlockedProfessions = MasterySkillsPage.skills.Find(s => s.Id == whichSkill)!.Professions.FindAll(p => p.IsProfessionUnlocked()).Count;
                 bool claim = levelsNotSpent > 0 && numUnlockedProfessions>= (ModEntry.Config.ExtraRequiredProfession? 3: 2);
@@ -168,7 +123,8 @@ namespace MasteryExtended.Patches
 
         internal static void drawPostfix(MasteryTrackerMenu __instance, SpriteBatch b)
         {
-            if ((int)__instance.GetInstanceField("which")! != -1) {
+            if ((int)__instance.GetInstanceField("which")! != -1)
+            {
                 if (__instance.mainButton != null && !(bool)__instance.GetInstanceField("canClaim")!)
                 {
                     //Parche sobre el botón
@@ -179,7 +135,8 @@ namespace MasteryExtended.Patches
 
                     __instance.drawMouse(b);
                 }
-            } else
+            }
+            else
             {
                 Game1.stats.Get("MasteryExp");
                 int levelsAchieved = MasteryTrackerMenu.getCurrentMasteryLevel();
@@ -189,9 +146,9 @@ namespace MasteryExtended.Patches
                 {
                     b.Draw(Game1.mouseCursors_1_6,
                         new Vector2((float)(__instance.xPositionOnScreen + __instance.width / 2) - 110f + (float)(i * 11 * 4), __instance.yPositionOnScreen + 220),
-                        new Rectangle((i >= ModEntry.countClaimedPillars() && i < levelsAchieved) ?
+                        new Rectangle((i >= Utilities.countClaimedPillars() && i < levelsAchieved) ?
                             (43 + (int)Game1.currentGameTime.TotalGameTime.TotalMilliseconds % 600 / 100 * 10) :
-                            ((ModEntry.countClaimedPillars() > i) ? 33 : 23), //23 = vacío, 33 el dorado
+                            ((Utilities.countClaimedPillars() > i) ? 33 : 23), //23 = vacío, 33 el dorado
                             89, 10, 11),
                         Color.White, 0f, Vector2.Zero, 4f, SpriteEffects.None, 0.88f);
                 }
@@ -211,10 +168,10 @@ namespace MasteryExtended.Patches
 
             if (__instance.mainButton != null)
             {
-                Utilities.newDrawHoverText(b, __instance.mainButton.name, Game1.smallFont,
-                boxTexture: Game1.mouseCursors_1_6,
-                boxSourceRect: new Rectangle(1, 85, 21, 21),
-                textColor: Color.Black, textShadowColor: Color.Black * 0.2f, boxScale: 2f);
+                MasteryPage.drawHoverText(b, __instance.mainButton.name, Game1.smallFont,
+                    boxTexture: Game1.mouseCursors_1_6,
+                    boxSourceRect: new Rectangle(1, 85, 21, 21),
+                    textColor: Color.Black, textShadowColor: Color.Black * 0.2f, boxScale: 2f);
             }
 
             __instance.drawMouse(b);
@@ -227,13 +184,13 @@ namespace MasteryExtended.Patches
         {
             if ((int)__instance.GetInstanceField("which")! != -1)
             {
-                if (!((float)__instance.GetInstanceField("destroyTimer")! > 0f) && __instance.mainButton?.containsPoint(x, y) == true && (float)__instance.GetInstanceField("pressedButtonTimer")! <= 0f && (bool)__instance.GetInstanceField("canClaim")!)
+                if (((float)__instance.GetInstanceField("destroyTimer")! <= 0f) && __instance.mainButton?.containsPoint(x, y) == true && (float)__instance.GetInstanceField("pressedButtonTimer")! <= 0f && (bool)__instance.GetInstanceField("canClaim")!)
                 {
                     ModEntry.Data.claimedRewards++;
                 }
                 return true;
             }
-            if (!((float)__instance.GetInstanceField("destroyTimer")! > 0f))
+            if ((float)__instance.GetInstanceField("destroyTimer")! <= 0f)
             {
                 // Botón de cerrado, porque no puedo llamar a la base.
                 if (__instance.upperRightCloseButton != null && __instance.readyToClose() && __instance.upperRightCloseButton.containsPoint(x, y))
@@ -306,7 +263,8 @@ namespace MasteryExtended.Patches
                         Game1.content.LoadString("Strings\\UI:MasteryExtended_NeedMoreProfessions", ModEntry.Config.ExtraRequiredProfession ? 3 : 2) : "") +
                         (!enoughProfessions && !freeLevel ? "\n" : "") +
                         (!freeLevel ? Game1.content.LoadString("Strings\\UI:MasteryExtended_NeedMoreLevels") : "");
-                } else {
+                }
+                else {
                     __instance.mainButton.name +=
                         (!freeLevel ? Game1.content.LoadString("Strings\\UI:MasteryExtended_NeedMoreLevels") : "") +
                         (!freeLevel ? $"\n{Game1.content.LoadString("Strings\\UI:MasteryExtended_CantSpend")}" : "");

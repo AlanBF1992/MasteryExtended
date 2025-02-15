@@ -13,37 +13,66 @@ namespace MasteryExtended.Skills
         public Texture2D TextureSource { get; set; } = Game1.content.Load<Texture2D>("Maps\\springobjects");
         public Rectangle TextureBounds { get; set; } = new Rectangle(0, 0, 16, 16);
 
-        public Func<int> getLevel { get; set; } = () => 0;
-        public Func<bool> showSkill { get; set; } = () => true;
+        public Func<int> getLevel { get; set; } = null!;
+        public Func<bool> showSkill { get; set; } = null!;
+        public Action<int> addNewLevel { get; set; } = null!;
 
-        /**************
-        ** Public methods
-         **************/
+        /*****************
+        * Public methods *
+        ******************/
         public Skill() { }
 
-        public Skill(Func<string>? name, int id, Texture2D? textureSource = null, Rectangle? textureBounds = null, List<Profession>? professions = null)
+        // Vanilla Skills
+        public Skill(int id, Texture2D? textureSource, Rectangle? textureBounds, List<Profession>? professions)
         {
             Id = id;
-            GetName = name ?? id switch
+            GetName = id switch
             {
                 0 => () => Game1.content.LoadString("Strings\\StringsFromCSFiles:SkillsPage.cs.11604"),
-                1 => () => Game1.content.LoadString("Strings\\StringsFromCSFiles:SkillsPage.cs.11607"),
-                2 => () => Game1.content.LoadString("Strings\\StringsFromCSFiles:SkillsPage.cs.11606"),
                 3 => () => Game1.content.LoadString("Strings\\StringsFromCSFiles:SkillsPage.cs.11605"),
+                2 => () => Game1.content.LoadString("Strings\\StringsFromCSFiles:SkillsPage.cs.11606"),
+                1 => () => Game1.content.LoadString("Strings\\StringsFromCSFiles:SkillsPage.cs.11607"),
                 4 => () => Game1.content.LoadString("Strings\\StringsFromCSFiles:SkillsPage.cs.11608"),
                 _ => () => "?",
             };
-            if (textureSource != null) { TextureSource = textureSource; }
-            if (textureBounds != null) { TextureBounds = (Rectangle)textureBounds; }
+
+            if (textureSource != null) TextureSource = textureSource;
+            if (textureBounds != null) TextureBounds = textureBounds.Value;
             if (professions != null) Professions = professions;
+
+            getLevel = () => Game1.player.GetUnmodifiedSkillLevel(id);
+            addNewLevel = (lvl) => Game1.player.newLevels.Add(new Point(id, lvl));
+            showSkill = () => true;
         }
 
-        public int unlockedProfessions()
+        // SpaceCore Skills
+        public Skill(Func<string> name, int id, Texture2D? textureSource, List<Profession>? professions, Func<int> getLvl, Action<int> addLvl, Func<bool> showSk)
+        {
+            Id = id;
+            GetName = name;
+            if (textureSource != null) TextureSource = textureSource;
+            if (professions != null) Professions = professions;
+            getLevel = getLvl;
+            addNewLevel = addLvl;
+            showSkill = showSk;
+        }
+
+        public bool containsProfession(int id)
+        {
+            return Professions.Any(p => p.Id == id);
+        }
+
+        public List<Profession> unlockedProfessions()
+        {
+            return Professions.FindAll(prof => prof.IsProfessionUnlocked());
+        }
+
+        public int unlockedProfessionsCount()
         {
             return Professions.Count(prof => prof.IsProfessionUnlocked());
         }
 
-        public int unlockedProfessions(int lvl)
+        public int unlockedProfessionsCount(int lvl)
         {
             return Professions.Count(prof => prof.IsProfessionUnlocked() && prof.LevelRequired == lvl);
         }

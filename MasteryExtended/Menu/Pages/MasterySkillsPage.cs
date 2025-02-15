@@ -35,7 +35,7 @@ namespace MasteryExtended.Menu.Pages
                     hoverText = Game1.content.LoadString("Strings\\UI:MasteryExtended_HoverSkill", s.GetName()),
                     myID = s.Id, // Skill of the button
                     region = 0, // For the highlight
-                    myAlternateID = s.getLevel() >= 10 && s.unlockedProfessions() >= 2? 1: 0 //Visible o no
+                    myAlternateID = s.getLevel() >= 10 && s.unlockedProfessionsCount() >= 2? 1: 0 //Visible o no
                 });
             }
 
@@ -143,8 +143,7 @@ namespace MasteryExtended.Menu.Pages
 
             // Menu title
             SpriteText.drawStringHorizontallyCenteredAt(b, MenuTitle, xPositionOnScreen + width / 2, yPositionOnScreen + 48, 9999, -1, 9999, 1f, 0.88f, junimoText: false, Color.Black);
-            // TODO
-            // Texto en botones que caiga o se hace fuente más pequeña
+
             //Buttons
             if (previousPageButton != null)
             {
@@ -173,13 +172,13 @@ namespace MasteryExtended.Menu.Pages
                     drawTextureBox(b, Game1.mouseCursors, new Rectangle(403, 373, 9, 9), c.bounds.X, c.bounds.Y, c.bounds.Width, c.bounds.Height, Color.Black * (c.region == 0 ? 0.75f : 0.6f), 3f, false);
                 }
                 // Si está completo, hacerlo amarillo
-                if (skills.Find(s => s.Id == c.myID)!.unlockedProfessions() >= skills.Find(s => s.Id == c.myID)!.Professions.Count)
+                if (skills.Find(s => s.Id == c.myID)!.unlockedProfessionsCount() >= skills.Find(s => s.Id == c.myID)!.Professions.Count)
                 {
                     drawTextureBox(b, Game1.mouseCursors, new Rectangle(403, 373, 9, 9), c.bounds.X, c.bounds.Y, c.bounds.Width, c.bounds.Height, Color.Green * 0.3f, 3f, false);
                 }
 
                 // Dibuja el icono
-                float iconScale = 16 / Math.Max(c.sourceRect.Height, c.sourceRect.Width);
+                int iconScale = 16 / Math.Max(c.sourceRect.Height, c.sourceRect.Width);
                 Utility.drawWithShadow(b, c.texture, c.getVector2() + new Vector2(12f, 6f), c.sourceRect, Color.White, 0f, Vector2.Zero, 3f * iconScale, shadowIntensity: 0.25f);
                 // Dibuja el nombre
                 Utility.drawTextWithColoredShadow(b, c.name, Game1.dialogueFont,
@@ -189,12 +188,12 @@ namespace MasteryExtended.Menu.Pages
 
             if(MasteryTrackerMenu.getCurrentMasteryLevel() <= (int)Game1.stats.Get("masteryLevelsSpent"))
             {
-                Utilities.newDrawHoverText(b, Game1.content.LoadString("Strings\\UI:MasteryExtended_LookOnly"), Game1.smallFont, overrideX: 0, overrideY: 0,
+                drawHoverText(b, Game1.content.LoadString("Strings\\UI:MasteryExtended_LookOnly"), Game1.smallFont, overrideX: 0, overrideY: 0,
                     boxTexture: Game1.mouseCursors_1_6, boxSourceRect: new Rectangle(1, 85, 21, 21), boxShadowColor: Color.Black,
                     textColor: Color.Black, textShadowColor: Color.Black * 0.2f, boxScale: 2f);
             }
 
-            Utilities.newDrawHoverText(b, hoverText, Game1.smallFont,
+            drawHoverText(b, hoverText, Game1.smallFont,
                 boxTexture: Game1.mouseCursors_1_6,
                 boxSourceRect: new Rectangle(1, 85, 21, 21),
                 boxShadowColor: Color.Black,
@@ -222,13 +221,15 @@ namespace MasteryExtended.Menu.Pages
                     if (c.myAlternateID == 0)
                     {
                         hoverText = Game1.content.LoadString("Strings\\UI:MasteryExtended_CantAccessSkill", c.name);
-                    } else
+                    }
+                    else
                     {
                         // Set hover text
-                        if (skills.Find(s => s.Id == c.myID)!.unlockedProfessions() >= skills.Find(s => s.Id == c.myID)!.Professions.Count)
+                        if (skills.Find(s => s.Id == c.myID)!.unlockedProfessionsCount() >= skills.Find(s => s.Id == c.myID)!.Professions.Count)
                         {
                             hoverText = Game1.content.LoadString("Strings\\UI:MasteryExtended_EveryProfessionUnlocked", c.name);
-                        } else
+                        }
+                        else
                         {
                             if (!string.IsNullOrEmpty(c.hoverText))
                             {
@@ -245,14 +246,11 @@ namespace MasteryExtended.Menu.Pages
         {
             foreach (ClickableTextureComponent c in pageTextureComponents)
             {
-                if (c.bounds.Contains(x, y) && c.myAlternateID == 1)
+                if (c.bounds.Contains(x, y) && c.myAlternateID == 1 && c.myID != -1)
                 {
-                    if (c.myID != -1)
-                    {
-                        Game1.playSound("cowboy_monsterhit");
-                        Game1.activeClickableMenu = new MasteryProfessionsPage(skills.Find(s => s.Id == c.myID)!);
-                        break;
-                    }
+                    Game1.playSound("cowboy_monsterhit");
+                    Game1.activeClickableMenu = new MasteryProfessionsPage(skills.Find(s => s.Id == c.myID)!);
+                    break;
                 }
             }
 

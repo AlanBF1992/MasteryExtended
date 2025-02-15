@@ -11,7 +11,7 @@ namespace MasteryExtended.Patches
 {
     internal static class GameLocationPatch
     {
-        internal static IMonitor LogMonitor = ModEntry.LogMonitor;
+        internal readonly static IMonitor LogMonitor = ModEntry.LogMonitor;
 
         /***********
          * PATCHES *
@@ -72,8 +72,9 @@ namespace MasteryExtended.Patches
 
                 return matcher.InstructionEnumeration();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                LogMonitor.Log($"Failed in {nameof(performActionTranspiler)}:\n{ex}", LogLevel.Error);
                 return instructions;
             }
         }
@@ -87,7 +88,7 @@ namespace MasteryExtended.Patches
 
                 for (int which = 0; which < 5; which++)
                 {
-                    bool enoughProfessions = MasterySkillsPage.skills.Find(s => s.Id == which)!.unlockedProfessions() >= (ModEntry.Config.ExtraRequiredProfession ? 3 : 2);
+                    bool enoughProfessions = MasterySkillsPage.skills.Find(s => s.Id == which)!.unlockedProfessionsCount() >= (ModEntry.Config.ExtraRequiredProfession ? 3 : 2);
 
                     Game1.stats.Get("MasteryExp");
                     bool freeLevel = MasteryTrackerMenu.getCurrentMasteryLevel() > (int)Game1.stats.Get("masteryLevelsSpent");
@@ -109,7 +110,7 @@ namespace MasteryExtended.Patches
         {
             if (!questionAndAnswer.StartsWith("professionForget_")) return;
 
-            ModEntry.recountUsedMasteryLevels();
+            ModCommands.recountUsedMasteryLevels();
         }
 
         /***********

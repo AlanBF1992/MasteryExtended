@@ -16,7 +16,7 @@ namespace MasteryExtended.Patches
                 {
                     farmer.newLevels.Add(new Point(skill, 5));
                 }
-                if (farmer.GetUnmodifiedSkillLevel(skill) >= 10 && !farmer.newLevels.Contains(new Point(skill, 10)) && farmer.getProfessionForSkill(skill, 10) == -1 && MasterySkillsPage.skills.Find(s => s.Id == skill)!.unlockedProfessions() <= 2)
+                if (farmer.GetUnmodifiedSkillLevel(skill) >= 10 && !farmer.newLevels.Contains(new Point(skill, 10)) && farmer.getProfessionForSkill(skill, 10) == -1 && MasterySkillsPage.skills.Find(s => s.Id == skill)!.unlockedProfessionsCount() <= 2)
                 {
                     farmer.newLevels.Add(new Point(skill, 10));
                 }

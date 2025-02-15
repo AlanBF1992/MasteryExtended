@@ -1,251 +1,91 @@
 ﻿using HarmonyLib;
-using MasteryExtended.Menu.Pages;
-using MasteryExtended.Patches;
-using MasteryExtended.Skills;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using MasteryExtended.Compatibility.GMCM;
+using MasteryExtended.Compatibility.SpaceCore;
+using MasteryExtended.Compatibility.VPP;
+using MasteryExtended.Compatibility.WoL;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
-using StardewValley;
-using StardewValley.Menus;
-using System.Linq;
 
 namespace MasteryExtended
 {
     /// <summary>The mod entry point.</summary>
     public class ModEntry : Mod
     {
-        /*********
-        ** Fields
-        **********/
-        /// <summary>The mod configuration from the player.</summary>
-        internal static ModConfig Config = null!;
-        /// <summary>The mod data for the player.</summary>
-        internal static ModData Data = null!;
-        /// <summary>Log info.</summary>
-        public static IMonitor LogMonitor { get; private set; } = null!;
-        /// <summary>Max Mastery for the Mod.</summary>
-        public static int MaxMasteryPoints { get; set; } = 25;
-        // Helper?
-        public static IModHelper ModHelper { get; private set; } = null!;
+        /************
+        * Accessors *
+        *************/
+        /// <summary>Monitoring and logging for the mod.</summary>
+        public static IMonitor LogMonitor { get; internal set; } = null!;
 
-        /*****************
-        ** Public methods
-        ******************/
-        /// <summary>The mod entry point, called after the mod is first loaded.</summary>
-        /// <param name="helper">Provides simplified APIs for writing mods.</param>
+        /// <summary>Simplified APIs for writing mods.</summary>
+        public static IModHelper ModHelper { get; internal set; } = null!;
+
+        /// <summary>Simplified APIs for writing mods.</summary>
+        new public static IManifest ModManifest { get; internal set; } = null!;
+
+        /// <summary>The mod configuration from the player.</summary>
+        public static ModConfig Config { get; internal set; } = null!;
+
+        /// <summary>The mod data for the player.</summary>
+        public static ModData Data { get; internal set; } = null!;
+
+        /// <summary>Max Mastery Levels, including 5 for the pillars.</summary>
+        public static int MaxMasteryLevels { get; internal set; } = 25;
+
+        /// <summary>For VPP Changes.</summary>
+        public static Func<bool> MasteryCaveChanges { get; internal set; } = null!;
+
+        /******************
+        ** Public methods *
+        *******************/
         public override void Entry(IModHelper helper)
         {
+            LogMonitor = Monitor;
+            ModHelper = Helper;
+            ModManifest = base.ModManifest;
             Config = helper.ReadConfig<ModConfig>();
-            ModHelper = helper;
-            LogMonitor = Monitor; // Solo aca empieza a existir
 
-            // Insertar Parches necesarios
-            var harmony = new Harmony(this.ModManifest.UniqueID);
-            applyPatches(harmony);
+            // Vanilla Patches
+            ModPatches.VanillaPatches(new Harmony(ModManifest.UniqueID));
+            helper.Events.GameLoop.GameLaunched += GMCMConfigVanilla;
+            LogMonitor.Log("Base Patches Loaded", LogLevel.Info);
 
-            // Console command
-            addConsoleCommands(helper);
+            // SpaceCore Compat
+            if (helper.ModRegistry.IsLoaded("spacechase0.SpaceCore"))
+            {
+                SCLoader.Loader(helper, new Harmony(ModManifest.UniqueID));
+                LogMonitor.Log("SpaceCore Compat Patches Loaded", LogLevel.Info);
+            }
+
+            // WoL Compat
+            if (helper.ModRegistry.IsLoaded("DaLion.Professions"))
+            {
+                WoLLoader.Loader(helper, new Harmony(ModManifest.UniqueID));
+                LogMonitor.Log("Walk of Life Compat Patches Loaded", LogLevel.Info);
+            }
+
+            // VPP Compat
+            if (helper.ModRegistry.IsLoaded("KediDili.VanillaPlusProfessions"))
+            {
+                LogMonitor.Log("Vanilla Plus Profession Compat Patches Loaded", LogLevel.Info);
+                VPPLoader.Loader(helper, new Harmony(ModManifest.UniqueID));
+            }
+
+            // Console commands
+            ModCommands.addConsoleCommands(helper);
 
             // Events
-            helper.Events.GameLoop.GameLaunched += this.OnGameLaunched;
-            helper.Events.GameLoop.SaveLoaded += this.OnSaveLoaded;
-            helper.Events.GameLoop.Saving += this.OnSaving;
-            helper.Events.Content.AssetRequested += this.OnAssetRequested;
+            helper.Events.Content.AssetRequested += OnAssetRequested;
+            helper.Events.GameLoop.SaveLoaded += ReadData;
+            helper.Events.GameLoop.Saving += OnSaving;
         }
 
-        /*****************
-        * Private methods
-        ******************/
-        /// <summary>Add commands to debug</summary>
-        private static void addConsoleCommands(IModHelper helper)
-        {
-            helper.ConsoleCommands.Add(
-                "masteryExtended_RecountUsed",
-                "Recounts the player's Mastery Level Used.",
-                (_, _) => recountUsedMasteryLevels());
+        /******************
+        * Private methods *
+        *******************/
 
-            helper.ConsoleCommands.Add(
-                "masteryExtended_ResetExp",
-                "Sets the Mastery Exp to the minimum possible.",
-                (_, _) => resetMasteryExp());
-
-            helper.ConsoleCommands.Add(
-                "masteryExtended_ResetProfessions",
-                "Reset Vanilla Professions when you sleep.",
-                (_, _) => { resetAllProfessionsVanilla(); recountUsedMasteryLevels(); });
-
-            helper.ConsoleCommands.Add(
-                "masteryExtended_AddMasteryLevel",
-                "Add Mastery Levels. <value> is an optional argument.",
-                addMasteryLevel);
-        }
-
-        /// <summary>Apply the patches for the mod.</summary>
-        /// <param name="harmony">Harmony instance used to patch the game.</param>
-        private void applyPatches(Harmony harmony)
-        {
-            /**********************
-             * Farmer Mastery Gain
-             **********************/
-            // Cambia la forma en la que se calcula el nivel
-            harmony.Patch(
-                original: AccessTools.Method(typeof(Farmer), "get_Level"),
-                transpiler: new HarmonyMethod(typeof(FarmerPatch), nameof(FarmerPatch.LevelTranspiler))
-            );
-
-            // Cambia la forma en la que se entrega la info para el título
-            harmony.Patch(
-                original: AccessTools.Method(typeof(Farmer), nameof(Farmer.getTitle)),
-                transpiler: new HarmonyMethod(typeof(FarmerPatch), nameof(FarmerPatch.getTitleTranspiler))
-            );
-
-            // Permite ganar Mastery desde que se llega al máximo de la primera profesión
-            harmony.Patch(
-                original: AccessTools.Method(typeof(Farmer), nameof(Farmer.gainExperience)),
-                transpiler: new HarmonyMethod(typeof(FarmerPatch), nameof(FarmerPatch.gainExperienceTranspiler))
-            );
-
-            // Aumenta el máximo nivel de Mastery
-            harmony.Patch(
-                original: AccessTools.Method(typeof(MasteryTrackerMenu), nameof(MasteryTrackerMenu.getCurrentMasteryLevel)),
-                postfix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.getCurrentMasteryLevelPostfix))
-            );
-
-            // Devuelve la experiencia necesaria
-            harmony.Patch(
-                original: AccessTools.Method(typeof(MasteryTrackerMenu), nameof(MasteryTrackerMenu.getMasteryExpNeededForLevel)),
-                prefix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.getMasteryExpNeededForLevelPrefix))
-            );
-
-            /**************
-             * Mastery Bar
-             **************/
-            // Modifica la barra de maestría, en el menú y en el pedestal
-            harmony.Patch(
-                original: AccessTools.Method(typeof(MasteryTrackerMenu), nameof(MasteryTrackerMenu.drawBar)),
-                prefix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.drawBarPrefix))
-            );
-
-            // Modificaciones para eliminar el hover
-            harmony.Patch(
-                original: AccessTools.Method(typeof(SkillsPage), nameof(SkillsPage.draw), [typeof(SpriteBatch)]),
-                prefix: new HarmonyMethod(typeof(SkillsPagePatch), nameof(SkillsPagePatch.drawPrefix))
-            );
-
-            // Modifica el nivel mostrado y devuelve el hover en la página de habilidades
-            harmony.Patch(
-                original: AccessTools.Method(typeof(SkillsPage), nameof(SkillsPage.draw), [typeof(SpriteBatch)]),
-                postfix: new HarmonyMethod(typeof(SkillsPagePatch), nameof(SkillsPagePatch.drawPostfix))
-            );
-
-            /********************
-             * Mastery Cave Door
-             ********************/
-            // Al hacer clic en la puerta, te permite acceder antes y te dice como
-            harmony.Patch(
-                original: AccessTools.Method(typeof(GameLocation), nameof(GameLocation.performAction), [typeof(string[]), typeof(Farmer), typeof(xTile.Dimensions.Location)]),
-                transpiler: new HarmonyMethod(typeof(GameLocationPatch), nameof(GameLocationPatch.performActionTranspiler))
-            );
-
-            /**********************************
-             * Mastery Cave Pedestal & Pillars
-             **********************************/
-            // Modifica el menú del pedestal. Lo hace más alto y crea un botón
-            harmony.Patch(
-                original: AccessTools.Constructor(typeof(MasteryTrackerMenu), [typeof(int)]),
-                postfix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.MasteryTrackerMenuPostfix))
-            );
-
-            // Dibuja el botón
-            harmony.Patch(
-                original: AccessTools.Method(typeof(MasteryTrackerMenu), nameof(MasteryTrackerMenu.draw), [typeof(SpriteBatch)]),
-                postfix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.drawPostfix))
-            );
-
-            // Le da funcionalidad al botón
-            harmony.Patch(
-                original: AccessTools.Method(typeof(MasteryTrackerMenu), nameof(MasteryTrackerMenu.receiveLeftClick)),
-                prefix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.receiveLeftClickPrefix))
-            );
-
-            // Permite que el botón tenga "animación".
-            harmony.Patch(
-                original: AccessTools.Method(typeof(MasteryTrackerMenu), nameof(MasteryTrackerMenu.update)),
-                prefix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.updatePrefix))
-            );
-
-            // Permite que el botón muestre el porqué no se puede aclamar
-            harmony.Patch(
-                original: AccessTools.Method(typeof(MasteryTrackerMenu), nameof(MasteryTrackerMenu.performHoverAction)),
-                postfix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.performHoverActionPostfix))
-            );
-
-            // Bloquea el "arreglo" a la falta de profesión de nivel 10
-            harmony.Patch(
-                original: AccessTools.Method(typeof(LevelUpMenu), nameof(LevelUpMenu.AddMissedProfessionChoices)),
-                prefix: new HarmonyMethod(typeof(LevelUpMenuPatch), nameof(LevelUpMenuPatch.AddMissedProfessionChoicesPrefix))
-            );
-
-            /***************
-             * Mastery Cave
-             ***************/
-            // Update the Mastery Cave map when needed
-            harmony.Patch(
-                original: AccessTools.Method(typeof(GameLocation), nameof(GameLocation.MakeMapModifications)),
-                postfix: new HarmonyMethod(typeof(GameLocationPatch), nameof(GameLocationPatch.MakeMapModificationsPostfix))
-            );
-
-            /***************
-             * Dog Statue
-             ***************/
-             // Profession Forget Event
-            harmony.Patch(
-                original: AccessTools.Method(typeof(GameLocation), nameof(GameLocation.answerDialogueAction)),
-                postfix: new HarmonyMethod(typeof(GameLocationPatch), nameof(GameLocationPatch.answerDialogueActionPostFix))
-            );
-        }
-
-        /// <summary>GMCM Compat</summary>
-        private void OnGameLaunched(object? sender, GameLaunchedEventArgs e)
-        {
-            GMCMConfig();
-        }
-
-        /// <summary>Reads and applies the data when the save is loaded.</summary>
-        [EventPriority(EventPriority.Low)]
-        private void OnSaveLoaded(object? sender, SaveLoadedEventArgs e)
-        {
-            if (Context.IsMainPlayer)
-            {
-                // From here it checks the Data
-                ModData? a = Helper.Data.ReadSaveData<ModData>("AlanBF.MasteryExtended");
-                Data = a ?? new ModData();
-
-                if (a is not null) return;
-
-                recountUsedMasteryLevels();
-                resetMasteryExp();
-            } else
-            {
-                Data = new ModData
-                {
-                    claimedRewards = countClaimedPillars()
-                };
-            }
-        }
-
-        /// <summary>Save the data when the game is saved.</summary>
-        private void OnSaving(object? sender, SavingEventArgs e)
-        {
-            if (Context.IsMainPlayer)
-            {
-                Helper.Data.WriteSaveData("AlanBF.MasteryExtended", Data);
-            }
-        }
-
-        private void OnAssetRequested(object? sender, AssetRequestedEventArgs e)
+        private static void OnAssetRequested(object? sender, AssetRequestedEventArgs e)
         {
             if (e.NameWithoutLocale.IsEquivalentTo(PathUtilities.NormalizeAssetName("Strings/UI")))
             {
@@ -277,121 +117,53 @@ namespace MasteryExtended
             }
         }
 
-        public static void recountUsedMasteryLevels()
+        /// <summary>Reads and applies the data when the save is loaded.</summary>
+        private void ReadData(object? sender, SaveLoadedEventArgs e)
         {
-            if (!Context.IsWorldReady)
+            if (Context.IsMainPlayer)
             {
-                LogMonitor.Log("You need to load a save to use this command.", LogLevel.Error);
-                return;
+                // From here it checks the Data
+                ModData? a = ModHelper.Data.ReadSaveData<ModData>("AlanBF.MasteryExtended");
+                Data = a ?? new ModData();
+
+                if (a is not null) return;
+
+                ModCommands.recountUsedMasteryLevels();
+                ModCommands.resetMasteryExp();
             }
-
-            int spentLevelsInProfessions = 0;
-
-            foreach (Skill s in MasterySkillsPage.skills)
+            else
             {
-                spentLevelsInProfessions += Math.Max(s.unlockedProfessions() - Math.Min((int)Math.Floor(s.getLevel() / 5f), 2), 0);
-            }
-
-            Data.claimedRewards = countClaimedPillars();
-            int totalSpentLevels = countClaimedPillars() + spentLevelsInProfessions;
-
-            Game1.stats.Set("masteryLevelsSpent", totalSpentLevels);
-        }
-
-        private static void resetMasteryExp()
-        {
-            if (!Context.IsWorldReady)
-            {
-                LogMonitor.Log("You need to load a save to use this command.", LogLevel.Error);
-                return;
-            }
-            int spentLevelsInProfessions = 0;
-
-            foreach (Skill s in MasterySkillsPage.skills)
-            {
-                spentLevelsInProfessions += Math.Max(s.unlockedProfessions() - Math.Min((int)Math.Floor(s.getLevel() / 5f), 2), 0);
-            }
-
-            int totalSpentLevels = countClaimedPillars() + spentLevelsInProfessions;
-
-            int expToSet = MasteryTrackerMenu.getMasteryExpNeededForLevel(totalSpentLevels);
-
-            Game1.stats.Set("MasteryExp", expToSet);
-        }
-
-        private static void resetAllProfessionsVanilla()
-        {
-            if (!Context.IsWorldReady)
-            {
-                LogMonitor.Log("You need to load a save to use this command.", LogLevel.Error);
-                return;
-            }
-
-            var vanillaSkills = MasterySkillsPage.skills.FindAll(s => s.Id is >= 0 and <= 4);
-
-            vanillaSkills.ForEach(s => s.Professions.ForEach(p => p.RemoveProfessionFromPlayer()));
-
-            foreach (Skill s in vanillaSkills)
-            {
-                int points = s.getLevel()/5;
-
-                for (int i = 1; i <= points; i++)
+                Data = new ModData
                 {
-                    Game1.player.newLevels.Add(new Point(s.Id, 5*i));
-                }
+                    claimedRewards = Utilities.countClaimedPillars()
+                };
             }
         }
 
-        private static void addMasteryLevel(string command, string[] args)
+        /// <summary>Save the data when the game is saved.</summary>
+        private void OnSaving(object? sender, SavingEventArgs e)
         {
-            if (!Context.IsWorldReady)
+            if (Context.IsMainPlayer)
             {
-                LogMonitor.Log("You need to load a save to use this command.", LogLevel.Error);
-                return;
+                base.Helper.Data.WriteSaveData("AlanBF.MasteryExtended", Data);
             }
-
-            int levels = 1;
-            if (args.Length > 0)
-            {
-                try
-                {
-                    levels = int.Parse(args[0]);
-                }
-                catch
-                {
-                    LogMonitor.Log("Parameter should be an integer", LogLevel.Error);
-                    return;
-                }
-            }
-            int currentLevel = MasteryTrackerMenu.getCurrentMasteryLevel();
-            int spentLevels = (int)Game1.stats.Get("masteryLevelsSpent");
-            int newLevel = (int)Utilities.EncloseNumber(spentLevels, currentLevel + levels, MaxMasteryPoints);
-            int expToSet = MasteryTrackerMenu.getMasteryExpNeededForLevel(newLevel);
-
-            Game1.stats.Set("MasteryExp", expToSet);
         }
 
-        public static int countClaimedPillars()
-        {
-            List<string> checkRecipeList = ["Statue Of Blessings", "Heavy Furnace", "Challenge Bait", "Treasure Totem", "Anvil"];
-            int spentLevelsInMasteryPillar = checkRecipeList.Count(x => Game1.player.craftingRecipes.ContainsKey(x));
-            return spentLevelsInMasteryPillar;
-        }
-
-        private void GMCMConfig()
+        /// <summary>GMCM Compat Vanilla</summary>
+        private static void GMCMConfigVanilla(object? _1, GameLaunchedEventArgs _2)
         {
             // get Generic Mod Config Menu's API (if it's installed)
-            var configMenu = ModHelper.ModRegistry.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu");
+            var configMenu = ModHelper.ModRegistry.GetApi<IGMCMApi>("spacechase0.GenericModConfigMenu");
             if (configMenu is null)
                 return;
             // register mod
             configMenu.Register(
-                mod: this.ModManifest,
+                mod: ModManifest,
                 reset: () => Config = new ModConfig(),
                 save: () => ModHelper.WriteConfig(Config)
             );
 
-            // Mastery Exp per level
+            // Mastery Experience per level
             configMenu.AddNumberOption(
                 mod: ModManifest,
                 getValue: () => Config.MasteryExpPerLevel,
@@ -403,7 +175,7 @@ namespace MasteryExtended
                 interval: 5000
             );
 
-            // Mastery Exp per level
+            // Mastery Required for Cave
             configMenu.AddNumberOption(
                 mod: ModManifest,
                 getValue: () => Config.MasteryRequiredForCave,
@@ -415,7 +187,7 @@ namespace MasteryExtended
                 interval: 1
             );
 
-            // Mastery Exp per level
+            // Require 3 Professions per pillar
             configMenu.AddBoolOption(
                 mod: ModManifest,
                 getValue: () => Config.ExtraRequiredProfession,

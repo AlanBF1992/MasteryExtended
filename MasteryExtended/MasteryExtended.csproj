@@ -9,14 +9,10 @@
     <MSBuildWarningsAsMessages>MSB3277</MSBuildWarningsAsMessages>
     <EnableModZip>False</EnableModZip>
     <GamePath>C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley</GamePath>
-    <GameModsPath>$(GamePath)\Mods\MasteryExtended</GameModsPath>
+    <GameModsPath>$(GamePath)\Mods</GameModsPath>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.3.2" />
-    <PackageReference Include="Roslynator.Analyzers" Version="4.12.11">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
   </ItemGroup>
 </Project>

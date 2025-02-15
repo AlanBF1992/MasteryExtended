@@ -1,90 +1,332 @@
-﻿using Microsoft.Xna.Framework;
+﻿using HarmonyLib;
+using MasteryExtended.Menu.Pages;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Menus;
+using System.Reflection;
+using System.Reflection.Emit;
 
 namespace MasteryExtended.Patches
 {
     internal static class SkillsPagePatch
     {
-        internal static IMonitor LogMonitor = ModEntry.LogMonitor;
+        internal readonly static IMonitor LogMonitor = ModEntry.LogMonitor;
 
-        internal static void drawPrefix(SkillsPage __instance, out string __state)
+        internal static IEnumerable<CodeInstruction> ctorTranspiler(IEnumerable<CodeInstruction> instructions)
         {
-            __state = $"{(string)__instance.GetInstanceField("hoverTitle")!}-:-{(string)__instance.GetInstanceField("hoverText")!}";
-            __instance.SetInstanceField("hoverTitle", "");
-            __instance.SetInstanceField("hoverText", "");
+            try
+            {
+                MethodInfo joinSkillLvlInfo = AccessTools.Method(typeof(SkillsPagePatch), nameof(joinSkillLvl));
+
+                CodeMatcher matcher = new(instructions);
+
+                // from: whichProfession.ToString() ?? ""
+                // to:   "{skill},{lvl}", pa parsearlo luego y weá
+                matcher
+                    .MatchStartForward(
+                        new CodeMatch(OpCodes.Ldarg_0),
+                        new CodeMatch(OpCodes.Ldfld),
+                        new CodeMatch(OpCodes.Ldloca_S),
+                        new CodeMatch(OpCodes.Call),
+                        new CodeMatch(OpCodes.Dup)
+                    )
+                    .ThrowIfNotMatch("SkillsPage.ctorTranspiler: IL code 1 not found")
+                    .Advance(2)
+                    .RemoveInstructions(6)
+                    .Insert(
+                        new CodeInstruction(OpCodes.Ldloc_S, 8), // j: skill
+                        new CodeInstruction(OpCodes.Ldloc_S, 7),  // i: lvl
+                        new CodeInstruction(OpCodes.Ldc_I4_1),
+                        new CodeInstruction(OpCodes.Add),
+                        new CodeInstruction(OpCodes.Call, joinSkillLvlInfo)
+                    )
+                ;
+                // from: professionBlurb
+                // to:   "MasteryExtended"
+                matcher
+                    .MatchEndForward(
+                        new CodeMatch(OpCodes.Ldnull),
+                        new CodeMatch(OpCodes.Ldloc_S)
+                    )
+                    .ThrowIfNotMatch("SkillsPage.ctorTranspiler: IL code 2 not found")
+                    .Set(OpCodes.Ldstr, "MasteryExtended")
+                ;
+
+                return matcher.InstructionEnumeration();
+            }
+            catch (Exception ex)
+            {
+                LogMonitor.Log($"Failed in {nameof(ctorTranspiler)}:\n{ex}", LogLevel.Error);
+                return instructions;
+            }
         }
 
-        internal static void drawPostfix(SkillsPage __instance, SpriteBatch b, string __state)
+        internal static IEnumerable<CodeInstruction> drawTranspiler(IEnumerable<CodeInstruction> instructions)
         {
-            if (Game1.stats.Get("MasteryExp") > 0)
+            try
             {
-                int masteryLevel = MasteryTrackerMenu.getCurrentMasteryLevel();
-                float masteryStringWidth = Game1.smallFont.MeasureString(Game1.content.LoadString("Strings\\1_6_Strings:Mastery").TrimEnd(':')).X;
-                int masterySpent = (int)Game1.stats.Get("masteryLevelsSpent");
+                CodeMatcher matcher = new(instructions);
 
-                int xOffset = (int)masteryStringWidth - 64;
-                const int yOffset = 508;
+                MethodInfo widthMultiplierInfo = AccessTools.Method(typeof(SkillsPagePatch), nameof(widthMultiplier));
+                MethodInfo MaxMasteryLevelsInfo = AccessTools.PropertyGetter(typeof(ModEntry), nameof(ModEntry.MaxMasteryLevels));
+                MethodInfo drawNumbersInfo = AccessTools.Method(typeof(SkillsPagePatch), nameof(drawNumbers));
+                MethodInfo stringCompareInfo = AccessTools.Method(typeof(SkillsPagePatch), nameof(stringCompare));
+                MethodInfo drawAllProfessionsInfo = AccessTools.Method(typeof(SkillsPagePatch), nameof(drawAllProfessions));
 
-                float width = 0.64f;
-                width -= (masteryStringWidth - 100f) / 800f;
-                if (Game1.content.GetCurrentLanguage() == LocalizedContentManager.LanguageCode.ru)
-                {
-                    width += 0.1f;
-                }
-                float widthRatio = masterySpent >= 10 ? 0.725f : (masteryLevel >= 10 ? 0.7875f : 0.85f); //.725f cuando máximo, 0.7875f, .85f cuando mínimo
-                float newWidth = widthRatio * width;
+                // add: num12 = num12 * widthMultiplier()
+                matcher.
+                    MatchStartForward(
+                        new CodeMatch(OpCodes.Ldc_R4, 0.1f)
+                    )
+                    .ThrowIfNotMatch("SkillsPage.drawTranspiler: IL code 1 not found")
+                    .Advance(3)
+                    .Set(OpCodes.Ldloc_S, 27)
+                    .Advance(1)
+                    .Insert(
+                        new CodeInstruction(OpCodes.Call, widthMultiplierInfo),
+                        new CodeInstruction(OpCodes.Mul),
+                        new CodeInstruction(OpCodes.Stloc_S, 27),
+                        new CodeInstruction(OpCodes.Ldarg_1)
+                    );
 
-                // Parchear la parte de números
-                b.Draw(Game1.menuTexture, new Rectangle(
-                    __instance.xPositionOnScreen + xOffset + 388 + (int)(584f * newWidth), //x
-                    __instance.yPositionOnScreen + yOffset - 20, //y
-                    __instance.width - xOffset - 428 - (int)(584f * newWidth),
-                    44),
-                    new Rectangle(120, 172, 8, 8),
-                    Color.White);
+                // from: masteryLevel >= 5
+                // to:   masteryLevel >= ModEntry.MaxMasteryLevels
+                matcher.
+                    MatchStartForward(
+                        new CodeMatch(OpCodes.Ldc_I4_5)
+                    )
+                    .ThrowIfNotMatch("SkillsPage.drawTranspiler: IL code 2 not found")
+                    .Set(OpCodes.Call, MaxMasteryLevelsInfo)
+                ;
 
-                b.Draw(Game1.menuTexture, new Rectangle(
-                    __instance.xPositionOnScreen + __instance.width - 40,
-                    yOffset + __instance.yPositionOnScreen - 20,
-                    8, 44),
-                    new Rectangle(216, 172, 8, 8),
-                    Color.White);
+                // from: NumberSprite (2 times)
+                // add:  drawNumbers(this, b)
+                matcher
+                    .MatchEndForward(
+                        new CodeMatch(OpCodes.Ldloc_S),
+                        new CodeMatch(OpCodes.Call),
+                        new CodeMatch(OpCodes.Ldloc_S)
+                    )
+                    .ThrowIfNotMatch("SkillsPage.drawTranspiler: IL code 3 not found")
+                    .RemoveInstructions(66)
+                    .Insert(
+                        new CodeInstruction(OpCodes.Ldarg_0),
+                        new CodeInstruction(OpCodes.Ldarg_1),
+                        new CodeInstruction(OpCodes.Call, drawNumbersInfo)
+                    )
+                ;
 
-                // Dibujar los números (1ro sombra, 2do texto)
-                // Primero el del lado derecho
-                NumberSprite.draw(masteryLevel, b, new Vector2(xOffset + __instance.xPositionOnScreen + 408 + (int)(584f * width), yOffset + __instance.yPositionOnScreen + 4), Color.Black * 0.35f, 1f, 0.85f, 1f, 0);
-                NumberSprite.draw(masteryLevel, b, new Vector2(xOffset + __instance.xPositionOnScreen + 412 + (int)(584f * width), yOffset + __instance.yPositionOnScreen), (masteryLevel >= ModEntry.MaxMasteryPoints ? new(70, 210, 90) : (masterySpent == masteryLevel ? Color.OrangeRed : Color.SandyBrown)) * ((masteryLevel == 0) ? 0.75f : 1f), 1f, 0.87f, 1f, 0);
+                // from: if (this.hoverText.Length > 0)
+                // to:   if (this.hoverText.Length > 0 && !this.hoverText.Equals("MasteryExtended"))
+                matcher
+                    .MatchStartForward(
+                        new CodeMatch(OpCodes.Ldarg_0),
+                        new CodeMatch(OpCodes.Ldfld),
+                        new CodeMatch(OpCodes.Callvirt),
+                        new CodeMatch(OpCodes.Ldc_I4_0),
+                        new CodeMatch(OpCodes.Ble_S)
+                    )
+                    .ThrowIfNotMatch("SkillsPage.drawTranspiler: IL code 4 not found")
+                    .Advance(1)
+                ;
 
-                xOffset += masteryLevel < 10 ? 28 : 0;
+                CodeInstruction hoverInstruction = matcher.Instruction;
 
-                // Luego el separador
-                b.Draw(Game1.mouseCursors,
-                    new Vector2(xOffset + __instance.xPositionOnScreen + 352 + (int)(584f * width), yOffset + __instance.yPositionOnScreen + 4),
-                    new Rectangle(544, 136, 8, 8),
-                    Color.Black * 0.35f, 0f, new Vector2(4f, 4f), 4f * 1f, SpriteEffects.None, 0.85f);
-                b.Draw(Game1.mouseCursors,
-                    new Vector2(xOffset + __instance.xPositionOnScreen + 356 + (int)(584f * width), yOffset + __instance.yPositionOnScreen),
-                    new Rectangle(544, 136, 8, 8),
-                    (masteryLevel >= ModEntry.MaxMasteryPoints ? new(70, 210, 90) : (masterySpent == masteryLevel ? Color.OrangeRed : Color.SandyBrown)) * 1f,
-                    0f, new Vector2(4f, 4f), 4f * 1f, SpriteEffects.None, 0.85f);
+                matcher.Advance(3);
 
-                // Luego el del lado izquierdo
-                NumberSprite.draw(masterySpent, b, new Vector2(xOffset + __instance.xPositionOnScreen + 329 + (int)(584f * width), yOffset + __instance.yPositionOnScreen + 4), Color.Black * 0.35f, 1f, 0.85f, 1f, 0);
-                NumberSprite.draw(masterySpent, b, new Vector2(xOffset + __instance.xPositionOnScreen + 333 + (int)(584f * width), yOffset + __instance.yPositionOnScreen),
-                    (masterySpent >= ModEntry.MaxMasteryPoints ? new(70, 210, 90) : (masterySpent == masteryLevel ? Color.OrangeRed : Color.SandyBrown)) * ((masteryLevel == 0) ? 0.75f : 1f), 1f, 0.87f, 1f, 0);
+                Label lbl = (Label)matcher.Operand;
+
+                matcher
+                    .Advance(1)
+                    .Insert(
+                        new CodeInstruction(OpCodes.Ldarg_0),
+                        hoverInstruction,
+                        new CodeInstruction(OpCodes.Ldstr, "MasteryExtended"),
+                        new CodeInstruction(OpCodes.Call, stringCompareInfo),
+                        new CodeInstruction(OpCodes.Brtrue_S, lbl)
+                    )
+                ;
+
+                // add: draw all professions in the side
+                matcher
+                    .End()
+                    .SetOpcodeAndAdvance(OpCodes.Ldarg_0) //this
+                    .Insert(
+                        new CodeInstruction(OpCodes.Ldarg_1), // b
+                        new CodeInstruction(OpCodes.Call, drawAllProfessionsInfo),
+                        new CodeInstruction(OpCodes.Ret)
+                    )
+                ;
+
+                return matcher.InstructionEnumeration();
+            }
+            catch (Exception ex)
+            {
+                LogMonitor.Log($"Failed in {nameof(drawTranspiler)}:\n{ex}", LogLevel.Error);
+                return instructions;
+            }
+        }
+
+        internal static IEnumerable<CodeInstruction> performHoverActionTranspiler(IEnumerable<CodeInstruction> instructions)
+        {
+            try
+            {
+                CodeMatcher matcher = new(instructions);
+
+                // from: this.hoverTitle = blabla
+                // to:   this.hoverTitle = skillBar.name
+                matcher
+                    .MatchEndForward(
+                        new CodeMatch(OpCodes.Ldarg_0),
+                        new CodeMatch(OpCodes.Ldloc_3),
+                        new CodeMatch(OpCodes.Ldfld),
+                        new CodeMatch(OpCodes.Call)
+                    )
+                    .ThrowIfNotMatch("SkillsPage.performHoverActionTranspiler: IL code 2 not found")
+                    .RemoveInstructions(2)
+                ;
+
+                // from: this.professionImage = blabla
+                // to:   this.professionImage = -1
+                matcher
+                    .MatchStartForward(
+                        new CodeMatch(OpCodes.Ldarg_0),
+                        new CodeMatch(OpCodes.Ldloc_3),
+                        new CodeMatch(OpCodes.Ldfld),
+                        new CodeMatch(OpCodes.Call)
+                    )
+                    .ThrowIfNotMatch("SkillsPage.performHoverActionTranspiler: IL code 3 not found")
+                    .Advance(1)
+                    .RemoveInstructions(3)
+                    .Insert(
+                        new CodeInstruction(OpCodes.Ldc_I4_M1)
+                    )
+                ;
+
+                // from: skillBar.scale = 0f;
+                // to:   skillBar.scale = 4.2f;
+                matcher
+                    .MatchStartForward(
+                        new CodeMatch(OpCodes.Ldloc_3),
+                        new CodeMatch(OpCodes.Ldc_R4),
+                        new CodeMatch(OpCodes.Stfld)
+                    )
+                    .ThrowIfNotMatch("SkillsPage.performHoverActionTranspiler: IL code 4 not found")
+                    .Advance(1)
+                    .SetOperandAndAdvance(4.2f)
+                ;
+
+                return matcher.InstructionEnumeration();
+            }
+            catch (Exception ex)
+            {
+                LogMonitor.Log($"Failed in {nameof(performHoverActionTranspiler)}:\n{ex}", LogLevel.Error);
+                return instructions;
+            }
+        }
+
+        internal static bool stringCompare(string str1, string str2)
+        {
+            return str1.Trim().Equals(str2.Trim());
+        }
+
+        internal static string joinSkillLvl(int skill, int lvl)
+        {
+            var skillId = skill switch {
+                0 => 0,
+                1 => 3,
+                2 => 2,
+                3 => 1,
+                4 => 4,
+                _ => 0
+            };
+            return skillId + "," + lvl;
+        }
+
+        internal static float widthMultiplier()
+        {
+            int currentMasteryLevel = MasteryTrackerMenu.getCurrentMasteryLevel();
+            int masterySpent = (int)Game1.stats.Get("masteryLevelsSpent");
+            return masterySpent >= 10 ? 0.725f : (currentMasteryLevel >= 10 ? 0.7875f : 0.85f);
+        }
+
+        internal static void drawNumbers(IClickableMenu page, SpriteBatch b)
+        {
+            int masteryLevel = MasteryTrackerMenu.getCurrentMasteryLevel();
+            float masteryStringWidth = Game1.smallFont.MeasureString(Game1.content.LoadString("Strings\\1_6_Strings:Mastery").TrimEnd(':')).X;
+            int masterySpent = (int)Game1.stats.Get("masteryLevelsSpent");
+
+            int xOffset = (int)masteryStringWidth - 64;
+            const int yOffset = 508;
+
+            float width = 0.64f;
+            width -= (masteryStringWidth - 100f) / 800f;
+            if (Game1.content.GetCurrentLanguage() == LocalizedContentManager.LanguageCode.ru)
+            {
+                width += 0.1f;
             }
 
-            string[] parsedText = __state.Split("-:-");
-            __instance.SetInstanceField("hoverTitle", parsedText[0]);
-            __instance.SetInstanceField("hoverText", parsedText[1]);
+            // Dibujar los números (1ro sombra, 2do texto)
+            // Primero el del lado derecho
+            NumberSprite.draw(masteryLevel, b,
+                              new Vector2(xOffset + page.xPositionOnScreen + 408 + (int)(584f * width), yOffset + page.yPositionOnScreen + 4),
+                              Color.Black * 0.35f, 1f, 0.85f, 1f, 0);
+            NumberSprite.draw(masteryLevel, b,
+                              new Vector2(xOffset + page.xPositionOnScreen + 412 + (int)(584f * width), yOffset + page.yPositionOnScreen),
+                              (masteryLevel >= ModEntry.MaxMasteryLevels ? new(70, 210, 90) : (masterySpent == masteryLevel ? Color.OrangeRed : Color.SandyBrown)) * ((masteryLevel == 0) ? 0.75f : 1f),
+                              1f, 0.87f, 1f, 0);
 
-            Utilities.newDrawHoverText(b,
-                (string)__instance.GetInstanceField("hoverText")!,
-                Game1.smallFont, 0, 0,
-                (string)__instance.GetInstanceField("hoverTitle")!, boxShadowColor: Color.Black * 0.66f);
+            xOffset += masteryLevel < 10 ? 28 : 0;
+
+            // Luego el separador
+            b.Draw(Game1.mouseCursors,
+                new Vector2(xOffset + page.xPositionOnScreen + 352 + (int)(584f * width), yOffset + page.yPositionOnScreen + 4),
+                new Rectangle(544, 136, 8, 8),
+                Color.Black * 0.35f, 0f, new Vector2(4f, 4f), 4f * 1f, SpriteEffects.None, 0.85f);
+            b.Draw(Game1.mouseCursors,
+                new Vector2(xOffset + page.xPositionOnScreen + 356 + (int)(584f * width), yOffset + page.yPositionOnScreen),
+                new Rectangle(544, 136, 8, 8),
+                (masteryLevel >= ModEntry.MaxMasteryLevels ? new(70, 210, 90) : (masterySpent == masteryLevel ? Color.OrangeRed : Color.SandyBrown)) * 1f,
+                0f, new Vector2(4f, 4f), 4f * 1f, SpriteEffects.None, 0.85f);
+
+            // Luego el del lado izquierdo
+            NumberSprite.draw(masterySpent, b, new Vector2(xOffset + page.xPositionOnScreen + 329 + (int)(584f * width), yOffset + page.yPositionOnScreen + 4), Color.Black * 0.35f, 1f, 0.85f, 1f, 0);
+            NumberSprite.draw(masterySpent, b, new Vector2(xOffset + page.xPositionOnScreen + 333 + (int)(584f * width), yOffset + page.yPositionOnScreen),
+                (masterySpent >= ModEntry.MaxMasteryLevels ? new(70, 210, 90) : (masterySpent == masteryLevel ? Color.OrangeRed : Color.SandyBrown)) * ((masteryLevel == 0) ? 0.75f : 1f), 1f, 0.87f, 1f, 0);
+        }
+
+        internal static void drawAllProfessions(object instance, SpriteBatch b)
+        {
+            string hoverTitle = (string)instance.GetInstanceField("hoverTitle")!;
+            string hoverText = ((string)instance.GetInstanceField("hoverText")!);
+            int height = (int)instance.GetInstanceField("height")!;
+
+            if (!hoverText.Trim().Equals("MasteryExtended")) return;
+
+            var parsed = hoverTitle.Split(",").Select(int.Parse).ToList();
+            var skillId = parsed[0];
+            var lvlRequired = parsed[1];
+
+            var skill = MasterySkillsPage.skills.Find(s => s.Id == skillId)!;
+
+            const int xPositionProfession = 8;
+            var yPositionProfession = 8;
+
+            IClickableMenu.drawHoverText(b, skill.GetName(), Game1.dialogueFont, overrideX: xPositionProfession, overrideY: yPositionProfession);
+
+            yPositionProfession += 96;
+
+            foreach (var prof in skill.unlockedProfessions().Where(p => p.LevelRequired == lvlRequired))
+            {
+                IClickableMenu.drawTextureBox(b, xPositionProfession, yPositionProfession, 96, 96, Color.White);
+                b.Draw(prof.TextureSource, new Vector2(xPositionProfession + 16, yPositionProfession + 16), prof.TextureBounds, Color.White, 0f, Vector2.Zero, 4f, SpriteEffects.None, 1f);
+
+                IClickableMenu.drawHoverText(b, Game1.parseText(prof.GetDescription(), Game1.smallFont, 500), Game1.smallFont, 0, 0, -1, null, overrideX: xPositionProfession + 102, overrideY: yPositionProfession);
+
+                yPositionProfession += (height - 96)/4;
+            }
         }
     }
 }

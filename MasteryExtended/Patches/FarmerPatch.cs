@@ -10,7 +10,7 @@ namespace MasteryExtended.Patches
 {
     internal static class FarmerPatch
     {
-        internal static IMonitor LogMonitor = ModEntry.LogMonitor;
+        internal readonly static IMonitor LogMonitor = ModEntry.LogMonitor;
 
         /***********
          * PATCHES *
@@ -43,8 +43,9 @@ namespace MasteryExtended.Patches
                 ;
                 return matcher.InstructionEnumeration();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                LogMonitor.Log($"Failed in {nameof(LevelTranspiler)}:\n{ex}", LogLevel.Error);
                 return instructions;
             }
         }
@@ -55,7 +56,6 @@ namespace MasteryExtended.Patches
             try
             {
                 CodeMatcher matcher = new(instructions);
-                MethodInfo farmerLevelInfo = AccessTools.PropertyGetter(typeof(Farmer), nameof(Farmer.Level));
                 FieldInfo experiencePointsInfo = AccessTools.Field(typeof(Farmer), nameof(Farmer.experiencePoints));
                 MethodInfo masteryGainInfo = AccessTools.Method(typeof(FarmerPatch), nameof(ShouldGainMasteryExp));
 
@@ -64,20 +64,19 @@ namespace MasteryExtended.Patches
                         new CodeMatch(OpCodes.Ldarg_0),
                         new CodeMatch(OpCodes.Ldfld, experiencePointsInfo)
                     )
-                    .ThrowIfNotMatch("Vanillla gainExperience: Label IL code not found")
+                    .ThrowIfNotMatch("Vanillla gainExperience: IL code 1 not found")
                     .Labels[0]
                 ;
 
                 //from: if (this.Level >= 25)
                 //to:   if (ShouldGainMasteryExp(this, which))
                 matcher.Start()
-                    .MatchStartForward(
-                        new CodeMatch(OpCodes.Ldarg_0),
-                        new CodeMatch(OpCodes.Call, farmerLevelInfo),
-                        new CodeMatch(OpCodes.Ldc_I4_S)
+                    .MatchEndForward(
+                        new CodeMatch(OpCodes.Stelem_Ref),
+                        new CodeMatch(OpCodes.Call)
                     )
-                    .ThrowIfNotMatch("Vanillla gainExperience: IL code not found or already applied")
-                    .Advance(1)
+                    .ThrowIfNotMatch("Vanillla gainExperience: IL code 2 not found")
+                    .Advance(3)
                     .RemoveInstructions(3)
                     .Insert(
                         new CodeInstruction(OpCodes.Ldarg_1),
@@ -88,8 +87,9 @@ namespace MasteryExtended.Patches
 
                 return matcher.InstructionEnumeration();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                LogMonitor.Log($"Failed in {nameof(gainExperienceTranspiler)}:\n{ex}", LogLevel.Error);
                 return instructions;
             }
         }
@@ -122,8 +122,9 @@ namespace MasteryExtended.Patches
 
                 return matcher.InstructionEnumeration();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                LogMonitor.Log($"Failed in {nameof(getTitleTranspiler)}:\n{ex}", LogLevel.Error);
                 return instructions;
             }
         }

@@ -9,65 +9,51 @@ namespace MasteryExtended.Skills.Professions
     {
         public int Id { get; set; }
 
-        public Func<string> GetName = () => "";
-        public int LevelRequired { get; set; } = 0;
+        public Func<string> GetName { get; set; } = null!;
 
-        public Func<string> GetDescription = () => "";
+        public Func<string> GetDescription { get; set; } = null!;
 
-        public Profession? RequiredProfessions { get; set;} = null;
+        public int LevelRequired { get; set; }
+
+        public Profession? RequiredProfessions { get; set; }
 
         public Texture2D TextureSource { get; set; } = Game1.mouseCursors;
 
         public Rectangle TextureBounds { get; set; } = new Rectangle(0,0,16,16);
 
-        /**************
-        ** Public methods
-         **************/
+        /*****************
+        * Public methods *
+        ******************/
         public Profession() { }
 
-        public Profession(int id,
-                          Func<string>? name,
-                          int levelRequired,
-                          Func<string>? description = null,
-                          Texture2D? textureSource = null,
-                          Rectangle? textureBounds = null,
-                          Profession? requiredProfession = null)
+        // Vanilla Professions
+        public Profession(int id, int levelRequired, Profession? requiredProfession = null)
         {
             Id = id;
-            if (name != null)
+            GetName = () => LevelUpMenu.getProfessionTitleFromNumber(id);
+            LevelRequired = levelRequired;
+            GetDescription = () =>
             {
-                GetName = name;
-            }
-            else if (0 <= id && id <= 29)
-            {
-                GetName = () => LevelUpMenu.getProfessionTitleFromNumber(id);
-            } else {
-                GetName = () => "?";
-            }
+                List<string> profDesc = LevelUpMenu.getProfessionDescription(id);
+                profDesc.RemoveAt(0);
+                return string.Join("\n", profDesc);
+            };
+            RequiredProfessions = requiredProfession;
+            TextureBounds = new Rectangle(16 * (id % 6), 16 * (39 + id / 6), 16, 16);
+        }
 
+        // SpaceCore Professions
+        public Profession(int id, Func<string> name, Func<string> description, int levelRequired, Profession? requiredProfession, Texture2D textureSource, Rectangle? textureBounds = null)
+        {
+            Id = id;
+            GetName = name;
+            GetDescription = description;
             LevelRequired = levelRequired;
 
-            if (description != null) { GetDescription = description; }
-            else if (0 <= id && id <= 29)
-            {
-                GetDescription = () =>
-                {
-                    List<string> profDesc = LevelUpMenu.getProfessionDescription(id);
-                    profDesc.RemoveAt(0);
-                    return String.Join("\n", profDesc);
-                };
-            }
-            else {
-                GetDescription = () => "";
-            }
-
             RequiredProfessions = requiredProfession;
-            if (textureSource != null) TextureSource = textureSource;
+            TextureSource = textureSource;
             if (textureBounds != null) {
-                TextureBounds = (Rectangle)textureBounds;
-            } else if (0 <= id && id <= 29)
-            {
-                TextureBounds = new Rectangle(16 * (id % 6), 16 * (39 + id / 6), 16, 16);
+                TextureBounds = textureBounds.Value;
             }
         }
 
@@ -91,6 +77,11 @@ namespace MasteryExtended.Skills.Professions
         {
             // Modify for custom skills later
             return Game1.player.professions.Contains(Id);
+        }
+
+        public bool IsRequiredUnlocked()
+        {
+            return RequiredProfessions?.IsProfessionUnlocked() != false;
         }
     }
 }

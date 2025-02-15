@@ -1,5 +1,4 @@
 ﻿using StardewModdingAPI;
-using StardewValley;
 using System.Reflection;
 
 namespace MasteryExtended
@@ -7,7 +6,7 @@ namespace MasteryExtended
     /// <summary>Extension methods stolen from SkillPrestige</summary>
     public static class Extensions
     {
-        internal static IMonitor LogMonitor = ModEntry.LogMonitor;
+        internal readonly static IMonitor LogMonitor = ModEntry.LogMonitor;
         /*********
         ** Public methods
         *********/
@@ -34,6 +33,25 @@ namespace MasteryExtended
             const BindingFlags bindingAttributes = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
             var memberInfo = instance!.GetType().GetField(fieldName, bindingAttributes);
             memberInfo?.SetValue(instance, value);
+        }
+
+        /// <summary>Invokes and returns the value of a function, even if it is a private member.</summary>
+        /// <param name="instance">The instance of the type that contains the function to call.</param>
+        /// <param name="functionName">The name of the static function.</param>
+        /// <param name="arguments">The arguments passed to the static function.</param>
+        public static object? InvokeFunction<T>(this T instance, string functionName, params object[] arguments)
+        {
+            try
+            {
+                const BindingFlags bindingAttributes = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
+                var method = instance!.GetType().GetMethod(functionName, bindingAttributes);
+                if (method == null) return default;
+                return method.Invoke(instance, arguments);
+            }
+            catch (Exception)
+            {
+                return default;
+            }
         }
     }
 }
