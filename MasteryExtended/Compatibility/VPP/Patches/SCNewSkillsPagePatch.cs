@@ -21,9 +21,9 @@ namespace MasteryExtended.Compatibility.VPP.Patches
                 // from: if (hoverText.Length > 0)
                 // to:   if (hoverText.Length > 0 && !hoverText.Equals("MasteryExtended"))
                 matcher
-                    .MatchEndForward(
+                    .MatchStartForward(
                         new CodeMatch(OpCodes.Nop),
-                        new CodeMatch(OpCodes.Ldloc_S), //27
+                        new CodeMatch(OpCodes.Ldloc_S),
                         new CodeMatch(OpCodes.Callvirt),
                         new CodeMatch(OpCodes.Ldc_I4_0),
                         new CodeMatch(OpCodes.Cgt),
@@ -34,12 +34,14 @@ namespace MasteryExtended.Compatibility.VPP.Patches
                     .ThrowIfNotMatch("SCNewSkillsPagePatch.OnRenderedActiveMenuTranspiler: IL code 1 not found")
                 ;
 
-                Label lbl1 = (Label)matcher.Operand;
+                var hoverTextInstruction = matcher.Advance(1).Instruction;
+
+                Label lbl1 = (Label)matcher.Advance(6).Operand;
 
                 matcher
                     .Advance(1)
                     .Insert(
-                        new CodeInstruction(OpCodes.Ldloc_S, 27),
+                        hoverTextInstruction,
                         new CodeInstruction(OpCodes.Ldstr, "MasteryExtended"),
                         new CodeInstruction(OpCodes.Call, stringCompareInfo),
                         new CodeInstruction(OpCodes.Brtrue_S, lbl1)
