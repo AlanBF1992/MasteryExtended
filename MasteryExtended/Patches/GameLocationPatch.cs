@@ -119,18 +119,30 @@ namespace MasteryExtended.Patches
 
         internal static int masteryRequired()
         {
-            return ModEntry.Config.MasteryRequiredForCave;
+            return (ModEntry.Config.MasteryCaveAlternateOpening) ? ModEntry.Config.MasteryRequiredForCave : 999;
         }
 
         internal static void masteryCaveString()
         {
             int masteryLevel = MasteryTrackerMenu.getCurrentMasteryLevel();
-            int fullSkills = Game1.player.farmingLevel.Value / 10 + Game1.player.fishingLevel.Value / 10 + Game1.player.foragingLevel.Value / 10 + Game1.player.miningLevel.Value / 10 + Game1.player.combatLevel.Value / 10;
+            int divisor = ModEntry.MasteryCaveChanges() ? 20 : 10;
+            int fullSkills = Math.Min(Game1.player.farmingLevel.Value/divisor, 1)
+                             + Math.Min(Game1.player.fishingLevel.Value/divisor, 1)
+                             + Math.Min(Game1.player.foragingLevel.Value/divisor, 1)
+                             + Math.Min(Game1.player.combatLevel.Value/divisor, 1)
+                             + Math.Min(Game1.player.miningLevel.Value/divisor, 1);
 
-            Game1.drawObjectDialogue([
-                Game1.content.LoadString("Strings\\1_6_Strings:MasteryCave", fullSkills).Replace(".",""),
-                Game1.content.LoadString("Strings\\UI:MasteryExtended_TrascendMortalKnowledge") + $" ({masteryLevel}/{masteryRequired()})"
+            if (ModEntry.Config.MasteryCaveAlternateOpening)
+            {
+                Game1.drawObjectDialogue([
+                    Game1.content.LoadString("Strings\\1_6_Strings:MasteryCave", fullSkills).Replace(".",""),
+                    Game1.content.LoadString("Strings\\UI:MasteryExtended_TrascendMortalKnowledge") + $" ({masteryLevel}/{masteryRequired()})"
                 ]);
+                return;
+            }
+            Game1.drawObjectDialogue(
+                Game1.content.LoadString("Strings\\1_6_Strings:MasteryCave", fullSkills)
+            );
         }
     }
 }

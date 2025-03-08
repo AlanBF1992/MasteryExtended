@@ -79,6 +79,7 @@ namespace MasteryExtended.Compatibility.WoL
             /*************************************
              * Vanilla Skill Experience with WoL *
              *************************************/
+            // Add Partial Mastery Exp when lvl 10 to 19 and other fixes
             harmony.Patch(
                 original: AccessTools.Method("DaLion.Professions.Framework.Patchers.Prestige.FarmerGainExperiencePatcher:FarmerGainExperiencePrefix"),
                 transpiler: new HarmonyMethod(typeof(GainExperiencePatch), nameof(GainExperiencePatch.FarmerGainExperiencePrefixTranspiler))

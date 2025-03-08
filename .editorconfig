@@ -27,3 +27,6 @@ dotnet_diagnostic.S3011.severity = none
 
 # S101: Types should be named in PascalCase
 dotnet_diagnostic.S101.severity = none
+
+# IDE0305: Simplify collection initialization
+dotnet_diagnostic.IDE0305.severity = none

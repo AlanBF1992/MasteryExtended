@@ -1,16 +1,25 @@
 ﻿using HarmonyLib;
+using MasteryExtended.Compatibility.GMCM;
 using MasteryExtended.Patches;
 using Microsoft.Xna.Framework.Graphics;
+using StardewModdingAPI;
+using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Menus;
 
 namespace MasteryExtended
 {
-    internal static class ModPatches
+    internal static class VanillaLoader
     {
+        internal static void Loader(IModHelper helper, Harmony harmony)
+        {
+            VanillaPatches(harmony);
+
+            helper.Events.GameLoop.GameLaunched += GMCMConfigVanilla;
+        }
         /// <summary>Base patches for the mod.</summary>
         /// <param name="harmony">Harmony instance used to patch the game.</param>
-        internal static void VanillaPatches(Harmony harmony)
+        private static void VanillaPatches(Harmony harmony)
         {
             #region Experience and Mastery Gain
             /************************************
@@ -144,6 +153,63 @@ namespace MasteryExtended
                 postfix: new HarmonyMethod(typeof(GameLocationPatch), nameof(GameLocationPatch.answerDialogueActionPostFix))
             );
             #endregion
+        }
+
+        /// <summary>GMCM Compat Vanilla</summary>
+        private static void GMCMConfigVanilla(object? _1, GameLaunchedEventArgs _2)
+        {
+            // get Generic Mod Config Menu's API (if it's installed)
+            var configMenu = ModEntry.ModHelper.ModRegistry.GetApi<IGMCMApi>("spacechase0.GenericModConfigMenu");
+            if (configMenu is null)
+                return;
+            // register mod
+            configMenu.Register(
+                mod: ModEntry.ModManifest,
+                reset: () => ModEntry.Config = new ModConfig(),
+                save: () => ModEntry.ModHelper.WriteConfig(ModEntry.Config)
+            );
+
+            // Mastery Experience per level
+            configMenu.AddNumberOption(
+                mod: ModEntry.ModManifest,
+                getValue: () => ModEntry.Config.MasteryExpPerLevel,
+                setValue: (value) => ModEntry.Config.MasteryExpPerLevel = value,
+                name: () => "Mastery Experience for Level",
+                tooltip: () => "Default: 30000",
+                min: 15000,
+                max: 50000,
+                interval: 5000
+            );
+
+            // Require Mastery for Cave
+            configMenu.AddBoolOption(
+                mod: ModEntry.ModManifest,
+                getValue: () => ModEntry.Config.MasteryCaveAlternateOpening,
+                setValue: (value) => ModEntry.Config.MasteryCaveAlternateOpening = value,
+                name: () => "Access Cave with Levels",
+                tooltip: () => "Default: true"
+            );
+
+            // Mastery Required for Cave
+            configMenu.AddNumberOption(
+                mod: ModEntry.ModManifest,
+                getValue: () => ModEntry.Config.MasteryRequiredForCave,
+                setValue: (value) => ModEntry.Config.MasteryRequiredForCave = value,
+                name: () => "Mastery Levels for the cave",
+                tooltip: () => "Default: 5",
+                min: 0,
+                max: 10,
+                interval: 1
+            );
+
+            // Require 3 Professions per pillar
+            configMenu.AddBoolOption(
+                mod: ModEntry.ModManifest,
+                getValue: () => ModEntry.Config.ExtraRequiredProfession,
+                setValue: (value) => ModEntry.Config.ExtraRequiredProfession = value,
+                name: () => "3 Professions for pillars",
+                tooltip: () => "Default: true"
+            );
         }
     }
 }

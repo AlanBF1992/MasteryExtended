@@ -34,7 +34,7 @@ namespace MasteryExtended
         public static int MaxMasteryLevels { get; internal set; } = 25;
 
         /// <summary>For VPP Changes.</summary>
-        public static Func<bool> MasteryCaveChanges { get; internal set; } = null!;
+        public static Func<bool> MasteryCaveChanges { get; internal set; } = () => false;
 
         /******************
         ** Public methods *
@@ -47,8 +47,7 @@ namespace MasteryExtended
             Config = helper.ReadConfig<ModConfig>();
 
             // Vanilla Patches
-            ModPatches.VanillaPatches(new Harmony(ModManifest.UniqueID));
-            helper.Events.GameLoop.GameLaunched += GMCMConfigVanilla;
+            VanillaLoader.Loader(helper, new Harmony(ModManifest.UniqueID));
             LogMonitor.Log("Base Patches Loaded", LogLevel.Info);
 
             // SpaceCore Compat
@@ -147,54 +146,6 @@ namespace MasteryExtended
             {
                 base.Helper.Data.WriteSaveData("AlanBF.MasteryExtended", Data);
             }
-        }
-
-        /// <summary>GMCM Compat Vanilla</summary>
-        private static void GMCMConfigVanilla(object? _1, GameLaunchedEventArgs _2)
-        {
-            // get Generic Mod Config Menu's API (if it's installed)
-            var configMenu = ModHelper.ModRegistry.GetApi<IGMCMApi>("spacechase0.GenericModConfigMenu");
-            if (configMenu is null)
-                return;
-            // register mod
-            configMenu.Register(
-                mod: ModManifest,
-                reset: () => Config = new ModConfig(),
-                save: () => ModHelper.WriteConfig(Config)
-            );
-
-            // Mastery Experience per level
-            configMenu.AddNumberOption(
-                mod: ModManifest,
-                getValue: () => Config.MasteryExpPerLevel,
-                setValue: (value) => Config.MasteryExpPerLevel = value,
-                name: () => "Mastery Experience for Level",
-                tooltip: () => "Default: 30000",
-                min: 15000,
-                max: 50000,
-                interval: 5000
-            );
-
-            // Mastery Required for Cave
-            configMenu.AddNumberOption(
-                mod: ModManifest,
-                getValue: () => Config.MasteryRequiredForCave,
-                setValue: (value) => Config.MasteryRequiredForCave = value,
-                name: () => "Mastery Levels for the cave",
-                tooltip: () => "Default: 5",
-                min: 0,
-                max: 10,
-                interval: 1
-            );
-
-            // Require 3 Professions per pillar
-            configMenu.AddBoolOption(
-                mod: ModManifest,
-                getValue: () => Config.ExtraRequiredProfession,
-                setValue: (value) => Config.ExtraRequiredProfession = value,
-                name: () => "3 Professions for pillars",
-                tooltip: () => "Default: true"
-            );
         }
     }
 }

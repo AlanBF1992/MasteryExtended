@@ -112,12 +112,12 @@ namespace MasteryExtended.Compatibility.VPP
             /***********************
              * CHANGE MASTERY GAIN *
              ***********************/
-            // Add Mastery Exp when lvl 10 or 20
+            // Add Full Mastery Exp when lvl 20
             harmony.Patch(
                 original: AccessTools.Method("MasteryExtended.Patches.FarmerPatch:ShouldGainMasteryExp"),
                 transpiler: new HarmonyMethod(typeof(FarmerPatch), nameof(FarmerPatch.ShouldGainMasteryExpTranspiler))
             );
-
+            // Add Partial Mastery Exp when lvl 10 to 19
             harmony.Patch(
                 original: AccessTools.Method(typeof(Farmer), nameof(Farmer.gainExperience)),
                 transpiler: new HarmonyMethod(typeof(FarmerPatch), nameof(FarmerPatch.gainExperienceTranspiler))

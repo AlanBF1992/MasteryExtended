@@ -5,6 +5,8 @@
     {
         /// <summary>Experience each extra mastery level costs.</summary>
         public int MasteryExpPerLevel { get; set; } = 30000;
+        /// <summary>If you can open the Mastery Cave with Mastery Levels</summary>
+        public bool MasteryCaveAlternateOpening { get; set; } = true;
         /// <summary>Mastery required to access the Mastery Room.</summary>
         public int MasteryRequiredForCave { get; set; } = 5;
         /// <summary>Require 3 professions for the pillars</summary>
