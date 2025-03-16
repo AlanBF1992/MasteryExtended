@@ -112,11 +112,8 @@ namespace MasteryExtended.Compatibility.WoL.Patches
         private static void expShare(object skill, int howMuch)
         {
             var currentSkillLevel = (int)skill.InvokeFunction("get_CurrentLevel", [])!;
-            //var skillId = (int)skill.GetType().GetMethod("get_Id")!.Invoke(skill, [])!; //which
             var skillId = (int)skill.InvokeFunction("get_Id", [])!;
-            //var currentExp = (int)skill.GetType().GetMethod("get_CurrentExp")!.Invoke(skill, [])!; //which
             var currentExp = (int)skill.InvokeFunction("get_CurrentExp", [])!;
-            //var maxLevel = (int)skill.GetType().GetMethod("get_MaxLevel")!.Invoke(skill, [])!; //
             var maxLevel = (int)skill.InvokeFunction("get_MaxLevel", [])!;
 
             var addExperienceMethod = skill.GetType().GetMethod("AddExperience")!;
