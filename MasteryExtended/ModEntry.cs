@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using MasteryExtended.Compatibility.GMCM;
 using MasteryExtended.Compatibility.SpaceCore;
 using MasteryExtended.Compatibility.VPP;
 using MasteryExtended.Compatibility.WoL;

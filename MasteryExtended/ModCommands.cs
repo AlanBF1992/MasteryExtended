@@ -86,7 +86,8 @@ namespace MasteryExtended
 
             var allSkills = MasterySkillsPage.skills;//.FindAll(s => s.Id is >= 0 and <= 4);
 
-            allSkills.ForEach(s => s.Professions.ForEach(p => p.RemoveProfessionFromPlayer()));
+            //allSkills.ForEach(s => s.Professions.ForEach(p => p.RemoveProfessionFromPlayer()));
+            Game1.player.professions.Clear();
 
             foreach (Skill s in allSkills)
             {

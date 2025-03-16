@@ -9,7 +9,9 @@ namespace MasteryExtended.Compatibility.WoL.Patches
 {
     internal static class MasteryProfessionsPagePatch
     {
-        // Constructor, prestiged son myAlternateId = 2
+        readonly static System.Reflection.MethodInfo profMethod = AccessTools.Method("DaLion.Professions.Framework.VanillaProfession:FromValue", [typeof(int)]);
+
+        // Constructor, prestiged son myAlternateId = 3
         internal static void MasteryProfessionsPagePatchPostfix(MasteryProfessionsPage __instance)
         {
             foreach (var c in __instance.pageTextureComponents.Where(c => Game1.player.professions.Contains(c.myID + 100)))
@@ -24,14 +26,9 @@ namespace MasteryExtended.Compatibility.WoL.Patches
             if (__instance.innerSkill.getLevel() <= 10) return;
             if (__instance.innerSkill.Id is < 0 or > 4) return;
 
-            foreach (ClickableTextureComponent c in __instance.pageTextureComponents.Where(c => c.myAlternateID != 0))
+            foreach (ClickableTextureComponent c in __instance.pageTextureComponents.Where(c => c.myAlternateID >= 2))
             {
-                var reqProf = __instance.innerSkill.Professions.Find(p => p.Id == c.myID)!.RequiredProfessions;
-                bool prestiged = Game1.player.professions.Contains(c.myID + 100);
-                bool canPrestige = prestiged || reqProf == null || Game1.player.professions.Contains(reqProf.Id + 100);
-
-                if (!canPrestige) continue;
-                b.Draw(Game1.mouseCursors_1_6, new Vector2(c.bounds.Right - 40, c.bounds.Top + 10), new Rectangle(prestiged ? 33 : 23, 89, 10, 11), Color.White, 0f, Vector2.Zero, 3f, SpriteEffects.None, 0.88f);
+                b.Draw(Game1.mouseCursors_1_6, new Vector2(c.bounds.Right - 40, c.bounds.Top + 10), new Rectangle(c.myAlternateID == 3 ? 33 : 23, 89, 10, 11), Color.White, 0f, Vector2.Zero, 3f, SpriteEffects.None, 0.88f);
             }
 
             MasteryProfessionsPage.drawHoverText(b, Game1.parseText(__instance.hoverText, Game1.smallFont, 500), Game1.smallFont,
@@ -52,7 +49,7 @@ namespace MasteryExtended.Compatibility.WoL.Patches
 
             foreach (ClickableTextureComponent c in __instance.pageTextureComponents)
             {
-                if (c.bounds.Contains(x, y) && c.myAlternateID == 1 && levelsNotSpent > 0)
+                if (c.bounds.Contains(x, y) && c.myAlternateID == 2 && levelsNotSpent > 0)
                 {
                     var reqProf = __instance.innerSkill.Professions.Find(p => p.Id == c.myID)!.RequiredProfessions;
 
@@ -65,7 +62,7 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                     var professionToAdd = __instance.innerSkill.Professions.Find(p => p.Id == c.myID)!;
                     // Show which one was added
                     Game1.drawObjectDialogue(
-                        ModEntry.ModHelper.Translation.Get("prestiged-profession", new { skill = __instance.innerSkill.GetName(), prof = professionToAdd.GetName() })
+                        Game1.content.LoadString("Strings\\UI:MasteryExtended_AddedProfession", __instance.innerSkill.GetName(), professionToAdd.GetName())
                     );
                 }
             }
@@ -75,10 +72,10 @@ namespace MasteryExtended.Compatibility.WoL.Patches
         {
             if (__instance.innerSkill.Id is < 0 or > 4) return;
 
+            //This is slow as fuck, change it later
             foreach (ClickableTextureComponent c in __instance.pageTextureComponents.Where(c => c.bounds.Contains(x, y)))
             {
                 Game1.SetFreeCursorDrag();
-                var profMethod = AccessTools.Method("DaLion.Professions.Framework.VanillaProfession:FromValue", [typeof(int)]);
                 dynamic dalionProf = profMethod.Invoke(null, [c.myID])!;
 
                 switch (c.myAlternateID)
@@ -88,6 +85,7 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                     case 2:
                         __instance.hoverText += "\n\nPrestiged: " + dalionProf.GetTitle(true) + "\n";
                         __instance.hoverText += dalionProf.GetDescription(true);
+                        
                         break;
                     case 3:
                         __instance.hoverText = "= Already prestiged =\n" + dalionProf.GetDescription(true);

@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using StardewModdingAPI;
 using StardewValley;
-using System.Collections;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -10,6 +9,9 @@ namespace MasteryExtended.Compatibility.WoL.Patches
     internal static class LevelUpMenuUpdatePatch
     {
         internal readonly static IMonitor LogMonitor = ModEntry.LogMonitor;
+        internal readonly static PropertyInfo getTierOneProfessions = AccessTools.Property("DaLion.Professions.Framework.ISkill:TierOneProfessions");
+        internal readonly static PropertyInfo getBranchingProfessions = AccessTools.Property("DaLion.Professions.Framework.IProfession:GetBranchingProfessions");
+        internal readonly static PropertyInfo getId = AccessTools.Property("DaLion.Professions.Framework.IProfession:Id");
 
         internal static IEnumerable<CodeInstruction> LevelUpMenuUpdatePrefixTranspiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
         {
@@ -145,25 +147,28 @@ namespace MasteryExtended.Compatibility.WoL.Patches
 
         internal static void lvl15AddRange(List<int> professionsToChoose, object skill, Farmer player)
         {
-            var tierOneProf = (IEnumerable<object>)skill.GetInstanceField("TierOneProfessions")!;
+            var tierOneProf = (IEnumerable<object>)getTierOneProfessions.GetValue(skill)!;
+
             professionsToChoose.AddRange(tierOneProf
-                .Where(p => ((IEnumerable<object>)p.GetInstanceField("TierOneProfessions")!).Any(x => player.professions.Contains((int)x.GetInstanceField("Id")!)))
-                .Select(x => (int)x.GetInstanceField("Id")!));
+                .Where(p => ((IEnumerable<object>)getBranchingProfessions.GetValue(p)!).Any(x => player.professions.Contains((int)getId.GetValue(x)!)))
+                .Select(x => (int)getId.GetValue(x)!));
         }
 
         internal static int lvl15Root(Farmer player, object skill)
         {
-            var tierOneProf = (IEnumerable<object>)skill.GetInstanceField("TierOneProfessions")!;
+            var tierOneProf = (IEnumerable<object>)getTierOneProfessions.GetValue(skill)!;
+
             return tierOneProf
-                .Where(p => ((IEnumerable<object>)p.GetInstanceField("GetBranchingProfessions")!).Any(x => player.professions.Contains((int)x.GetInstanceField("Id")!)))
-                .Select(x => (int)x.GetInstanceField("Id")!)
+                .Where(p => ((IEnumerable<object>)getBranchingProfessions.GetValue(p)!).Any(x => player.professions.Contains((int)getId.GetValue(x)!)))
+                .Select(x => (int)getId.GetValue(x)!)
                 .First();
         }
 
         internal static int lvl20Root(Farmer player, object skill)
         {
-            var tierOneProf = (IEnumerable<object>)skill.GetInstanceField("TierOneProfessions")!;
-            return tierOneProf.Where(p => player.professions.Contains((int)p.GetInstanceField("Id")! + 100)).Select(x => (int)x.GetInstanceField("Id")!).First();
+            var tierOneProf = (IEnumerable<object>)getTierOneProfessions.GetValue(skill)!;
+
+            return tierOneProf.Where(p => player.professions.Contains((int)getId.GetValue(p)! + 100)).Select(x => (int)getId.GetValue(x)!).First();
         }
     }
 }
