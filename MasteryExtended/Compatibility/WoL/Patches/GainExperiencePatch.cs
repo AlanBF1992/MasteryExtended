@@ -1,9 +1,6 @@
 ﻿using HarmonyLib;
-using MasteryExtended.Patches;
-using MasteryExtended.Skills;
 using StardewModdingAPI;
 using StardewValley;
-using StardewValley.Buildings;
 using StardewValley.Menus;
 using System.Reflection;
 using System.Reflection.Emit;

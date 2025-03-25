@@ -1,11 +1,10 @@
-﻿using StardewModdingAPI;
-using StardewValley;
-using xTile.Dimensions;
-using StardewValley.Menus;
+﻿using HarmonyLib;
 using MasteryExtended.Menu.Pages;
-using HarmonyLib;
-using System.Reflection.Emit;
+using StardewModdingAPI;
+using StardewValley;
+using StardewValley.Menus;
 using System.Reflection;
+using System.Reflection.Emit;
 
 namespace MasteryExtended.Patches
 {

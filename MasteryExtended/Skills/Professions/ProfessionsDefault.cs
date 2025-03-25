@@ -1,7 +1,4 @@
-﻿using StardewValley;
-using StardewValley.Menus;
-
-namespace MasteryExtended.Skills.Professions
+﻿namespace MasteryExtended.Skills.Professions
 {
     public partial class Profession
     {

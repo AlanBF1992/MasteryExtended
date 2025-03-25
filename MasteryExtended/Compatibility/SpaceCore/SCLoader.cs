@@ -1,8 +1,8 @@
 ﻿using HarmonyLib;
 using MasteryExtended.Compatibility.SpaceCore.Patches;
 using MasteryExtended.Menu.Pages;
-using MasteryExtended.Skills.Professions;
 using MasteryExtended.Skills;
+using MasteryExtended.Skills.Professions;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;

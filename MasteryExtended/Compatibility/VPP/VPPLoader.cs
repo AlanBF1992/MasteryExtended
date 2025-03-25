@@ -147,10 +147,16 @@ namespace MasteryExtended.Compatibility.VPP
             /***********************
              * OTHERS *
              ***********************/
-            // FUCKING STOP DRAWING WITH THE HOVER MAN
+            // Stop the hover
             harmony.Patch(
                 original: AccessTools.Method("VanillaPlusProfessions.DisplayHandler:OnRenderedActiveMenu"),
-                transpiler: new HarmonyMethod(typeof(SCNewSkillsPagePatch), nameof(SCNewSkillsPagePatch.OnRenderedActiveMenuTranspiler))
+                transpiler: new HarmonyMethod(typeof(DisplayHandlerPatch), nameof(DisplayHandlerPatch.OnRenderedActiveMenuTranspiler))
+            );
+
+            // Rename MyCustomSkillBars
+            harmony.Patch(
+                original: AccessTools.Method("VanillaPlusProfessions.ModEntry:OnButtonPressed"),
+                transpiler: new HarmonyMethod(typeof(ModEntryPatcher), nameof(ModEntryPatcher.OnButtonPressedTranspiler))
             );
         }
     }

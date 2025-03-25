@@ -1,9 +1,9 @@
-﻿using MasteryExtended.Menu.Pages;
-using StardewValley.Menus;
-using StardewValley;
-using Microsoft.Xna.Framework;
+﻿using MasteryExtended.Compatibility.VPP.Menu.Pages;
+using MasteryExtended.Menu.Pages;
 using MasteryExtended.Skills;
-using MasteryExtended.Compatibility.VPP.Menu.Pages;
+using Microsoft.Xna.Framework;
+using StardewValley;
+using StardewValley.Menus;
 
 namespace MasteryExtended.Compatibility.VPP.Patches
 {

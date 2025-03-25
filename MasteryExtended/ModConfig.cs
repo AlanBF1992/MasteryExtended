@@ -17,5 +17,7 @@
         public int Lvl10ProfessionsRequired { get; set; } = 2;
         /// <summary>VPP: Level 15 Professions required to get an extra combo.</summary>
         public int Lvl15ProfessionsRequired { get; set; } = 4;
+        /// <summary>See title of Skill on Menu Hover</summary>
+        public bool SkillNameOnMenuHover { get; set; } = true;
     }
 }

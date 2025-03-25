@@ -1,12 +1,11 @@
-﻿using MasteryExtended.Menu.Pages;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework;
-using StardewValley.BellsAndWhistles;
-using StardewValley.Menus;
-using StardewValley;
-using MasteryExtended.Menu;
+﻿using MasteryExtended.Menu;
 using MasteryExtended.Skills;
 using MasteryExtended.Skills.Professions;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using StardewValley;
+using StardewValley.BellsAndWhistles;
+using StardewValley.Menus;
 
 namespace MasteryExtended.Compatibility.VPP.Menu.Pages
 {

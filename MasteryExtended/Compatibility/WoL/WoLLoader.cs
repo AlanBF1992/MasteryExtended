@@ -17,6 +17,7 @@ namespace MasteryExtended.Compatibility.WoL
             WoLPatches(harmony);
             helper.Events.GameLoop.SaveLoaded += fixExperienceCurve;
             helper.Events.GameLoop.GameLaunched += GMCMConfigWoL;
+            ModEntry.MaxMasteryLevels += 20;
         }
 
         /// <summary>Makes SpaceCore Skills only able to go to lvl 10</summary>

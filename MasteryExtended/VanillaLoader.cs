@@ -210,6 +210,15 @@ namespace MasteryExtended
                 name: () => "3 Professions for pillars",
                 tooltip: () => "Default: true"
             );
+
+            // Show Skill Title on Hover of Skill Page
+            configMenu.AddBoolOption(
+                mod: ModEntry.ModManifest,
+                getValue: () => ModEntry.Config.SkillNameOnMenuHover,
+                setValue: (value) => ModEntry.Config.SkillNameOnMenuHover = value,
+                name: () => "Skill Name on Menu Hover",
+                tooltip: () => "Default: true"
+            );
         }
     }
 }

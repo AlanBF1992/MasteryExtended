@@ -3,7 +3,6 @@ using MasteryExtended.Menu.Pages;
 using MasteryExtended.Patches;
 using MasteryExtended.Skills;
 using StardewModdingAPI;
-using System;
 using System.Reflection;
 using System.Reflection.Emit;
 

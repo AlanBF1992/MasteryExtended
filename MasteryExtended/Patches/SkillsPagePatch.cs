@@ -301,7 +301,6 @@ namespace MasteryExtended.Patches
         {
             string hoverTitle = (string)instance.GetInstanceField("hoverTitle")!;
             string hoverText = ((string)instance.GetInstanceField("hoverText")!);
-            int height = (int)instance.GetInstanceField("height")!;
 
             if (!hoverText.Trim().Equals("MasteryExtended")) return;
 
@@ -311,21 +310,48 @@ namespace MasteryExtended.Patches
 
             var skill = MasterySkillsPage.skills.Find(s => s.Id == skillId)!;
 
-            const int xPositionProfession = 8;
-            var yPositionProfession = 8;
+            const int xSpacing = 8;
+            const int ySpacing = 8;
 
-            IClickableMenu.drawHoverText(b, skill.GetName(), Game1.dialogueFont, overrideX: xPositionProfession, overrideY: yPositionProfession);
+            var yPosition = 0;
+            var xPosition = 0;
 
-            yPositionProfession += 96;
-
-            foreach (var prof in skill.unlockedProfessions().Where(p => p.LevelRequired == lvlRequired))
+            if(ModEntry.Config.SkillNameOnMenuHover)
             {
-                IClickableMenu.drawTextureBox(b, xPositionProfession, yPositionProfession, 96, 96, Color.White);
-                b.Draw(prof.TextureSource, new Vector2(xPositionProfession + 16, yPositionProfession + 16), prof.TextureBounds, Color.White, 0f, Vector2.Zero, 4f, SpriteEffects.None, 1f);
+                IClickableMenu.drawHoverText(b, skill.GetName(), Game1.smallFont, overrideX: xSpacing, overrideY: ySpacing, boxScale: 1f);
+                yPosition += 72;
+            }
 
-                IClickableMenu.drawHoverText(b, Game1.parseText(prof.GetDescription(), Game1.smallFont, 500), Game1.smallFont, 0, 0, -1, null, overrideX: xPositionProfession + 102, overrideY: yPositionProfession);
+            var unlockedProfessions = skill.unlockedProfessions().Where(p => p.LevelRequired == lvlRequired).OrderByDescending(p => p.GetDescription().Length).ToArray();
 
-                yPositionProfession += (height - 96)/4;
+            for (int i = unlockedProfessions.Length - 1; i >= 0; i--)
+            {
+                var prof = unlockedProfessions[i];
+
+                // Box and Icon
+                IClickableMenu.drawTextureBox(b, Game1.menuTexture, new Rectangle(0, 256, 60, 60), xPosition + xSpacing, yPosition + ySpacing, 66, 66, Color.White, 0.75f);
+                b.Draw(prof.TextureSource, new Rectangle(xPosition + xSpacing + 12, yPosition + ySpacing + 12, 66 - 24, 66 - 24), prof.TextureBounds, Color.White);
+
+                // Description
+                var descText = Game1.parseText(prof.GetDescription(), Game1.smallFont, 460);
+                var descSize = Game1.smallFont.MeasureString(descText);
+
+                IClickableMenu.drawHoverText(b, descText, Game1.smallFont, overrideX: xPosition + xSpacing + 72, overrideY: yPosition + ySpacing, boxScale: 0.75f);
+
+                yPosition += (int)descSize.Y + 32 + 8;
+                var nextHeight = i == 0 ? 0: Game1.smallFont.MeasureString(Game1.parseText(unlockedProfessions[i - 1].GetDescription(), Game1.smallFont, 460)).Y + 32;
+
+                if (yPosition + nextHeight + 8 >= Game1.uiViewport.Height)
+                {
+                    xPosition += 600;
+
+                    foreach(var prof2 in unlockedProfessions[0..i])
+                    {
+                        var descSize2 = (int)Game1.smallFont.MeasureString(Game1.parseText(prof2.GetDescription(), Game1.smallFont, 460)).Y;
+
+                        yPosition -= descSize2 + 32 + 8;
+                    }
+                }
             }
         }
     }

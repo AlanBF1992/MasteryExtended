@@ -1,8 +1,6 @@
 ﻿using HarmonyLib;
-using MasteryExtended.Menu.Pages;
 using StardewModdingAPI;
 using StardewValley;
-using StardewValley.Menus;
 using System.Reflection;
 using System.Reflection.Emit;
 
