@@ -158,6 +158,12 @@ namespace MasteryExtended.Compatibility.VPP
                 original: AccessTools.Method("VanillaPlusProfessions.ModEntry:OnButtonPressed"),
                 transpiler: new HarmonyMethod(typeof(ModEntryPatcher), nameof(ModEntryPatcher.OnButtonPressedTranspiler))
             );
+
+            // Don't let VPP handle things. I'm the handler now
+            harmony.Patch(
+                original: AccessTools.Method("VanillaPlusProfessions.DisplayHandler:HandleSkillPage"),
+                transpiler: new HarmonyMethod(typeof(DisplayHandlerPatch), nameof(DisplayHandlerPatch.HandleSkillPageTranspiler))
+            );
         }
     }
 }

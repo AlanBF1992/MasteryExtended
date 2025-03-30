@@ -85,9 +85,11 @@ namespace MasteryExtended.Patches
             {
                 if (__instance.Name != "MasteryCave") return;
 
+                int professionsRequired = ModEntry.Config.PillarsVsProfessions != "Professions required for Pillars" ? 2 : ModEntry.Config.RequiredProfessionForPillars;
+
                 for (int which = 0; which < 5; which++)
                 {
-                    bool enoughProfessions = MasterySkillsPage.skills.Find(s => s.Id == which)!.unlockedProfessionsCount() >= (ModEntry.Config.ExtraRequiredProfession ? 3 : 2);
+                    bool enoughProfessions = MasterySkillsPage.skills.Find(s => s.Id == which)!.unlockedProfessionsCount(0,10) >= professionsRequired;
 
                     Game1.stats.Get("MasteryExp");
                     bool freeLevel = MasteryTrackerMenu.getCurrentMasteryLevel() > (int)Game1.stats.Get("masteryLevelsSpent");

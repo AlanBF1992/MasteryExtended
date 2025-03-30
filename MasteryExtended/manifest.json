@@ -1,7 +1,7 @@
 {
   "Name": "Mastery Extended",
   "Author": "AlanBF",
-  "Version": "2.0.1",
+  "Version": "2.0.3",
   "Description": "Adds new things to do with the Mastery System",
   "UniqueID": "AlanBF.MasteryExtended",
   "EntryDll": "MasteryExtended.dll",

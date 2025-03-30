@@ -295,7 +295,7 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
         {
             var metodoSC = AccessTools.Method("SpaceCore.Skills+Skill:GetName");
             string name = (string)metodoSC.Invoke(skill, null)!;
-            Skill sk = MasterySkillsPage.skills.Find(s => s.GetName() == name)!;
+            Skill sk = MasterySkillsPage.skills.Find(s => s.GetName() == name && s.showSkill())!;
             return sk.Id + "," + lvl;
         }
     }

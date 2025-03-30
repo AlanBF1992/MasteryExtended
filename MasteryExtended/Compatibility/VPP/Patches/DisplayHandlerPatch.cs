@@ -83,5 +83,31 @@ namespace MasteryExtended.Compatibility.VPP.Patches
                 return instructions;
             }
         }
+
+        internal static IEnumerable<CodeInstruction> HandleSkillPageTranspiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
+        {
+            try
+            {
+                CodeMatcher matcher = new(instructions, generator);
+
+                matcher
+                    .MatchStartForward(
+                        new CodeMatch(OpCodes.Isinst)
+                    )
+                    .Advance(1)
+                    .Insert(
+                        new CodeInstruction(OpCodes.Pop),
+                        new CodeInstruction(OpCodes.Ldc_I4_0)
+                    )
+                ;
+
+                return matcher.InstructionEnumeration();
+            }
+            catch (Exception ex)
+            {
+                LogMonitor.Log($"Failed in {nameof(HandleSkillPageTranspiler)}:\n{ex}", LogLevel.Error);
+                return instructions;
+            }
+        }
     }
 }

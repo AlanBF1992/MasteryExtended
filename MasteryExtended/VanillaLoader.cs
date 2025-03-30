@@ -169,6 +169,23 @@ namespace MasteryExtended
                 save: () => ModEntry.ModHelper.WriteConfig(ModEntry.Config)
             );
 
+            /***********************
+             * Mastery Base Working
+             ***********************/
+            configMenu.AddSectionTitle(
+                mod: ModEntry.ModManifest,
+                text: () => "Exp per Level and Cave Access Settings"
+            );
+
+            // Show Skill Title on Hover of Skill Page
+            configMenu.AddBoolOption(
+                mod: ModEntry.ModManifest,
+                getValue: () => ModEntry.Config.SkillNameOnMenuHover,
+                setValue: (value) => ModEntry.Config.SkillNameOnMenuHover = value,
+                name: () => "Skill Name on Menu Hover",
+                tooltip: () => "Default: true"
+            );
+
             // Mastery Experience per level
             configMenu.AddNumberOption(
                 mod: ModEntry.ModManifest,
@@ -202,22 +219,46 @@ namespace MasteryExtended
                 interval: 1
             );
 
-            // Require 3 Professions per pillar
-            configMenu.AddBoolOption(
+            /*****************************
+             * Mastery Cave Inner Working
+             *****************************/
+            configMenu.AddSectionTitle(
                 mod: ModEntry.ModManifest,
-                getValue: () => ModEntry.Config.ExtraRequiredProfession,
-                setValue: (value) => ModEntry.Config.ExtraRequiredProfession = value,
-                name: () => "3 Professions for pillars",
-                tooltip: () => "Default: true"
+                text: () => "Mastery Cave Pillars and Pedestal Config"
             );
 
-            // Show Skill Title on Hover of Skill Page
-            configMenu.AddBoolOption(
+            // Which way the Cave unlocks
+            configMenu.AddTextOption(
                 mod: ModEntry.ModManifest,
-                getValue: () => ModEntry.Config.SkillNameOnMenuHover,
-                setValue: (value) => ModEntry.Config.SkillNameOnMenuHover = value,
-                name: () => "Skill Name on Menu Hover",
-                tooltip: () => "Default: true"
+                getValue: () => ModEntry.Config.PillarsVsProfessions,
+                setValue: value => ModEntry.Config.PillarsVsProfessions = value,
+                name: () => "Unlock order in Mastery Cave",
+                tooltip: () => "What is required to unlock what.\nDefault: \"Professions required for Pillars\"",
+                allowedValues: ["Professions required for Pillars", "Pillars required for Pedestal", "Neither"]
+            );
+
+            // Required Professions per pillar
+            configMenu.AddNumberOption(
+                mod: ModEntry.ModManifest,
+                getValue: () => ModEntry.Config.RequiredProfessionForPillars,
+                setValue: (value) => ModEntry.Config.RequiredProfessionForPillars = value,
+                name: () => "Professions required for pillars",
+                tooltip: () => "Does nothing if \"Professions required for Pillars\" is not selected.\nDefault: 3",
+                min: 3,
+                max: 6,
+                interval: 1
+            );
+
+            // Required Pillars for Investment
+            configMenu.AddNumberOption(
+                mod: ModEntry.ModManifest,
+                getValue: () => ModEntry.Config.RequiredPilarsToThePedestal,
+                setValue: (value) => ModEntry.Config.RequiredPilarsToThePedestal = value,
+                name: () => "Pillars required to invest",
+                tooltip: () => "Does nothing if \"Pillars required for Pedestal\" is not selected.\nDefault: 3",
+                min: 1,
+                max: 5,
+                interval: 1
             );
         }
     }

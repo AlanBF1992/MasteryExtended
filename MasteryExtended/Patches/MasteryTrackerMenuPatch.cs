@@ -111,13 +111,18 @@ namespace MasteryExtended.Patches
                     __instance.currentlySnappedComponent = __instance.getComponentWithID(__instance.mainButton == null ? __instance.upperRightCloseButton.myID : 0);
                     __instance.snapCursorToCurrentSnappedComponent();
                 }
+
+                bool canClaim = ModEntry.Config.PillarsVsProfessions != "Pillars required for Pedestal" || Utilities.countClaimedPillars() >= ModEntry.Config.RequiredPilarsToThePedestal;
+
+                __instance.SetInstanceField("canClaim", canClaim);
             }
             else
             {
-                int numUnlockedProfessions = MasterySkillsPage.skills.Find(s => s.Id == whichSkill)!.Professions.FindAll(p => p.IsProfessionUnlocked()).Count;
-                bool claim = levelsNotSpent > 0 && numUnlockedProfessions>= (ModEntry.Config.ExtraRequiredProfession? 3: 2);
+                int professionsRequired = ModEntry.Config.PillarsVsProfessions != "Professions required for Pillars" ? 2 : ModEntry.Config.RequiredProfessionForPillars;
+                int numUnlockedProfessions = MasterySkillsPage.skills.Find(s => s.Id == whichSkill)!.unlockedProfessionsCount(0,10);
+                bool canClaim = levelsNotSpent > 0 && numUnlockedProfessions>= professionsRequired;
 
-                __instance.SetInstanceField("canClaim", claim);
+                __instance.SetInstanceField("canClaim", canClaim);
             }
         }
 
@@ -164,6 +169,20 @@ namespace MasteryExtended.Patches
                             29 - (int)Math.Ceiling(Game1.dialogueFont.MeasureString(s).Y / 2) + (float)((__instance.mainButton.sourceRect.X == 84) ? 8 : 0)),
                         Color.Black, Color.Black * 0.2f, 1f, 0.9f);
                 }
+
+                // Can invest
+                bool canClaim = ModEntry.Config.PillarsVsProfessions != "Pillars required for Pedestal" || Utilities.countClaimedPillars() >= ModEntry.Config.RequiredPilarsToThePedestal;
+
+                if (__instance.mainButton != null && !canClaim)
+                {
+                    //Parche sobre el botón
+                    b.Draw(Game1.staminaRect, new Rectangle(__instance.mainButton.bounds.X, __instance.mainButton.bounds.Y, __instance.mainButton.bounds.Width, __instance.mainButton.bounds.Height + 5), new Color(137, 137, 137));
+                    __instance.mainButton?.draw(b, Color.White * 0.5f, 0.88f);
+                    string s = Game1.content.LoadString("Strings\\UI:MasteryExtended_InvestButton");
+                    Utility.drawTextWithColoredShadow(b, s, Game1.dialogueFont, __instance.mainButton!.getVector2() + new Vector2((float)(__instance.mainButton.bounds.Width / 2) - Game1.dialogueFont.MeasureString(s).X / 2f, 6f + (float)((__instance.mainButton.sourceRect.X == 84) ? 8 : 0)), Color.Black * 0.5f, Color.Black * 0.2f, 1f, 0.9f);
+
+                    __instance.drawMouse(b);
+                }
             }
 
             if (__instance.mainButton != null)
@@ -182,14 +201,16 @@ namespace MasteryExtended.Patches
         /// </summary>
         internal static bool receiveLeftClickPrefix(MasteryTrackerMenu __instance, int x, int y, bool playSound = true)
         {
+            bool canClaim = (bool)__instance.GetInstanceField("canClaim")!;
             if ((int)__instance.GetInstanceField("which")! != -1)
             {
-                if (((float)__instance.GetInstanceField("destroyTimer")! <= 0f) && __instance.mainButton?.containsPoint(x, y) == true && (float)__instance.GetInstanceField("pressedButtonTimer")! <= 0f && (bool)__instance.GetInstanceField("canClaim")!)
+                if (((float)__instance.GetInstanceField("destroyTimer")! <= 0f) && __instance.mainButton?.containsPoint(x, y) == true && (float)__instance.GetInstanceField("pressedButtonTimer")! <= 0f && canClaim)
                 {
                     ModEntry.Data.claimedRewards++;
                 }
                 return true;
             }
+            if (!canClaim) return true;
             if ((float)__instance.GetInstanceField("destroyTimer")! <= 0f)
             {
                 // Botón de cerrado, porque no puedo llamar a la base.
@@ -246,25 +267,29 @@ namespace MasteryExtended.Patches
         internal static void performHoverActionPostfix(MasteryTrackerMenu __instance, int x, int y)
         {
             int which = (int)__instance.GetInstanceField("which")!;
+            bool canClaim = (bool)__instance.GetInstanceField("canClaim")!;
             if (__instance.mainButton != null)
             {
                 __instance.mainButton.name = "";
             }
-            if (__instance.mainButton?.containsPoint(x, y) == true && !(bool)__instance.GetInstanceField("canClaim")!)
+            if (__instance.mainButton?.containsPoint(x, y) == true && !canClaim)
             {
                 bool freeLevel = MasteryTrackerMenu.getCurrentMasteryLevel() > (int)Game1.stats.Get("masteryLevelsSpent");
 
                 if (which != -1)
                 {
-                    bool enoughProfessions = MasterySkillsPage.skills.Find(s => s.Id == which)!.Professions.FindAll(p => p.IsProfessionUnlocked()).Count >= (ModEntry.Config.ExtraRequiredProfession? 3 : 2);
+                    int professionsRequired = ModEntry.Config.PillarsVsProfessions != "Professions required for Pillars" ? 2 : ModEntry.Config.RequiredProfessionForPillars;
+                    bool enoughProfessions = MasterySkillsPage.skills.Find(s => s.Id == which)!.unlockedProfessionsCount(0,10) >= professionsRequired;
 
                     __instance.mainButton.name +=
                         (!enoughProfessions ?
-                        Game1.content.LoadString("Strings\\UI:MasteryExtended_NeedMoreProfessions", ModEntry.Config.ExtraRequiredProfession ? 3 : 2) : "") +
+                        Game1.content.LoadString("Strings\\UI:MasteryExtended_NeedMoreProfessions", professionsRequired) : "") +
                         (!enoughProfessions && !freeLevel ? "\n" : "") +
                         (!freeLevel ? Game1.content.LoadString("Strings\\UI:MasteryExtended_NeedMoreLevels") : "");
                 }
                 else {
+                    __instance.mainButton.name += "We require more minerals";
+
                     __instance.mainButton.name +=
                         (!freeLevel ? Game1.content.LoadString("Strings\\UI:MasteryExtended_NeedMoreLevels") : "") +
                         (!freeLevel ? $"\n{Game1.content.LoadString("Strings\\UI:MasteryExtended_CantSpend")}" : "");
