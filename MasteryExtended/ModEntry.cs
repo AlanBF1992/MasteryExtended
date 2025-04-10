@@ -45,21 +45,23 @@ namespace MasteryExtended
             ModManifest = base.ModManifest;
             Config = helper.ReadConfig<ModConfig>();
 
+            Harmony harmony = new(ModManifest.UniqueID);
+
             // Vanilla Patches
-            VanillaLoader.Loader(helper, new Harmony(ModManifest.UniqueID));
+            VanillaLoader.Loader(helper, harmony);
             LogMonitor.Log("Base Patches Loaded", LogLevel.Info);
 
             // SpaceCore Compat
             if (helper.ModRegistry.IsLoaded("spacechase0.SpaceCore"))
             {
-                SCLoader.Loader(helper, new Harmony(ModManifest.UniqueID));
+                SCLoader.Loader(helper, harmony);
                 LogMonitor.Log("SpaceCore Compat Patches Loaded", LogLevel.Info);
             }
 
             // WoL Compat
             if (helper.ModRegistry.IsLoaded("DaLion.Professions"))
             {
-                WoLLoader.Loader(helper, new Harmony(ModManifest.UniqueID));
+                WoLLoader.Loader(helper, harmony);
                 LogMonitor.Log("Walk of Life Compat Patches Loaded", LogLevel.Info);
             }
 
@@ -67,7 +69,7 @@ namespace MasteryExtended
             if (helper.ModRegistry.IsLoaded("KediDili.VanillaPlusProfessions"))
             {
                 LogMonitor.Log("Vanilla Plus Profession Compat Patches Loaded", LogLevel.Info);
-                VPPLoader.Loader(helper, new Harmony(ModManifest.UniqueID));
+                VPPLoader.Loader(helper, harmony);
             }
 
             // Console commands

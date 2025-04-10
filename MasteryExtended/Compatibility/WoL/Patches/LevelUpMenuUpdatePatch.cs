@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using MasteryExtended.Menu.Pages;
 using StardewModdingAPI;
 using StardewValley;
 using System.Reflection;
@@ -9,9 +10,6 @@ namespace MasteryExtended.Compatibility.WoL.Patches
     internal static class LevelUpMenuUpdatePatch
     {
         internal readonly static IMonitor LogMonitor = ModEntry.LogMonitor;
-        internal readonly static PropertyInfo getTierOneProfessions = AccessTools.Property("DaLion.Professions.Framework.ISkill:TierOneProfessions");
-        internal readonly static PropertyInfo getBranchingProfessions = AccessTools.Property("DaLion.Professions.Framework.IProfession:GetBranchingProfessions");
-        internal readonly static PropertyInfo getId = AccessTools.Property("DaLion.Professions.Framework.IProfession:Id");
 
         internal static IEnumerable<CodeInstruction> LevelUpMenuUpdatePrefixTranspiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
         {
@@ -19,7 +17,7 @@ namespace MasteryExtended.Compatibility.WoL.Patches
             {
                 CodeMatcher matcher = new(instructions, generator);
 
-                MethodInfo addRangeInfo = AccessTools.Method(typeof(LevelUpMenuUpdatePatch), nameof(lvl15AddRange));
+                MethodInfo lvl15AddRangeInfo = AccessTools.Method(typeof(LevelUpMenuUpdatePatch), nameof(lvl15AddRange));
                 MethodInfo checkRoot15Info = AccessTools.Method(typeof(LevelUpMenuUpdatePatch), nameof(lvl15Root));
                 MethodInfo checkRoot20Info = AccessTools.Method(typeof(LevelUpMenuUpdatePatch), nameof(lvl20Root));
 
@@ -34,18 +32,18 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                         new CodeMatch(OpCodes.Ldloc_0)
                     )
                     .ThrowIfNotMatch("WoL LevelUpMenu: IL Code 1a not found")
-                    .Advance(2)
-                    .RemoveInstruction()
                     .Advance(1)
-                    .RemoveInstructions(6)
+                    .Set(OpCodes.Ldarg_S, 5) // ldloc_3 => ldarg_s 5
+                    .Advance(1)
+                    .RemoveInstructions(8)
                     .Insert(
-                        new CodeInstruction(OpCodes.Call, addRangeInfo)
+                        new CodeInstruction(OpCodes.Call, lvl15AddRangeInfo)
                     )
                 ;
 
                 // Lvl 20 (1)
                 //from: int rootId = player.GetCurrentRootProfessionForSkill(skill);
-                //to:   int rootId = lvl20Root(player, skill);
+                //to:   int rootId = lvl20Root(skillId);
                 matcher.
                     MatchStartForward(
                         new CodeMatch(OpCodes.Ldloc_0),
@@ -54,7 +52,9 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                         new CodeMatch(OpCodes.Stloc_S)
                     )
                     .ThrowIfNotMatch("WoL LevelUpMenu: IL Code 1b not found")
-                    .Advance(2)
+                    .Set(OpCodes.Ldarg_S, 5) // ldloc_0 => ldarg_s 5
+                    .Advance(1)
+                    .RemoveInstruction()
                     .Set(OpCodes.Call, checkRoot20Info)
                 ;
 
@@ -69,12 +69,12 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                         new CodeMatch(OpCodes.Ldloc_0)
                     )
                     .ThrowIfNotMatch("WoL LevelUpMenu: IL Code 2a not found")
-                    .Advance(2)
-                    .RemoveInstruction()
                     .Advance(1)
-                    .RemoveInstructions(6)
+                    .Set(OpCodes.Ldarg_S, 5) // Ldloc_S => Ldarg_S 5
+                    .Advance(1)
+                    .RemoveInstructions(8)
                     .Insert(
-                        new CodeInstruction(OpCodes.Call, addRangeInfo)
+                        new CodeInstruction(OpCodes.Call, lvl15AddRangeInfo)
                     )
                 ;
 
@@ -89,7 +89,9 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                         new CodeMatch(OpCodes.Stloc_S)
                     )
                     .ThrowIfNotMatch("WoL LevelUpMenu: IL Code 2b not found")
-                    .Advance(2)
+                    .Set(OpCodes.Ldarg_S, 5) // ldloc_0 => ldarg_s 5
+                    .Advance(1)
+                    .RemoveInstruction()
                     .Set(OpCodes.Call, checkRoot20Info)
                 ;
 
@@ -104,9 +106,9 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                         new CodeMatch(OpCodes.Ldc_I4_S) //100
                     )
                     .ThrowIfNotMatch("WoL LevelUpMenu: IL Code 3a not found")
+                    .Advance(1)
                     .Insert(
-                        new CodeInstruction(OpCodes.Ldloc_0), //player
-                        new CodeInstruction(OpCodes.Ldloc_3), //skill
+                        new CodeInstruction(OpCodes.Ldarg_S, 5), //skillId
                         new CodeInstruction(OpCodes.Call, checkRoot15Info),
                         new CodeInstruction(OpCodes.Stloc_S, 19)
                     )
@@ -124,9 +126,9 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                         new CodeMatch(OpCodes.Stloc_S)
                     )
                     .ThrowIfNotMatch("WoL LevelUpMenu: IL Code 2b not found")
+                    .Advance(1)
                     .Insert(
-                        new CodeInstruction(OpCodes.Ldloc_0), //player
-                        new CodeInstruction(OpCodes.Ldloc_3), //skill
+                        new CodeInstruction(OpCodes.Ldarg_S, 5), //skillId
                         new CodeInstruction(OpCodes.Call, checkRoot20Info),
                         new CodeInstruction(OpCodes.Stloc_S, 19)
                     )
@@ -145,30 +147,31 @@ namespace MasteryExtended.Compatibility.WoL.Patches
          * Methods *
          ***********/
 
-        internal static void lvl15AddRange(List<int> professionsToChoose, object skill, Farmer player)
+        internal static void lvl15AddRange(List<int> professionsToChoose, int skillId)
         {
-            var tierOneProf = (IEnumerable<object>)getTierOneProfessions.GetValue(skill)!;
+            var mySkill = MasterySkillsPage.skills.Find(s => s.Id == skillId)!;
+            var unlockedLvl10Profs = mySkill.Professions.Where(p => p.LevelRequired == 10 && p.IsProfessionUnlocked());
 
-            professionsToChoose.AddRange(tierOneProf
-                .Where(p => ((IEnumerable<object>)getBranchingProfessions.GetValue(p)!).Any(x => player.professions.Contains((int)getId.GetValue(x)!)))
-                .Select(x => (int)getId.GetValue(x)!));
+            professionsToChoose.AddRange(unlockedLvl10Profs.Select(p => p.RequiredProfessions!.Id).Distinct());
         }
 
-        internal static int lvl15Root(Farmer player, object skill)
+        /****************************
+         * When only one profession *
+         ****************************/
+        internal static int lvl15Root(int skillId)
         {
-            var tierOneProf = (IEnumerable<object>)getTierOneProfessions.GetValue(skill)!;
+            var skill = MasterySkillsPage.skills.Find(s => s.Id == skillId)!;
+            var unlockedLvl10Profs = skill.Professions.Where(p => p.LevelRequired == 10 && p.IsProfessionUnlocked());
 
-            return tierOneProf
-                .Where(p => ((IEnumerable<object>)getBranchingProfessions.GetValue(p)!).Any(x => player.professions.Contains((int)getId.GetValue(x)!)))
-                .Select(x => (int)getId.GetValue(x)!)
-                .First();
+            return unlockedLvl10Profs.Select(p => p.RequiredProfessions!.Id).Distinct().First();
         }
 
-        internal static int lvl20Root(Farmer player, object skill)
+        internal static int lvl20Root(int skillId)
         {
-            var tierOneProf = (IEnumerable<object>)getTierOneProfessions.GetValue(skill)!;
+            var skill = MasterySkillsPage.skills.Find(s => s.Id == skillId)!;
+            var prestigedLvl5Prof = skill.Professions.Find(p => Game1.player.professions.Contains(p.Id + 100))!.Id;
 
-            return tierOneProf.Where(p => player.professions.Contains((int)getId.GetValue(p)! + 100)).Select(x => (int)getId.GetValue(x)!).First();
+            return skill.Professions.Find(p => p.RequiredProfessions?.Id == prestigedLvl5Prof && p.IsProfessionUnlocked())!.Id;
         }
     }
 }
