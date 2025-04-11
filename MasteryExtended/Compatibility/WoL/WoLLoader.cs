@@ -17,6 +17,7 @@ namespace MasteryExtended.Compatibility.WoL
             WoLPatches(harmony);
             helper.Events.GameLoop.SaveLoaded += fixExperienceCurve;
             helper.Events.GameLoop.GameLaunched += GMCMConfigWoL;
+            helper.Events.GameLoop.SaveLoaded += reloadIcons;
             ModEntry.MaxMasteryLevels += 20;
         }
 
@@ -72,6 +73,12 @@ namespace MasteryExtended.Compatibility.WoL
                 max: 100,
                 interval: 1
             );
+        }
+
+        /// <summary>Reload vanilla icons so WoL icons are correctly shown</summary>
+        private static void reloadIcons(object? _1, SaveLoadedEventArgs _2)
+        {
+            ModEntry.ModHelper.GameContent.InvalidateCache("LooseSprites/Cursors");
         }
 
         /// <summary>All the patches to make WoL work</summary>

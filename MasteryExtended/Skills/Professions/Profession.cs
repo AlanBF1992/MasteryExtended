@@ -17,7 +17,7 @@ namespace MasteryExtended.Skills.Professions
 
         public Profession? RequiredProfessions { get; set; }
 
-        public Texture2D TextureSource { get; set; } = Game1.mouseCursors;
+        public Func<Texture2D> TextureSource { get; set; } = () => Game1.mouseCursors;
 
         public Rectangle TextureBounds { get; set; } = new Rectangle(0,0,16,16);
 
@@ -43,7 +43,7 @@ namespace MasteryExtended.Skills.Professions
         }
 
         // SpaceCore Professions
-        public Profession(int id, Func<string> name, Func<string> description, int levelRequired, Profession? requiredProfession, Texture2D textureSource, Rectangle? textureBounds = null)
+        public Profession(int id, Func<string> name, Func<string> description, int levelRequired, Profession? requiredProfession, Func<Texture2D> textureSource, Rectangle? textureBounds = null)
         {
             Id = id;
             GetName = name;

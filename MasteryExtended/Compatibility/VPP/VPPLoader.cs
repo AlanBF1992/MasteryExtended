@@ -49,7 +49,7 @@ namespace MasteryExtended.Compatibility.VPP
                                        description: (Func<string>)(() => Game1.content.LoadString("Strings\\UI:LevelUp_ProfessionDescription_" + key)),
                                        levelRequired: VPPProfession.LevelRequirement,
                                        requiredProfession: requiredProfession,
-                                       textureSource: professionIcons,
+                                       textureSource: (Func<Texture2D>)(() => professionIcons),
                                        textureBounds: new Rectangle((VPPProfession.ID - 467830) % 6 * 16, (VPPProfession.ID - 467830) / 6 * 16, 16, 16));
 
                 skill.Professions.Add(toAdd);

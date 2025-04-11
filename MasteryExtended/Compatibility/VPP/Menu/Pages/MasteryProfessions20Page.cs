@@ -46,7 +46,7 @@ namespace MasteryExtended.Compatibility.VPP.Menu.Pages
             Profession pL = Professions[0];
             Profession pR = Professions[1];
 
-            pageTextureComponents.Add(new ClickableTextureComponent(new Rectangle(xPosition, yPosition, professionWidth, professionHeight), pL.TextureSource, pL.TextureBounds, 1f, drawShadow: true)
+            pageTextureComponents.Add(new ClickableTextureComponent(new Rectangle(xPosition, yPosition, professionWidth, professionHeight), pL.TextureSource(), pL.TextureBounds, 1f, drawShadow: true)
             {
                 name = pL.GetName(),
                 hoverText = pL.GetDescription(),
@@ -54,7 +54,7 @@ namespace MasteryExtended.Compatibility.VPP.Menu.Pages
                 myAlternateID = professionCheck(pL) && innerSkillCheck ? 0 : 1
             });
 
-            pageTextureComponents.Add(new ClickableTextureComponent(new Rectangle(xPosition + xSpacingRightHalf, yPosition, professionWidth, professionHeight), pR.TextureSource, pR.TextureBounds, 1f, drawShadow: true)
+            pageTextureComponents.Add(new ClickableTextureComponent(new Rectangle(xPosition + xSpacingRightHalf, yPosition, professionWidth, professionHeight), pR.TextureSource(), pR.TextureBounds, 1f, drawShadow: true)
             {
                 name = pR.GetName(),
                 hoverText = pR.GetDescription(),

@@ -330,7 +330,7 @@ namespace MasteryExtended.Patches
 
                 // Box and Icon
                 IClickableMenu.drawTextureBox(b, Game1.menuTexture, new Rectangle(0, 256, 60, 60), xPosition + xSpacing, yPosition + ySpacing, 66, 66, Color.White, 0.75f);
-                b.Draw(prof.TextureSource, new Rectangle(xPosition + xSpacing + 12, yPosition + ySpacing + 12, 66 - 24, 66 - 24), prof.TextureBounds, Color.White);
+                b.Draw(prof.TextureSource(), new Rectangle(xPosition + xSpacing + 12, yPosition + ySpacing + 12, 66 - 24, 66 - 24), prof.TextureBounds, Color.White);
 
                 // Description
                 var descText = Game1.parseText(prof.GetDescription(), Game1.smallFont, 460);
