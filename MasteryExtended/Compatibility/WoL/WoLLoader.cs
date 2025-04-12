@@ -5,6 +5,7 @@ using MasteryExtended.Menu.Pages;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
+using StardewValley;
 using StardewValley.Menus;
 using MasteryTrackerMenuPatch = MasteryExtended.Compatibility.WoL.Patches.MasteryTrackerMenuPatch;
 
@@ -176,6 +177,18 @@ namespace MasteryExtended.Compatibility.WoL
             harmony.Patch(
                 original: AccessTools.Method("DaLion.Professions.Framework.Patchers.Prestige.Integration.NewSkillsPagePerformHoverActionPatcher:NewSkillsPagePerformHoverActionPostfix"),
                 prefix: new HarmonyMethod(typeof(DaLionUnpatcher), nameof(DaLionUnpatcher.UnpatcherVoidPrefix))
+            );
+
+            ////Fix Warning when claiming mastery
+            var masteryBox = AccessTools.TypeByName("DaLion.Professions.Framework.UI.MasteryWarningBox");
+            harmony.Patch(
+                original: AccessTools.Constructor(masteryBox, [typeof(GameLocation), typeof(MasteryTrackerMenu)]),
+                transpiler: new HarmonyMethod(typeof(MasteryWarningBoxPatch), nameof(MasteryWarningBoxPatch.ctorTranspiler))
+            );
+
+            harmony.Patch(
+                original: AccessTools.Method("DaLion.Professions.Framework.UI.MasteryWarningBox:draw", [typeof(SpriteBatch)]),
+                transpiler: new HarmonyMethod(typeof(MasteryWarningBoxPatch), nameof(MasteryWarningBoxPatch.drawTranspiler))
             );
         }
     }

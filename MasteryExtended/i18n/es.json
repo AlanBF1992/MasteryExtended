@@ -18,5 +18,6 @@
   "requirements-profession": "Profesión: {0}",
   "requirements-lvl10": "{0} Profesiones de Nivel 10",
   "requirements-lvl15": "{0} Profesiones de Nivel 15",
-  "requirements-lvl20": "1 Profesión de Nivel 20"
+  "requirements-lvl20": "1 Profesión de Nivel 20",
+  "wol-mastery-warning": "Podrás aumentar tu conocimiento en este campo, pero se ralentizará tu ganancia de maestría."
 }

@@ -18,5 +18,6 @@
   "requirements-profession": "Profession: {0}",
   "requirements-lvl10": "{0} Level 10 professions",
   "requirements-lvl15": "{0} Level 15 professions",
-  "requirements-lvl20": "1 Level 20 profession"
+  "requirements-lvl20": "1 Level 20 profession",
+  "wol-mastery-warning": "This will allow you to increase your knowledge on this field, but will slow your mastery gain."
 }

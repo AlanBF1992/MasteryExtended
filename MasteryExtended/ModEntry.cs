@@ -113,6 +113,7 @@ namespace MasteryExtended
                     editor.Data.Add("MasteryExtended_RequirementsLvl10", ModEntry.ModHelper.Translation.Get("requirements-lvl10"));
                     editor.Data.Add("MasteryExtended_RequirementsLvl15", ModEntry.ModHelper.Translation.Get("requirements-lvl15"));
                     editor.Data.Add("MasteryExtended_RequirementsLvl20", ModEntry.ModHelper.Translation.Get("requirements-lvl20"));
+                    editor.Data.Add("MasteryExtended_WoLMasteryWarning", ModEntry.ModHelper.Translation.Get("wol-mastery-warning"));
                 });
             }
         }
