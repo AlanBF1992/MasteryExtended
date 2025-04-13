@@ -80,13 +80,13 @@ namespace MasteryExtended.Compatibility.SpaceCore
                                            (Func<string>)(() => i.First.GetDescription()),
                                            i.Level,
                                            required,
-                                           i.First.Icon);
+                                           (Func<Texture2D>)(() => i.First.Icon));
                     Profession second = new(i.Second.GetVanillaId(),
                                             (Func<string>)(() => i.Second.GetName()),
                                             (Func<string>)(() => i.Second.GetDescription()),
                                             i.Level,
                                             required,
-                                            i.Second.Icon);
+                                            (Func<Texture2D>)(() => i.Second.Icon));
 
                     myProfessions.Add(first);
                     myProfessions.Add(second);
