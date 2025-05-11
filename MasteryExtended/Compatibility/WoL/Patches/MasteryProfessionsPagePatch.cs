@@ -88,7 +88,7 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                         
                         break;
                     case 3:
-                        __instance.hoverText = "= Already prestiged =\n" + dalionProf.GetDescription(true);
+                        __instance.hoverText = dalionProf.GetDescription(false) + "\n\n= Already prestiged =\n" + dalionProf.GetDescription(true);
                         break;
                 }
             }
