@@ -18,9 +18,10 @@ namespace MasteryExtended.Patches
 
         internal static bool getMasteryExpNeededForLevelPrefix(int level, ref int __result)
         {
-            if (level <= 5) { return true; }
-
-            __result = MasteryTrackerMenu.getMasteryExpNeededForLevel(5) + (level - 5) * ModEntry.Config.MasteryExpPerLevel;
+            int levelCap = (ModEntry.Config.MasteryExpPerLevel / 5000) - 1;
+            int n = Math.Min(levelCap, level);
+            __result = 5000 * n * (n + 3) / 2;
+            __result += ModEntry.Config.MasteryExpPerLevel * Math.Max(0,level - levelCap);
 
             return false;
         }
