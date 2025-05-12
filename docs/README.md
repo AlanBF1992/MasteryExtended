@@ -36,13 +36,33 @@ You can't unlock it immediately as before. Now you need to unlock at least one e
 
 
 ## Config
+Hint: You should really use GMCM.
 After the first run, there will be a `config.json` file in the mod folder. You can edit the following settings:
 
-Setting                  | How it works
------------------------- | ------
-`MasteryExpPerLevel`     | Amount of experience points required for an extra Mastery Level after level 5. Default `30000`.
-`MasteryRequiredForCave` | Mastery Levels required to access the Mastery Cave. Default `5`. 
+Setting                        | How it works
+------------------------------ | ------
+`MasteryExpPerLevel`           | Amount of experience points required for an extra Mastery Level after level 5. Default `30000`.
+`MasteryRequiredForCave`       | Mastery Levels required to access the Mastery Cave. Default `5`. 
+`MasteryCaveAlternateOpening`  | If you can access the Mastery Cave with Mastery Levels. Default `true`.
+`MasteryRequiredForCave`       | Mastery Levels required to access the Mastery Cave (if enabled). Default `5`. 
+`SkillNameOnMenuHover`         | Show the Skill Name when hovering on Professions in the Skill Menu. Default `true`. 
+`PillarsVsProfessions`         | How Professions and Pillars interact. Default `Professions required for Pillars`. Other options: `Pillars required for Pedestal`, `Neither`.
+`RequiredProfessionForPillars` | How many professions you need unlocked for the Mastery Pillar. Default `3`. 
+`RequiredPilarsToThePedestal`  | How many Mastery Pillar you need unlocked to unlock professions. Default `3`.
+
+### WoL/VPP Config
+Setting                        | How it works
+------------------------------ | ------
+`MasteryPercentage`            | When you are between level 10 and 19, this percentage of Experience will go to Mastery Exp and the rest to the Skill Exp. Default `20`.
+
+If you don't want to share exp, just set it to 0.
+
+### VPP Config
+
+Setting                        | How it works
+------------------------------ | ------
+`Lvl10ProfessionsRequired`     | How many Level 10 Professions you need to be able to unlock a Level 15 Profession. Default `2`. 
+`Lvl15ProfessionsRequired`     | How many Level 15 Professions you need to be able to unlock a Level 20 Profession. Default `4`. 
 
 ## Plans
-* Make compatible with custom skills
 * Add **Upgrades**, another way to spend Mastery Levels
