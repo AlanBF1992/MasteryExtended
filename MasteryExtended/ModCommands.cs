@@ -26,7 +26,7 @@ namespace MasteryExtended
             helper.ConsoleCommands.Add(
                 "masteryExtended_ResetProfessions",
                 "Reset Vanilla Professions when you sleep.",
-                (_, _) => resetProfessions());
+                resetProfessions);
 
             helper.ConsoleCommands.Add(
                 "masteryExtended_AddMasteryLevel",
@@ -76,20 +76,33 @@ namespace MasteryExtended
             Game1.stats.Set("MasteryExp", expToSet);
         }
 
-        internal static void resetProfessions()
+        internal static void resetProfessions(string _, string[] args)
         {
             if (!Context.IsWorldReady)
             {
                 LogMonitor.Log("You need to load a save to use this command.", LogLevel.Error);
                 return;
             }
+            if (args.Length > 1)
+            {
+                LogMonitor.Log("Incorrect number of arguments provided.", LogLevel.Error);
+                return;
+            }
 
-            var allSkills = MasterySkillsPage.skills;//.FindAll(s => s.Id is >= 0 and <= 4);
+            List<Skill> targetSkills = MasterySkillsPage.skills;
+            if (args.Length > 0 && args[0].Length > 0)
+            {
+                targetSkills = targetSkills.Where(s => s.GetName() == args[0]).ToList(); //.FindAll(s => s.Id is >= 0 and <= 4);
+                if (targetSkills.Count == 0)
+                {
+                    LogMonitor.Log($"Skill '{args[0]}' not found.", LogLevel.Error);
+                    return;
+                }
+            }
 
-            //allSkills.ForEach(s => s.Professions.ForEach(p => p.RemoveProfessionFromPlayer()));
-            Game1.player.professions.Clear();
+            targetSkills.ForEach(s => s.Professions.ForEach(p => p.RemoveProfessionFromPlayer()));
 
-            foreach (Skill s in allSkills)
+            foreach (Skill s in targetSkills)
             {
                 int points = s.getLevel() / 5;
 

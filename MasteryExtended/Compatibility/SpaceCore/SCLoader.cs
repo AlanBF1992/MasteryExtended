@@ -66,6 +66,7 @@ namespace MasteryExtended.Compatibility.SpaceCore
             var skillList = (string[])AccessTools.Method("SpaceCore.Skills:GetSkillList").Invoke(null, null)!;
             var getSkill = AccessTools.Method("SpaceCore.Skills:GetSkill");
             var getSkillLvl = AccessTools.Method("SpaceCore.Skills:GetSkillLevel");
+            var newLevels = (List<KeyValuePair<string, int>>)AccessTools.Property("SpaceCore.Skills:NewLevels").GetValue(null)!;
 
             foreach (string id in skillList)
             {
@@ -97,7 +98,7 @@ namespace MasteryExtended.Compatibility.SpaceCore
                                   (Texture2D?)actualSCSkill.Icon,
                                   myProfessions,
                                   () => (int)getSkillLvl.Invoke(null, [Game1.player, id])!,
-                                  (lvl) => new KeyValuePair<string, int>(actualSCSkill.Id, lvl),
+                                  (lvl) => newLevels.Add(new KeyValuePair<string, int>(actualSCSkill.Id, lvl)),
                                   () => actualSCSkill.ShouldShowOnSkillsPage);
 
                 MasterySkillsPage.skills.Add(skill);

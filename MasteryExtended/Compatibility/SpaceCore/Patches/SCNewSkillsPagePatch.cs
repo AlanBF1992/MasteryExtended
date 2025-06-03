@@ -30,7 +30,7 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
                         new CodeMatch(OpCodes.Box),
                         new CodeMatch(OpCodes.Call)
                     )
-                    .ThrowIfNotMatch("SkillsPage.ctorTranspiler: IL code 1 not found")
+                    .ThrowIfNotMatch("SCNewSkillsPagePatch.ctorTranspiler: IL code 1 not found")
                     .RemoveInstructions(3)
                     .Insert(
                         new CodeInstruction(OpCodes.Ldloc_S, 7),  // skill
@@ -48,7 +48,7 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
                         new CodeMatch(OpCodes.Ldnull),
                         new CodeMatch(OpCodes.Ldloc_S)
                     )
-                    .ThrowIfNotMatch("SkillsPage.ctorTranspiler: IL code 2 not found")
+                    .ThrowIfNotMatch("SCNewSkillsPagePatch.ctorTranspiler: IL code 2 not found")
                     .Set(OpCodes.Ldstr, "MasteryExtended")
                 ;
 
@@ -61,7 +61,7 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
                         new CodeMatch(OpCodes.Brfalse),
                         new CodeMatch(OpCodes.Ldarg_0)
                     )
-                    .ThrowIfNotMatch("SkillsPage.ctorTranspiler: IL code 3 not found")
+                    .ThrowIfNotMatch("SCNewSkillsPagePatch.ctorTranspiler: IL code 3 not found")
                     .RemoveInstructions(2)
                 ;
 
@@ -74,7 +74,7 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
                         new CodeMatch(OpCodes.Callvirt),
                         new CodeMatch(OpCodes.Call)
                     )
-                    .ThrowIfNotMatch("SkillsPage.ctorTranspiler: IL code 4 not found")
+                    .ThrowIfNotMatch("SCNewSkillsPagePatch.ctorTranspiler: IL code 4 not found")
                     .RemoveInstructions(4)
                     .Insert(
                         new CodeInstruction(OpCodes.Ldloc_S, 18), // j: skill
@@ -92,7 +92,7 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
                         new CodeMatch(OpCodes.Ldnull),
                         new CodeMatch(OpCodes.Ldloc_S)
                     )
-                    .ThrowIfNotMatch("SkillsPage.ctorTranspiler: IL code 5 not found")
+                    .ThrowIfNotMatch("SCNewSkillsPagePatch.ctorTranspiler: IL code 5 not found")
                     .Set(OpCodes.Ldstr, "MasteryExtended")
                 ;
 
@@ -105,7 +105,6 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
             }
         }
 
-        
         internal static IEnumerable<CodeInstruction> drawTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             try
@@ -123,7 +122,7 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
                     MatchStartForward(
                         new CodeMatch(OpCodes.Ldc_R4, 0.1f)
                     )
-                    .ThrowIfNotMatch("NewSkillsPage.drawTranspiler: IL code 1 not found")
+                    .ThrowIfNotMatch("SCNewSkillsPagePatch.drawTranspiler: IL code 1 not found")
                     .Advance(3)
                     .Set(OpCodes.Ldloc_S, 63)
                     .Advance(1)
@@ -140,7 +139,7 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
                     MatchStartForward(
                         new CodeMatch(OpCodes.Ldc_I4_5)
                     )
-                    .ThrowIfNotMatch("NewSkillsPage.drawTranspiler: IL code 2 not found")
+                    .ThrowIfNotMatch("SCNewSkillsPagePatch.drawTranspiler: IL code 2 not found")
                     .Set(OpCodes.Call, MaxMasteryLevelsInfo)
                 ;
 
@@ -152,7 +151,7 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
                         new CodeMatch(OpCodes.Call),
                         new CodeMatch(OpCodes.Ldloc_S)
                     )
-                    .ThrowIfNotMatch("NewSkillsPage.drawTranspiler: IL code 3 not found")
+                    .ThrowIfNotMatch("SCNewSkillsPagePatch.drawTranspiler: IL code 3 not found")
                     .RemoveInstructions(66)
                     .Insert(
                         new CodeInstruction(OpCodes.Ldarg_0),
@@ -171,7 +170,7 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
                         new CodeMatch(OpCodes.Ldc_I4_0),
                         new CodeMatch(OpCodes.Ble_S)
                     )
-                    .ThrowIfNotMatch("NewSkillsPage.drawTranspiler: IL code 4 not found")
+                    .ThrowIfNotMatch("SCNewSkillsPagePatch.drawTranspiler: IL code 4 not found")
                     .Advance(1)
                 ;
 
@@ -202,7 +201,7 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
                         new CodeMatch(OpCodes.Ldc_I4_0),
                         new CodeMatch(OpCodes.Ble_S)
                     )
-                    .ThrowIfNotMatch("NewSkillsPage.drawTranspiler: IL code 5 not found. Hopefully deleted by SpaceCore")
+                    .ThrowIfNotMatch("SCNewSkillsPagePatch.drawTranspiler: IL code 5 not found. Hopefully deleted by SpaceCore")
                 ;
 
                 List<Label> repeatedCodeLbl = matcher.Labels;

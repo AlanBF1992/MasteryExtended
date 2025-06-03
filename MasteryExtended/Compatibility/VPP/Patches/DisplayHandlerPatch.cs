@@ -24,7 +24,7 @@ namespace MasteryExtended.Compatibility.VPP.Patches
                 matcher
                     .End()
                     .MatchStartBackwards(new CodeMatch(OpCodes.Call, overlayValidInfo))
-                    .ThrowIfNotMatch("SCNewSkillsPagePatch.OnRenderedActiveMenuTranspiler: IL code 0 not found")
+                    .ThrowIfNotMatch("DisplayHandlerPatch.OnRenderedActiveMenuTranspiler: IL code 0 not found")
                     .CreateLabel(out Label skipAllDrawing)
                 ;
 
@@ -34,7 +34,7 @@ namespace MasteryExtended.Compatibility.VPP.Patches
                 matcher
                     .Start()
                     .MatchStartForward(new CodeMatch(OpCodes.Ldstr, "-1"))
-                    .ThrowIfNotMatch("SCNewSkillsPagePatch.OnRenderedActiveMenuTranspiler: IL code 1 not found")
+                    .ThrowIfNotMatch("DisplayHandlerPatch.OnRenderedActiveMenuTranspiler: IL code 1 not found")
                 ;
                 matcher
                     .Advance(2)
@@ -52,14 +52,14 @@ namespace MasteryExtended.Compatibility.VPP.Patches
                         new CodeMatch(OpCodes.Callvirt, strLenInfo),
                         new CodeMatch(OpCodes.Ldc_I4_0)
                     )
-                    .ThrowIfNotMatch("SCNewSkillsPagePatch.OnRenderedActiveMenuTranspiler: IL code 2 not found")
+                    .ThrowIfNotMatch("DisplayHandlerPatch.OnRenderedActiveMenuTranspiler: IL code 2 not found")
                 ;
 
                 var SCHoverTextInst = matcher.Instruction;
 
                 matcher
                     .MatchStartForward(new CodeMatch(OpCodes.Newobj))
-                    .ThrowIfNotMatch("SCNewSkillsPagePatch.OnRenderedActiveMenuTranspiler: IL code 2.1 not found")
+                    .ThrowIfNotMatch("DisplayHandlerPatch.OnRenderedActiveMenuTranspiler: IL code 2.1 not found")
                 ;
 
                 while (matcher.Advance(-1).Opcode == OpCodes.Nop) continue;
@@ -94,6 +94,7 @@ namespace MasteryExtended.Compatibility.VPP.Patches
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Isinst)
                     )
+                    .ThrowIfNotMatch("DisplayHandlerPatch.HandleSkillPageTranspiler: IL code 1 not found")
                     .Advance(1)
                     .Insert(
                         new CodeInstruction(OpCodes.Pop),

@@ -22,7 +22,7 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
                         new CodeMatch(OpCodes.Ldc_I4_S),
                         new CodeMatch(OpCodes.Blt_S)
                     )
-                    .ThrowIfNotMatch("SpaceCore AddExperienceTranspiler: IL code not found")
+                    .ThrowIfNotMatch("SCSkillsPatch.AddExperienceTranspiler: IL code not found")
                     .RemoveInstructions(3)
                 ;
 
