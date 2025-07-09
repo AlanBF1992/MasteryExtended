@@ -325,7 +325,7 @@ namespace MasteryExtended.Patches
                 yPosition += 72;
             }
 
-            var unlockedProfessions = skill.unlockedProfessions().Where(p => p.LevelRequired == lvlRequired).OrderByDescending(p => p.GetDescription().Length).ToArray();
+            var unlockedProfessions = skill.unlockedProfessions().Where(p => p.LevelRequired == lvlRequired).OrderByDescending(p => (ModEntry.Config.ProfessionNameOnMenuHover? p.GetName() + ": " : "") +  p.GetDescription().Length).ToArray();
 
             for (int i = unlockedProfessions.Length - 1; i >= 0; i--)
             {
@@ -336,7 +336,7 @@ namespace MasteryExtended.Patches
                 b.Draw(prof.TextureSource(), new Rectangle(xPosition + xSpacing + 12, yPosition + ySpacing + 12, 66 - 24, 66 - 24), prof.TextureBounds, Color.White);
 
                 // Description
-                var descText = Game1.parseText(prof.GetDescription(), Game1.smallFont, 460);
+                var descText = Game1.parseText((ModEntry.Config.ProfessionNameOnMenuHover ? prof.GetName() + ": " : "") +  prof.GetDescription(), Game1.smallFont, 460);
                 var descSize = Game1.smallFont.MeasureString(descText);
 
                 IClickableMenu.drawHoverText(b, descText, Game1.smallFont, overrideX: xPosition + xSpacing + 72, overrideY: yPosition + ySpacing, boxScale: 0.75f);

@@ -186,6 +186,15 @@ namespace MasteryExtended
                 tooltip: () => "Default: true"
             );
 
+            // Show Profession Title on Hover of Skill Page
+            configMenu.AddBoolOption(
+                mod: ModEntry.ModManifest,
+                getValue: () => ModEntry.Config.ProfessionNameOnMenuHover,
+                setValue: (value) => ModEntry.Config.ProfessionNameOnMenuHover = value,
+                name: () => "Profession Name on Menu Hover",
+                tooltip: () => "Default: false"
+            );
+
             // Mastery Experience per level
             configMenu.AddNumberOption(
                 mod: ModEntry.ModManifest,

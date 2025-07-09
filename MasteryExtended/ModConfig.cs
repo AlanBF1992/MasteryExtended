@@ -13,6 +13,8 @@
         public bool ConfirmProfession { get; set; } = true;
         // See title of Skill on Menu Hover.
         public bool SkillNameOnMenuHover { get; set; } = true;
+        // See title of Profession on Menu Hover.
+        public bool ProfessionNameOnMenuHover { get; set; } = false;
         // Order of the unlocking.
         public string PillarsVsProfessions { get; set; } = "Professions required for Pillars";
         // Require n professions for the pillars, with 2<=n<=6.
