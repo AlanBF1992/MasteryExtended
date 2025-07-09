@@ -33,7 +33,7 @@ namespace MasteryExtended
         public static int MaxMasteryLevels { get; internal set; } = 25;
 
         /// <summary>For VPP Changes.</summary>
-        public static Func<bool> MasteryCaveChanges { get; internal set; } = () => false;
+        public static Func<int> MasteryCaveChanges { get; internal set; } = () => 10;
 
         /******************
         ** Public methods *

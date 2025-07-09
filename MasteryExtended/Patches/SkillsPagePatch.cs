@@ -249,7 +249,10 @@ namespace MasteryExtended.Patches
         {
             int currentMasteryLevel = MasteryTrackerMenu.getCurrentMasteryLevel();
             int masterySpent = (int)Game1.stats.Get("masteryLevelsSpent");
-            return masterySpent >= 10 ? 0.725f : (currentMasteryLevel >= 10 ? 0.7875f : 0.85f);
+
+            int digitsToShow = currentMasteryLevel.countDigits() + masterySpent.countDigits();
+
+            return 0.85f - (digitsToShow - 2) * 0.0625f;
         }
 
         internal static void drawNumbers(IClickableMenu page, SpriteBatch b)
@@ -278,7 +281,7 @@ namespace MasteryExtended.Patches
                               (masteryLevel >= ModEntry.MaxMasteryLevels ? new(70, 210, 90) : (masterySpent == masteryLevel ? Color.OrangeRed : Color.SandyBrown)) * ((masteryLevel == 0) ? 0.75f : 1f),
                               1f, 0.87f, 1f, 0);
 
-            xOffset += masteryLevel < 10 ? 28 : 0;
+            xOffset += masteryLevel < 10 ? 28 : (masteryLevel < 100? 0 : -24);
 
             // Luego el separador
             b.Draw(Game1.mouseCursors,

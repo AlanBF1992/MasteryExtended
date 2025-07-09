@@ -104,36 +104,40 @@ namespace MasteryExtended.Menu.Pages
                 nextPageButton.bounds.Y -= offset;
             }
 
-            // Para controles o teclado
+            // Gamepad
+            snapComponents();
+        }
+
+        internal void snapComponents()
+        {
             if (Game1.options.SnappyMenus)
             {
-                populateClickableComponentList();
+                base.populateClickableComponentList();
 
-                allClickableComponents.Reverse();
                 ClickableComponent.ChainNeighborsUpDown(allClickableComponents);
 
-                if (nextPageButton == null && previousPageButton == null)
-                {
-                    currentlySnappedComponent = getComponentWithID(4);
-                }
-                else if (nextPageButton != null)
-                {
-                    currentlySnappedComponent = getComponentWithID(998);
-                }
-                else
-                {
-                    currentlySnappedComponent = getComponentWithID(999);
-                }
+                currentlySnappedComponent = pageTextureComponents[0];
 
+                pageTextureComponents[0].upNeighborID = upperRightCloseButton.myID;
+                upperRightCloseButton.downNeighborID = pageTextureComponents[0].myID;
+
+                if (previousPageButton != null)
+                {
+                    previousPageButton.upNeighborID = pageTextureComponents[^1].myID;
+                    pageTextureComponents[^1].downNeighborID = previousPageButton.myID;
+                }
+                if (nextPageButton != null)
+                {
+                    nextPageButton.upNeighborID = pageTextureComponents[^1].myID;
+                    pageTextureComponents[^1].downNeighborID = nextPageButton.myID;
+                }
                 if (nextPageButton != null && previousPageButton != null)
                 {
-                    nextPageButton.upNeighborID = previousPageButton.upNeighborID;
-                    previousPageButton.rightNeighborID = nextPageButton.myID;
                     nextPageButton.leftNeighborID = previousPageButton.myID;
-                    previousPageButton.downNeighborID = nextPageButton.downNeighborID;
+                    previousPageButton.rightNeighborID = nextPageButton.myID;
                 }
 
-                snapCursorToCurrentSnappedComponent();
+                base.snapCursorToCurrentSnappedComponent();
             }
         }
 

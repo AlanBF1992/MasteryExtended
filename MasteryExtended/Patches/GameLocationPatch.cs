@@ -126,7 +126,7 @@ namespace MasteryExtended.Patches
         internal static void masteryCaveString()
         {
             int masteryLevel = MasteryTrackerMenu.getCurrentMasteryLevel();
-            int divisor = ModEntry.MasteryCaveChanges() ? 20 : 10;
+            int divisor = ModEntry.MasteryCaveChanges();
             int fullSkills = Math.Min(Game1.player.farmingLevel.Value/divisor, 1)
                              + Math.Min(Game1.player.fishingLevel.Value/divisor, 1)
                              + Math.Min(Game1.player.foragingLevel.Value/divisor, 1)

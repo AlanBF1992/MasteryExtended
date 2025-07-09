@@ -2,6 +2,6 @@
 {
     public interface IVanillaPlusProfessions
     {
-        public bool MasteryCaveChanges { get; }
+        public int MasteryCaveChanges { get; }
     }
 }

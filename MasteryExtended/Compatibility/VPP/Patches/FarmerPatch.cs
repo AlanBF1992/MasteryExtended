@@ -79,10 +79,15 @@ namespace MasteryExtended.Compatibility.VPP.Patches
 
         private static void expShare(Farmer who, int which, int howMuch)
         {
-            int p = ModEntry.Config.MasteryPercentage;
+            int p = Math.Clamp(ModEntry.Config.MasteryPercentage, 0, 100);
 
             int expToSkill = (int)Math.Ceiling(howMuch * (100 - p) / 100.0);
-            int expToMastery = (which != 0) ? (howMuch - expToSkill) : (int)((howMuch - expToSkill) / 2.0);
+            int expToMastery = howMuch - expToSkill;
+
+            if (which == 0 && expToMastery > 0)
+            {
+                expToMastery = Math.Max(1, expToMastery/2);
+            }
 
             int currentMasteryLevel = MasteryTrackerMenu.getCurrentMasteryLevel();
             Game1.stats.Increment("MasteryExp", expToMastery);

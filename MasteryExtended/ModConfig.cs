@@ -9,6 +9,8 @@
         public bool MasteryCaveAlternateOpening { get; set; } = true;
         // Mastery required to access the Mastery Room.
         public int MasteryRequiredForCave { get; set; } = 5;
+        // Provide confirmation of profession added.
+        public bool ConfirmProfession { get; set; } = true;
         // See title of Skill on Menu Hover.
         public bool SkillNameOnMenuHover { get; set; } = true;
         // Order of the unlocking.

@@ -71,7 +71,7 @@ namespace MasteryExtended.Compatibility.SpaceCore
             foreach (string id in skillList)
             {
                 dynamic actualSCSkill = getSkill.Invoke(null, [id])!;
-                IOrderedEnumerable<dynamic> actualSCProfessions = (actualSCSkill.ProfessionsForLevels as System.Collections.IList)!.Cast<dynamic>().OrderBy((dynamic p) => p.Level);
+                IOrderedEnumerable<dynamic> actualSCProfessions = (actualSCSkill.ProfessionsForLevels as System.Collections.IList)!.Cast<dynamic>().OrderBy(p => p.Level);
                 List<Profession> myProfessions = [];
                 foreach (var i in actualSCProfessions)
                 {
@@ -103,6 +103,11 @@ namespace MasteryExtended.Compatibility.SpaceCore
 
                 MasterySkillsPage.skills.Add(skill);
                 ModEntry.MaxMasteryLevels += 4;
+            }
+
+            if (skillList.Contains("moonslime.Cooking") && skillList.Contains("blueberry.LoveOfCooking.CookingSkill"))
+            {
+                ModEntry.MaxMasteryLevels -= 4;
             }
 
             //Just run once

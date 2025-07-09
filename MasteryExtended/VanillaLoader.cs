@@ -260,6 +260,15 @@ namespace MasteryExtended
                 max: 5,
                 interval: 1
             );
+
+            // Confirm Acquisition of Profession
+            configMenu.AddBoolOption(
+                mod: ModEntry.ModManifest,
+                getValue: () => ModEntry.Config.ConfirmProfession,
+                setValue: (value) => ModEntry.Config.ConfirmProfession = value,
+                name: () => "Confirm profession adquisition",
+                tooltip: () => "Default: true"
+            );
         }
     }
 }

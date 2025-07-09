@@ -22,6 +22,8 @@ namespace MasteryExtended.Compatibility.VPP.Patches
                 myID = 998
             };
             __instance.previousPageButton!.bounds.X -= 84 + 8;
+
+            __instance.snapComponents();
         }
 
         internal static bool receiveLeftClickPrefix(MasteryProfessionsPage __instance, int x, int y)
@@ -29,7 +31,7 @@ namespace MasteryExtended.Compatibility.VPP.Patches
             if (__instance.nextPageButton?.bounds.Contains(x, y) == true && __instance.nextPageButton.visible)
             {
                 Game1.playSound("cowboy_monsterhit");
-                __instance.pressedButtonTimer = 200f;
+                __instance.pressedButtonTimer = 100f;
                 __instance.nextPageButton.region = 1;
                 return false;
             }

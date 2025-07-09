@@ -2,6 +2,7 @@
 using MasteryExtended.Skills;
 using StardewModdingAPI;
 using StardewValley;
+using StardewValley.Extensions;
 using StardewValley.Menus;
 
 namespace MasteryExtended
@@ -46,7 +47,8 @@ namespace MasteryExtended
 
             foreach (Skill s in MasterySkillsPage.skills)
             {
-                spentLevelsInProfessions += Math.Max(s.unlockedProfessionsCount() - Math.Min((int)Math.Floor(s.getLevel() / 5f), 2), 0);
+                int maxBaseProfLvl = s.Professions.Max(p => p.LevelRequired) / 5;
+                spentLevelsInProfessions += Math.Max(s.unlockedProfessionsCount() - Math.Min((int)Math.Floor(s.getLevel() / 5f), maxBaseProfLvl), 0);
             }
 
             ModEntry.Data.claimedRewards = Utilities.countClaimedPillars();
@@ -66,7 +68,8 @@ namespace MasteryExtended
 
             foreach (Skill s in MasterySkillsPage.skills)
             {
-                spentLevelsInProfessions += Math.Max(s.unlockedProfessionsCount() - Math.Min((int)Math.Floor(s.getLevel() / 5f), 2), 0);
+                int maxBaseProfLvl =  s.Professions.Max(p => p.LevelRequired)/5;
+                spentLevelsInProfessions += Math.Max(s.unlockedProfessionsCount() - Math.Min((int)Math.Floor(s.getLevel() / 5f), maxBaseProfLvl), 0);
             }
 
             int totalSpentLevels = Utilities.countClaimedPillars() + spentLevelsInProfessions;
@@ -92,7 +95,7 @@ namespace MasteryExtended
             List<Skill> targetSkills = MasterySkillsPage.skills;
             if (args.Length > 0 && args[0].Length > 0)
             {
-                targetSkills = targetSkills.Where(s => s.GetName() == args[0]).ToList(); //.FindAll(s => s.Id is >= 0 and <= 4);
+                targetSkills = targetSkills.Where(s => s.GetName().EqualsIgnoreCase(args[0])).ToList();
                 if (targetSkills.Count == 0)
                 {
                     LogMonitor.Log($"Skill '{args[0]}' not found.", LogLevel.Error);
@@ -110,6 +113,8 @@ namespace MasteryExtended
                 {
                     s.addNewLevel(5*i);
                 }
+
+                LogMonitor.Log($"Skill '{s.GetName()}' reset.", LogLevel.Info);
             }
             recountUsedMasteryLevels();
         }

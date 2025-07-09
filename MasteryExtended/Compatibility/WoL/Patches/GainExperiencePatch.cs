@@ -119,7 +119,12 @@ namespace MasteryExtended.Compatibility.WoL.Patches
             int p = ModEntry.Config.MasteryPercentage;
 
             int expToSkill = (int)Math.Ceiling(howMuch * (100 - p) / 100.0);
-            int expToMastery = (skillId != 0) ? (howMuch - expToSkill) : (int)((howMuch - expToSkill) / 2.0);
+            int expToMastery = howMuch - expToSkill;
+
+            if (skillId == 0 && expToMastery > 0)
+            {
+                expToMastery = Math.Max(1, expToMastery / 2);
+            }
 
             // Add the level Exp
             var newLevel = Math.Min(Farmer.checkForLevelGain(currentExp, currentExp + expToSkill), maxLevel);

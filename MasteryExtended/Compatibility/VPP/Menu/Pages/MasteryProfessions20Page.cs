@@ -40,9 +40,6 @@ namespace MasteryExtended.Compatibility.VPP.Menu.Pages
 
             int xSpacingRightHalf = -xPadding + width / 2 + xSpaceBetweenTrees / 2;
 
-            bool innerSkillCheck = innerSkill.unlockedProfessionsCount(15) >= ModEntry.Config.Lvl15ProfessionsRequired && innerSkill.unlockedProfessionsCount(20) >= 1;
-            static bool professionCheck(Profession prof) { return !prof.IsProfessionUnlocked() && prof.RequiredProfessions?.IsProfessionUnlocked() != false; }
-
             Profession pL = Professions[0];
             Profession pR = Professions[1];
 
@@ -51,7 +48,7 @@ namespace MasteryExtended.Compatibility.VPP.Menu.Pages
                 name = pL.GetName(),
                 hoverText = pL.GetDescription(),
                 myID = pL.Id,
-                myAlternateID = professionCheck(pL) && innerSkillCheck ? 0 : 1
+                myAlternateID = profession20Check(pL)
             });
 
             pageTextureComponents.Add(new ClickableTextureComponent(new Rectangle(xPosition + xSpacingRightHalf, yPosition, professionWidth, professionHeight), pR.TextureSource(), pR.TextureBounds, 1f, drawShadow: true)
@@ -59,7 +56,7 @@ namespace MasteryExtended.Compatibility.VPP.Menu.Pages
                 name = pR.GetName(),
                 hoverText = pR.GetDescription(),
                 myID = pR.Id,
-                myAlternateID = professionCheck(pR) && innerSkillCheck ? 0 : 1
+                myAlternateID = profession20Check(pR)
             });
 
             height += professionHeight + yTopPadding - 64;
@@ -84,8 +81,38 @@ namespace MasteryExtended.Compatibility.VPP.Menu.Pages
                 myID = 999
             };
 
-            // TODO
-            // Agregar luego los botones de gamepad
+            // Gamepad
+            snapComponents();
+        }
+
+        private int profession20Check(Profession prof)
+        {
+            return prof.IsProfessionUnlocked() ? 2 : (prof.RequiredProfessions?.IsProfessionUnlocked() != false && innerSkill.unlockedProfessionsCount(15) >= ModEntry.Config.Lvl15ProfessionsRequired && innerSkill.unlockedProfessionsCount(20) >= 1 ? 1 : 0);
+        }
+
+        internal void snapComponents()
+        {
+            if (Game1.options.SnappyMenus)
+            {
+                base.populateClickableComponentList();
+
+                // Only Row
+                pageTextureComponents[0].upNeighborID = upperRightCloseButton.myID;
+                pageTextureComponents[1].upNeighborID = upperRightCloseButton.myID;
+
+                pageTextureComponents[0].downNeighborID = previousPageButton!.myID;
+                pageTextureComponents[1].downNeighborID = previousPageButton.myID;
+
+                pageTextureComponents[0].rightNeighborID = pageTextureComponents[1].myID;
+                pageTextureComponents[1].leftNeighborID = pageTextureComponents[0].myID;
+
+                // Buttons
+                previousPageButton.upNeighborID = pageTextureComponents[0].myID;
+
+                currentlySnappedComponent = previousPageButton;
+
+                base.snapCursorToCurrentSnappedComponent();
+            }
         }
 
         // Agregar cada profesión de forma bonita.
@@ -102,7 +129,7 @@ namespace MasteryExtended.Compatibility.VPP.Menu.Pages
                 drawTextureBox(b, Game1.mouseCursors, new Rectangle(403, 373, 9, 9), c.bounds.X, c.bounds.Y, c.bounds.Width, c.bounds.Height, c.region == 0 ? backItemColor : backItemColorHover, 3f, false);
 
                 // Agregar una capa de color a los adquiridos o no adquiribles
-                if (c.myAlternateID >= 1)
+                if (c.myAlternateID != 1)
                 {
                     Color coverColor = innerSkill.Professions.Find(p => p.Id == c.myID)!.IsProfessionUnlocked() ? Color.Green * 0.3f : Color.Black * (c.region == 0 ? 0.75f : 0.6f);
                     drawTextureBox(b, Game1.mouseCursors, new Rectangle(403, 373, 9, 9), c.bounds.X, c.bounds.Y, c.bounds.Width, c.bounds.Height,
@@ -221,27 +248,31 @@ namespace MasteryExtended.Compatibility.VPP.Menu.Pages
 
             foreach (ClickableTextureComponent c in pageTextureComponents)
             {
-                if (c.bounds.Contains(x, y) && c.myAlternateID == 0 && levelsNotSpent > 0)
+                if (c.bounds.Contains(x, y) && c.myAlternateID == 1 && levelsNotSpent > 0)
                 {
                     // Add the profession and spend the mastery
                     var professionToAdd = innerSkill.Professions.Find(p => p.Id == c.myID)!;
                     professionToAdd.AddProfessionToPlayer();
                     Game1.stats.Increment("masteryLevelsSpent");
-
-                    // Show which one was added
-                    Game1.drawObjectDialogue(
-                        Game1.content.LoadString("Strings\\UI:MasteryExtended_AddedProfession", innerSkill.GetName(), professionToAdd.GetName())
-                    );
+                    c.myAlternateID++;
 
                     // Update the map
                     Game1.currentLocation.MakeMapModifications(true);
+
+                    // Show which one was added
+                    if (ModEntry.Config.ConfirmProfession)
+                    {
+                        performHoverAction(0, 0);
+                        Game1.afterDialogues = () => SetChildMenu(null);
+                        SetChildMenu(new DialogueBox(Game1.content.LoadString("Strings\\UI:MasteryExtended_AddedProfession", innerSkill.GetName(), professionToAdd.GetName())));
+                    }
                 }
             }
 
             if (previousPageButton?.bounds.Contains(x, y) == true && previousPageButton.visible)
             {
                 Game1.playSound("cowboy_monsterhit");
-                pressedButtonTimer = 200f;
+                pressedButtonTimer = 100f;
             }
             base.receiveLeftClick(x, y, playSound);
         }

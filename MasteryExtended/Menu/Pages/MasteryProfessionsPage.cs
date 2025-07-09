@@ -113,9 +113,14 @@ namespace MasteryExtended.Menu.Pages
                 myID = 999
             };
 
+            snapComponents();
+        }
+
+        internal void snapComponents()
+        {
             if (Game1.options.SnappyMenus)
             {
-                populateClickableComponentList();
+                base.populateClickableComponentList();
 
                 //First row
                 pageTextureComponents[0].upNeighborID = upperRightCloseButton.myID;
@@ -134,7 +139,6 @@ namespace MasteryExtended.Menu.Pages
                 pageTextureComponents[3].leftNeighborID = pageTextureComponents[4].myID;
 
                 pageTextureComponents[3].rightNeighborID = pageTextureComponents[5].myID;
-                pageTextureComponents[5].rightNeighborID = pageTextureComponents[3].myID;
 
                 pageTextureComponents[2].upNeighborID = pageTextureComponents[0].myID;
                 pageTextureComponents[4].upNeighborID = pageTextureComponents[0].myID;
@@ -142,17 +146,26 @@ namespace MasteryExtended.Menu.Pages
                 pageTextureComponents[3].upNeighborID = pageTextureComponents[1].myID;
                 pageTextureComponents[5].upNeighborID = pageTextureComponents[1].myID;
 
-                pageTextureComponents[2].downNeighborID = previousPageButton.myID;
+                pageTextureComponents[2].downNeighborID = previousPageButton!.myID;
                 pageTextureComponents[4].downNeighborID = previousPageButton.myID;
                 pageTextureComponents[3].downNeighborID = previousPageButton.myID;
                 pageTextureComponents[5].downNeighborID = previousPageButton.myID;
 
-                // Button
-                previousPageButton.upNeighborID = pageTextureComponents[3].myID;
+                // Buttons
+                previousPageButton.upNeighborID = pageTextureComponents[4].myID;
+                if (nextPageButton != null)
+                {
+                    pageTextureComponents[3].downNeighborID = nextPageButton.myID;
+                    pageTextureComponents[5].downNeighborID = nextPageButton.myID;
+
+                    nextPageButton.leftNeighborID = previousPageButton.myID;
+                    previousPageButton.rightNeighborID = nextPageButton.myID;
+                    nextPageButton.upNeighborID = pageTextureComponents[3].myID;
+                }
 
                 currentlySnappedComponent = previousPageButton;
 
-                snapCursorToCurrentSnappedComponent();
+                base.snapCursorToCurrentSnappedComponent();
             }
         }
 
@@ -241,7 +254,7 @@ namespace MasteryExtended.Menu.Pages
                 textColor: Color.Black, textShadowColor: Color.Black * 0.2f, boxScale: 2f);
 
             base.draw(b);
-            base.drawMouse(b); // Adds the mouse
+            drawMouse(b); // Adds the mouse
         }
 
         public override void performHoverAction(int x, int y)
@@ -293,22 +306,33 @@ namespace MasteryExtended.Menu.Pages
                     var professionToAdd = innerSkill.Professions.Find(p => p.Id == c.myID)!;
                     professionToAdd.AddProfessionToPlayer();
                     Game1.stats.Increment("masteryLevelsSpent");
-
-                    // Show which one was added
-                    Game1.drawObjectDialogue(
-                        Game1.content.LoadString("Strings\\UI:MasteryExtended_AddedProfession", innerSkill.GetName(), professionToAdd.GetName())
-                    );
+                    c.myAlternateID++;
 
                     // Update the map
                     Game1.currentLocation.MakeMapModifications(true);
+
+                    // Show which one was added
+                    if (ModEntry.Config.ConfirmProfession)
+                    {
+                        performHoverAction(0, 0);
+                        Game1.afterDialogues = () => SetChildMenu(null);
+                        SetChildMenu(new DialogueBox(Game1.content.LoadString("Strings\\UI:MasteryExtended_AddedProfession", innerSkill.GetName(), professionToAdd.GetName())));
+                    }
                 }
             }
 
             if (previousPageButton?.bounds.Contains(x, y) == true && previousPageButton.visible)
             {
                 Game1.playSound("cowboy_monsterhit");
-                pressedButtonTimer = 200f;
+                pressedButtonTimer = 100f;
                 previousPageButton.region = 1;
+            }
+
+            if (nextPageButton?.bounds.Contains(x, y) == true && nextPageButton.visible)
+            {
+                Game1.playSound("cowboy_monsterhit");
+                pressedButtonTimer = 100f;
+                nextPageButton.region = 1;
             }
             base.receiveLeftClick(x, y, playSound);
         }

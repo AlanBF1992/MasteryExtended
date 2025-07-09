@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using StardewValley;
 using StardewValley.Menus;
 
@@ -164,6 +165,30 @@ namespace MasteryExtended.Menu
             }
             //Text
             b.DrawString(font, text, new Vector2(x + 16, y + 16 + 4), textColor.Value * 0.9f * alpha);
+        }
+
+        public override void receiveGamePadButton(Buttons button)
+        {
+            base.receiveGamePadButton(button);
+            switch (button)
+            {
+                case Buttons.LeftTrigger:
+                    if (previousPageButton?.visible == true)
+                    {
+                        Game1.playSound("cowboy_monsterhit");
+                        previousPageButton.region = 1;
+                        pressedButtonTimer = 100f;
+                    }
+                    break;
+                case Buttons.RightTrigger:
+                    if (nextPageButton?.visible == true)
+                    {
+                        Game1.playSound("cowboy_monsterhit");
+                        nextPageButton.region = 1;
+                        pressedButtonTimer = 100f;
+                    }
+                    break;
+            }
         }
     }
 }

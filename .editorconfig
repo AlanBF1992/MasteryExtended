@@ -34,3 +34,6 @@ dotnet_diagnostic.IDE0305.severity = none
 # S1751: Loops with at most one iteration should be refactored.
 # It's failing to note that it might be more than one
 dotnet_diagnostic.S1751.severity = none
+
+# S2696: Instance members should not write to "static" fields
+dotnet_diagnostic.S2696.severity = none
