@@ -18,7 +18,7 @@ namespace MasteryExtended.Compatibility.WoL.Patches
             {
                 CodeMatcher matcher = new(instructions, generator);
 
-                MethodInfo masteryOldWarningInfo = AccessTools.Method("DaLion.Professions.I18n:Prestige_Mastery_Lock");
+                MethodInfo masteryOldWarningInfo = AccessTools.Method("DaLion.Professions.I18n:Prestige_Mastery_Warning");
                 MethodInfo masteryNewWarningInfo = AccessTools.Method(typeof(MasteryWarningBoxPatch), nameof(newWarning));
                 MethodInfo newWidthInfo = AccessTools.Method(typeof(MasteryWarningBoxPatch), nameof(newWidth));
                 FieldInfo widthFieldInfo = AccessTools.Field(typeof(IClickableMenu), nameof(IClickableMenu.width));

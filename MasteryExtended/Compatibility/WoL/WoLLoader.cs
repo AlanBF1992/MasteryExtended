@@ -179,7 +179,7 @@ namespace MasteryExtended.Compatibility.WoL
                 prefix: new HarmonyMethod(typeof(DaLionUnpatcher), nameof(DaLionUnpatcher.UnpatcherVoidPrefix))
             );
 
-            ////Fix Warning when claiming mastery
+            //Fix Warning when claiming mastery
             var masteryBox = AccessTools.TypeByName("DaLion.Professions.Framework.UI.MasteryWarningBox");
             harmony.Patch(
                 original: AccessTools.Constructor(masteryBox, [typeof(GameLocation), typeof(MasteryTrackerMenu)]),
@@ -189,6 +189,17 @@ namespace MasteryExtended.Compatibility.WoL
             harmony.Patch(
                 original: AccessTools.Method("DaLion.Professions.Framework.UI.MasteryWarningBox:draw", [typeof(SpriteBatch)]),
                 transpiler: new HarmonyMethod(typeof(MasteryWarningBoxPatch), nameof(MasteryWarningBoxPatch.drawTranspiler))
+            );
+
+            //Force Reset Configs to be false
+            harmony.Patch(
+                original: AccessTools.PropertyGetter("DaLion.Professions.Framework.Configs.MasteriesConfig:LockMasteryUntilFullReset"),
+                prefix: new HarmonyMethod(typeof(ConfigPatch), nameof(ConfigPatch.alwaysFalsePrefix))
+            );
+
+            harmony.Patch(
+                original: AccessTools.PropertyGetter("DaLion.Professions.Framework.Configs.SkillsConfig:EnableSkillReset"),
+                prefix: new HarmonyMethod(typeof(ConfigPatch), nameof(ConfigPatch.alwaysFalsePrefix))
             );
         }
     }
