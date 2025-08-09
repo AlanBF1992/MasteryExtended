@@ -97,7 +97,7 @@ namespace MasteryExtended
             // Modifica el menú del pedestal. Lo hace más alto y crea un botón
             harmony.Patch(
                 original: AccessTools.Constructor(typeof(MasteryTrackerMenu), [typeof(int)]),
-                postfix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.MasteryTrackerMenuPostfix))
+                postfix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.ctorPostfix))
             );
 
             // Dibuja el botón

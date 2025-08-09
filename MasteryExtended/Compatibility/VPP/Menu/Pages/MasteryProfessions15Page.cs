@@ -350,6 +350,7 @@ namespace MasteryExtended.Compatibility.VPP.Menu.Pages
 
                     // Update the map
                     Game1.currentLocation.MakeMapModifications(true);
+
                     // Show which one was added
                     if (ModEntry.Config.ConfirmProfession)
                     {

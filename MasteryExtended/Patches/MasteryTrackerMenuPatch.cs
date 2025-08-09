@@ -83,7 +83,7 @@ namespace MasteryExtended.Patches
         }
 
         /// <summary>Modifica el tamaño del menu pedestal y hace visible el botón</summary>
-        internal static void MasteryTrackerMenuPostfix(MasteryTrackerMenu __instance, int whichSkill = -1)
+        internal static void ctorPostfix(MasteryTrackerMenu __instance, int whichSkill = -1)
         {
             int levelsNotSpent = MasteryTrackerMenu.getCurrentMasteryLevel() - (int)Game1.stats.Get("masteryLevelsSpent");
 

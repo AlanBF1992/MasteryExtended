@@ -23,7 +23,7 @@ namespace MasteryExtended.Compatibility.WoL.Patches
 
                 // Lvl 15 (1)
                 //from: ___professionsToChoose.AddRange(skill.TierOneProfessionIds.Where(player.professions.Contains));
-                //to:   lvl15AddRange(___professionsToChoose, skill, player)
+                //to:   lvl15AddRange(___professionsToChoose, skill)
                 matcher
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Ldarg_1),
@@ -60,7 +60,7 @@ namespace MasteryExtended.Compatibility.WoL.Patches
 
                 // Lvl 15 (2)
                 //from: ___professionsToChoose.AddRange(skill.TierOneProfessionIds.Where(player.professions.Contains));
-                //to:   lvl15AddRange(___professionsToChoose, skill, player)
+                //to:   lvl15AddRange(___professionsToChoose, skill)
                 matcher
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Ldarg_1),
@@ -80,7 +80,7 @@ namespace MasteryExtended.Compatibility.WoL.Patches
 
                 // Lvl 20 (2)
                 //from: int rootId = player.GetCurrentRootProfessionForSkill(skill);
-                //to:   int rootId = lvl20Root(player, skill);
+                //to:   int rootId = lvl20Root(skill);
                 matcher.
                     MatchStartForward(
                         new CodeMatch(OpCodes.Ldloc_0),
@@ -95,9 +95,11 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                     .Set(OpCodes.Call, checkRoot20Info)
                 ;
 
+                object localRoot;
+
                 // Lvl 15 (3)
                 //from: 
-                //to:   rootId = lvl15Root(player, skill)
+                //to:   rootId = lvl15Root(skill)
                 matcher
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Ldloc_0), //player
@@ -106,17 +108,22 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                         new CodeMatch(OpCodes.Ldc_I4_S) //100
                     )
                     .ThrowIfNotMatch("WoL LevelUpMenu: IL Code 3a not found")
-                    .Advance(1)
+                    .Advance(2)
+                ;
+
+                localRoot = matcher.Operand;
+
+                matcher
                     .Insert(
                         new CodeInstruction(OpCodes.Ldarg_S, 5), //skillId
                         new CodeInstruction(OpCodes.Call, checkRoot15Info),
-                        new CodeInstruction(OpCodes.Stloc_S, 19)
+                        new CodeInstruction(OpCodes.Stloc_S, localRoot)
                     )
                 ;
 
                 // Lvl 20 (3)
                 //from: 
-                //to:   rootId = lvl20Root(player, skill)
+                //to:   rootId = lvl20Root(skill)
                 matcher.
                     MatchStartForward(
                         new CodeMatch(OpCodes.Ldloc_0),
@@ -125,12 +132,17 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                         new CodeMatch(OpCodes.Call),
                         new CodeMatch(OpCodes.Stloc_S)
                     )
-                    .ThrowIfNotMatch("WoL LevelUpMenu: IL Code 2b not found")
+                    .ThrowIfNotMatch("WoL LevelUpMenu: IL Code 3b not found")
                     .Advance(1)
+                ;
+
+                localRoot = matcher.Operand;
+
+                matcher
                     .Insert(
                         new CodeInstruction(OpCodes.Ldarg_S, 5), //skillId
                         new CodeInstruction(OpCodes.Call, checkRoot20Info),
-                        new CodeInstruction(OpCodes.Stloc_S, 19)
+                        new CodeInstruction(OpCodes.Stloc_S, localRoot)
                     )
                 ;
 
@@ -149,8 +161,8 @@ namespace MasteryExtended.Compatibility.WoL.Patches
 
         internal static void lvl15AddRange(List<int> professionsToChoose, int skillId)
         {
-            var mySkill = MasterySkillsPage.skills.Find(s => s.Id == skillId)!;
-            var unlockedLvl10Profs = mySkill.Professions.Where(p => p.LevelRequired == 10 && p.IsProfessionUnlocked());
+            var skill = MasterySkillsPage.skills.Find(s => s.Id == skillId)!;
+            var unlockedLvl10Profs = skill.Professions.Where(p => p.LevelRequired == 10 && p.IsProfessionUnlocked());
 
             professionsToChoose.AddRange(unlockedLvl10Profs.Select(p => p.RequiredProfessions!.Id).Distinct());
         }
@@ -169,9 +181,8 @@ namespace MasteryExtended.Compatibility.WoL.Patches
         internal static int lvl20Root(int skillId)
         {
             var skill = MasterySkillsPage.skills.Find(s => s.Id == skillId)!;
-            var prestigedLvl5Prof = skill.Professions.Find(p => Game1.player.professions.Contains(p.Id + 100))!.Id;
 
-            return skill.Professions.Find(p => p.RequiredProfessions?.Id == prestigedLvl5Prof && p.IsProfessionUnlocked())!.Id;
+            return skill.Professions.Find(p => Game1.player.professions.Contains(p.Id + 100))!.Id;
         }
     }
 }

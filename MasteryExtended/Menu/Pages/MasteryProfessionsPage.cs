@@ -300,7 +300,7 @@ namespace MasteryExtended.Menu.Pages
 
             foreach (ClickableTextureComponent c in pageTextureComponents)
             {
-                if (c.bounds.Contains(x,y) && c.myAlternateID == 1 && levelsNotSpent > 0)
+                if (c.bounds.Contains(x, y) && c.myAlternateID == 1 && levelsNotSpent > 0)
                 {
                     // Add the profession and spend the mastery
                     var professionToAdd = innerSkill.Professions.Find(p => p.Id == c.myID)!;
@@ -310,6 +310,9 @@ namespace MasteryExtended.Menu.Pages
 
                     // Update the map
                     Game1.currentLocation.MakeMapModifications(true);
+
+                    // Update IDs
+                    recalculateState(c.myID);
 
                     // Show which one was added
                     if (ModEntry.Config.ConfirmProfession)
@@ -335,6 +338,15 @@ namespace MasteryExtended.Menu.Pages
                 nextPageButton.region = 1;
             }
             base.receiveLeftClick(x, y, playSound);
+        }
+
+        public void recalculateState(int clickedProfession)
+        {
+            var idToCheck = innerSkill.Professions.Where(p => p.RequiredProfessions?.Id == clickedProfession).Select(p => p.Id);
+            foreach (ClickableTextureComponent c in pageTextureComponents.Where(c => idToCheck.Contains(c.myID)))
+            {
+                c.myAlternateID++;
+            }
         }
 
         public override void update(GameTime time)

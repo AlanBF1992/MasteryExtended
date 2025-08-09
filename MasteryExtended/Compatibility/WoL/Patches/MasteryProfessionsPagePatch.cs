@@ -12,7 +12,7 @@ namespace MasteryExtended.Compatibility.WoL.Patches
         readonly static System.Reflection.MethodInfo profMethod = AccessTools.Method("DaLion.Professions.Framework.VanillaProfession:FromValue", [typeof(int)]);
 
         // Constructor, prestiged son myAlternateId = 3
-        internal static void MasteryProfessionsPagePatchPostfix(MasteryProfessionsPage __instance)
+        internal static void ctorPostfix(MasteryProfessionsPage __instance)
         {
             foreach (var c in __instance.pageTextureComponents.Where(c => Game1.player.professions.Contains(c.myID + 100)))
             {
@@ -40,32 +40,39 @@ namespace MasteryExtended.Compatibility.WoL.Patches
             __instance.drawMouse(b); // Adds the mouse
         }
 
-        internal static void receiveLeftClickPostfix(MasteryProfessionsPage __instance, int x, int y)
+        internal static bool receiveLeftClickPrefix(MasteryProfessionsPage __instance, int x, int y)
         {
-            if (__instance.innerSkill.Professions.Count(p => Game1.player.professions.Contains(p.Id + 100)) < 2) return;
+            if (__instance.innerSkill.Professions.Count(p => Game1.player.professions.Contains(p.Id + 100)) < 2) return true;
 
             int levelsAchieved = MasteryTrackerMenu.getCurrentMasteryLevel();
             int levelsNotSpent = levelsAchieved - (int)Game1.stats.Get("masteryLevelsSpent");
 
-            foreach (ClickableTextureComponent c in __instance.pageTextureComponents)
+            if (levelsNotSpent <= 0) return true;
+
+            foreach (ClickableTextureComponent c in __instance.pageTextureComponents.Where(c => c.bounds.Contains(x, y) && c.myAlternateID == 2))
             {
-                if (c.bounds.Contains(x, y) && c.myAlternateID == 2 && levelsNotSpent > 0)
+                var reqProf = __instance.innerSkill.Professions.Find(p => p.Id == c.myID)!.RequiredProfessions;
+                bool canPrestige = reqProf == null || Game1.player.professions.Contains(reqProf.Id + 100);
+                if (!canPrestige) continue;
+
+                // Add the profession and spend the mastery
+                var professionToAdd = __instance.innerSkill.Professions.Find(p => p.Id == c.myID)!;
+                Game1.player.professions.Add(c.myID + 100);
+                Game1.stats.Increment("masteryLevelsSpent");
+                c.myAlternateID++;
+
+                // Show which one was added
+                if (ModEntry.Config.ConfirmProfession)
                 {
-                    var reqProf = __instance.innerSkill.Professions.Find(p => p.Id == c.myID)!.RequiredProfessions;
-
-                    bool canPrestige = reqProf == null || Game1.player.professions.Contains(reqProf.Id + 100);
-                    if (!canPrestige) continue;
-
-                    Game1.player.professions.Add(c.myID + 100);
-                    Game1.stats.Increment("masteryLevelsSpent");
-
-                    var professionToAdd = __instance.innerSkill.Professions.Find(p => p.Id == c.myID)!;
-                    // Show which one was added
-                    Game1.drawObjectDialogue(
-                        Game1.content.LoadString("Strings\\UI:MasteryExtended_AddedProfession", __instance.innerSkill.GetName(), professionToAdd.GetName())
-                    );
+                    __instance.performHoverAction(0, 0);
+                    Game1.afterDialogues = () => __instance.SetChildMenu(null);
+                    __instance.SetChildMenu(new DialogueBox(Game1.content.LoadString("Strings\\UI:MasteryExtended_AddedProfession", __instance.innerSkill.GetName(), professionToAdd.GetName())));
                 }
+
+                return false;
             }
+
+            return true;
         }
 
         internal static void performHoverActionPostfix(MasteryProfessionsPage __instance, int x, int y)
@@ -85,7 +92,7 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                     case 2:
                         __instance.hoverText += "\n\nPrestiged: " + dalionProf.GetTitle(true) + "\n";
                         __instance.hoverText += dalionProf.GetDescription(true);
-                        
+
                         break;
                     case 3:
                         __instance.hoverText = dalionProf.GetDescription(false) + "\n\n= Already prestiged =\n" + dalionProf.GetDescription(true);

@@ -77,7 +77,7 @@ namespace MasteryExtended.Compatibility.VPP.Patches
         private static List<(int, string)> indexAndProfessionChanger(List<(int,string)> IndexAndProfessions)
         {
             List<(int, string)> newIP = [];
-            
+
             foreach (var item in IndexAndProfessions)
             {
                 var profVPP = int.Parse(item.Item2);

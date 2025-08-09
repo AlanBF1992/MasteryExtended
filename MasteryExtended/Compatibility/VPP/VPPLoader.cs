@@ -129,7 +129,7 @@ namespace MasteryExtended.Compatibility.VPP
             // Add Next Page button to MasteryProfessionPage
             harmony.Patch(
                 original: AccessTools.Constructor(typeof(MasteryProfessionsPage), [typeof(Skill)]),
-                postfix: new HarmonyMethod(typeof(MasteryProfessionsPagePatch), nameof(MasteryProfessionsPagePatch.CtorPostfix))
+                postfix: new HarmonyMethod(typeof(MasteryProfessionsPagePatch), nameof(MasteryProfessionsPagePatch.ctorPostfix))
             );
 
             // Add leftClick to Next Page

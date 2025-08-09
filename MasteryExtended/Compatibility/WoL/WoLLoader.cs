@@ -111,7 +111,7 @@ namespace MasteryExtended.Compatibility.WoL
             // Accede al menú y reactiva el main button
             harmony.Patch(
                 original: AccessTools.Constructor(typeof(MasteryTrackerMenu), [typeof(int)]),
-                postfix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.MasteryTrackerMenuPostfix))
+                postfix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.ctorPostfix))
             );
 
             // Dibuja el botón
@@ -138,7 +138,7 @@ namespace MasteryExtended.Compatibility.WoL
              ***************/
             harmony.Patch(
                 original: AccessTools.Constructor(typeof(MasteryProfessionsPage), [typeof(Skills.Skill)]),
-                postfix: new HarmonyMethod(typeof(MasteryProfessionsPagePatch), nameof(MasteryProfessionsPagePatch.MasteryProfessionsPagePatchPostfix))
+                postfix: new HarmonyMethod(typeof(MasteryProfessionsPagePatch), nameof(MasteryProfessionsPagePatch.ctorPostfix))
             );
 
             harmony.Patch(
@@ -148,7 +148,7 @@ namespace MasteryExtended.Compatibility.WoL
 
             harmony.Patch(
                 original: AccessTools.Method(typeof(MasteryProfessionsPage), nameof(MasteryProfessionsPage.receiveLeftClick)),
-                postfix: new HarmonyMethod(typeof(MasteryProfessionsPagePatch), nameof(MasteryProfessionsPagePatch.receiveLeftClickPostfix))
+                prefix: new HarmonyMethod(typeof(MasteryProfessionsPagePatch), nameof(MasteryProfessionsPagePatch.receiveLeftClickPrefix))
             );
 
             harmony.Patch(

@@ -93,27 +93,27 @@ namespace MasteryExtended
                 {
                     var editor = asset.AsDictionary<string, string>();
 
-                    editor.Data.Add("MasteryExtended_InvestButton", ModEntry.ModHelper.Translation.Get("invest-button"));
-                    editor.Data.Add("MasteryExtended_BackButton", ModEntry.ModHelper.Translation.Get("back-button"));
-                    editor.Data.Add("MasteryExtended_NextButton", ModEntry.ModHelper.Translation.Get("next-button"));
-                    editor.Data.Add("MasteryExtended_MenuTitleSkills", ModEntry.ModHelper.Translation.Get("menu-title-skills"));
-                    editor.Data.Add("MasteryExtended_MenuTitleProfession", ModEntry.ModHelper.Translation.Get("menu-title-profession"));
-                    editor.Data.Add("MasteryExtended_HoverSkill", ModEntry.ModHelper.Translation.Get("hover-skill"));
-                    editor.Data.Add("MasteryExtended_AddedProfession", ModEntry.ModHelper.Translation.Get("added-profession"));
-                    editor.Data.Add("MasteryExtended_NeedMoreProfessions", ModEntry.ModHelper.Translation.Get("need-more-professions"));
-                    editor.Data.Add("MasteryExtended_NeedMoreLevels", ModEntry.ModHelper.Translation.Get("need-more-levels"));
-                    editor.Data.Add("MasteryExtended_CantSpend", ModEntry.ModHelper.Translation.Get("cant-spend"));
-                    editor.Data.Add("MasteryExtended_LookOnly", ModEntry.ModHelper.Translation.Get("look-only"));
-                    editor.Data.Add("MasteryExtended_CantAccessSkill", ModEntry.ModHelper.Translation.Get("cant-access-skill"));
-                    editor.Data.Add("MasteryExtended_EveryProfessionUnlocked", ModEntry.ModHelper.Translation.Get("every-profession-unlocked"));
-                    editor.Data.Add("MasteryExtended_TrascendMortalKnowledge", ModEntry.ModHelper.Translation.Get("transcend-mortal-knowledge"));
-                    editor.Data.Add("MasteryExtended_AlreadyUnlocked", ModEntry.ModHelper.Translation.Get("already-unlocked"));
-                    editor.Data.Add("MasteryExtended_RequirementsTitle", ModEntry.ModHelper.Translation.Get("requirements-title"));
-                    editor.Data.Add("MasteryExtended_RequirementsProfession", ModEntry.ModHelper.Translation.Get("requirements-profession"));
-                    editor.Data.Add("MasteryExtended_RequirementsLvl10", ModEntry.ModHelper.Translation.Get("requirements-lvl10"));
-                    editor.Data.Add("MasteryExtended_RequirementsLvl15", ModEntry.ModHelper.Translation.Get("requirements-lvl15"));
-                    editor.Data.Add("MasteryExtended_RequirementsLvl20", ModEntry.ModHelper.Translation.Get("requirements-lvl20"));
-                    editor.Data.Add("MasteryExtended_WoLMasteryWarning", ModEntry.ModHelper.Translation.Get("wol-mastery-warning"));
+                    editor.Data.Add("MasteryExtended_InvestButton", ModHelper.Translation.Get("invest-button"));
+                    editor.Data.Add("MasteryExtended_BackButton", ModHelper.Translation.Get("back-button"));
+                    editor.Data.Add("MasteryExtended_NextButton", ModHelper.Translation.Get("next-button"));
+                    editor.Data.Add("MasteryExtended_MenuTitleSkills", ModHelper.Translation.Get("menu-title-skills"));
+                    editor.Data.Add("MasteryExtended_MenuTitleProfession", ModHelper.Translation.Get("menu-title-profession"));
+                    editor.Data.Add("MasteryExtended_HoverSkill", ModHelper.Translation.Get("hover-skill"));
+                    editor.Data.Add("MasteryExtended_AddedProfession", ModHelper.Translation.Get("added-profession"));
+                    editor.Data.Add("MasteryExtended_NeedMoreProfessions", ModHelper.Translation.Get("need-more-professions"));
+                    editor.Data.Add("MasteryExtended_NeedMoreLevels", ModHelper.Translation.Get("need-more-levels"));
+                    editor.Data.Add("MasteryExtended_CantSpend", ModHelper.Translation.Get("cant-spend"));
+                    editor.Data.Add("MasteryExtended_LookOnly", ModHelper.Translation.Get("look-only"));
+                    editor.Data.Add("MasteryExtended_CantAccessSkill", ModHelper.Translation.Get("cant-access-skill"));
+                    editor.Data.Add("MasteryExtended_EveryProfessionUnlocked", ModHelper.Translation.Get("every-profession-unlocked"));
+                    editor.Data.Add("MasteryExtended_TrascendMortalKnowledge", ModHelper.Translation.Get("transcend-mortal-knowledge"));
+                    editor.Data.Add("MasteryExtended_AlreadyUnlocked", ModHelper.Translation.Get("already-unlocked"));
+                    editor.Data.Add("MasteryExtended_RequirementsTitle", ModHelper.Translation.Get("requirements-title"));
+                    editor.Data.Add("MasteryExtended_RequirementsProfession", ModHelper.Translation.Get("requirements-profession"));
+                    editor.Data.Add("MasteryExtended_RequirementsLvl10", ModHelper.Translation.Get("requirements-lvl10"));
+                    editor.Data.Add("MasteryExtended_RequirementsLvl15", ModHelper.Translation.Get("requirements-lvl15"));
+                    editor.Data.Add("MasteryExtended_RequirementsLvl20", ModHelper.Translation.Get("requirements-lvl20"));
+                    editor.Data.Add("MasteryExtended_WoLMasteryWarning", ModHelper.Translation.Get("wol-mastery-warning"));
                 });
             }
         }
@@ -146,7 +146,7 @@ namespace MasteryExtended
         {
             if (Context.IsMainPlayer)
             {
-                base.Helper.Data.WriteSaveData("AlanBF.MasteryExtended", Data);
+                Helper.Data.WriteSaveData("AlanBF.MasteryExtended", Data);
             }
         }
     }
