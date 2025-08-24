@@ -21,6 +21,8 @@ namespace MasteryExtended.Compatibility.VPP
             helper.Events.GameLoop.GameLaunched += checkVPPAPI;
             helper.Events.GameLoop.GameLaunched += addVPPProfessions;
             helper.Events.GameLoop.GameLaunched += GMCMConfigVPP;
+
+            ModEntry.MaxMasteryLevels += 40;
         }
 
         private static void checkVPPAPI(object? sender, GameLaunchedEventArgs e)
@@ -54,7 +56,6 @@ namespace MasteryExtended.Compatibility.VPP
 
                 skill.Professions.Add(toAdd);
             }
-            ModEntry.MaxMasteryLevels += 40;
         }
 
         /// <summary>GMCM Compat VPP</summary>
