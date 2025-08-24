@@ -25,7 +25,7 @@ namespace MasteryExtended.Compatibility.VPP.Patches
                 var IndexAndProfessions = matcher.MatchStartForward(new CodeMatch(OpCodes.Newobj, indexAndProfessionConstructor)).Advance(1).Operand;
 
                 // from: nothing
-                // to:   readThisThing(IndexAndProfessions)
+                // to:   indexAndProfessionChanger(IndexAndProfessions)
                 matcher.
                     End()
                     .MatchStartBackwards(new CodeMatch(OpCodes.Ldstr, "-1"))
@@ -42,7 +42,7 @@ namespace MasteryExtended.Compatibility.VPP.Patches
                 ;
 
                 // from: DisplayHandler.MyCustomSkillBars.Value[IndexAndProfessions[index].Item1].name = IndexAndProfessions[index].Item2;
-                // to:   DisplayHandler.MyCustomSkillBars.Value[IndexAndProfessions[index].Item1].name = renamer2000(IndexAndProfessions[index].Item2);
+                // to:   DisplayHandler.MyCustomSkillBars.Value[IndexAndProfessions[index].Item1].name = joinSkillLvlVPP(IndexAndProfessions[index].Item2);
                 matcher
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Stfld, ccName),
@@ -82,9 +82,11 @@ namespace MasteryExtended.Compatibility.VPP.Patches
             {
                 var profVPP = int.Parse(item.Item2);
                 var lvlToCheck = item.Item1 < 5 ? 15 : 20;
-                var skill = MasterySkillsPage.skills.First(s => s.containsProfession(profVPP));
-                var prof = skill.Professions.First(p => p.LevelRequired == lvlToCheck && p.IsProfessionUnlocked()); // Da lo mismo en realidad
-                newIP.Add((item.Item1, prof.Id.ToString()));
+                var skill = MasterySkillsPage.skills.Find(s => s.containsProfession(profVPP));
+                var prof = skill?.Professions.Find(p => p.LevelRequired == lvlToCheck && p.IsProfessionUnlocked());
+                var profIDString = prof?.Id.ToString() ?? "0";
+
+                newIP.Add((item.Item1, profIDString));
             }
 
             return newIP;

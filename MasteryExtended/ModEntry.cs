@@ -20,7 +20,7 @@ namespace MasteryExtended
         /// <summary>Simplified APIs for writing mods.</summary>
         public static IModHelper ModHelper { get; internal set; } = null!;
 
-        /// <summary>Simplified APIs for writing mods.</summary>
+        /// <summary>Manifest of the mod.</summary>
         new public static IManifest ModManifest { get; internal set; } = null!;
 
         /// <summary>The mod configuration from the player.</summary>
@@ -68,8 +68,8 @@ namespace MasteryExtended
             // VPP Compat
             if (helper.ModRegistry.IsLoaded("KediDili.VanillaPlusProfessions"))
             {
-                LogMonitor.Log("Vanilla Plus Profession Compat Patches Loaded", LogLevel.Info);
                 VPPLoader.Loader(helper, harmony);
+                LogMonitor.Log("Vanilla Plus Profession Compat Patches Loaded", LogLevel.Info);
             }
 
             // Console commands

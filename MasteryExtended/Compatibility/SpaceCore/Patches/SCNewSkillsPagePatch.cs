@@ -12,7 +12,7 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
     {
         internal readonly static IMonitor LogMonitor = ModEntry.LogMonitor;
 
-        internal static IEnumerable<CodeInstruction> ctorTranspiler (IEnumerable<CodeInstruction> instructions)
+        internal static IEnumerable<CodeInstruction> ctorTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             try
             {

@@ -18,27 +18,21 @@ namespace MasteryExtended.Compatibility.WoL
             WoLPatches(harmony);
             helper.Events.GameLoop.SaveLoaded += fixExperienceCurve;
             helper.Events.GameLoop.GameLaunched += GMCMConfigWoL;
-            helper.Events.GameLoop.SaveLoaded += reloadIcons;
+            helper.Events.GameLoop.DayStarted += (_, _) => reloadIcons(); //Because fuck my life.
             ModEntry.MaxMasteryLevels += 20;
         }
 
         /// <summary>Makes SpaceCore Skills only able to go to lvl 10</summary>
         private static void fixExperienceCurve(object? sender, SaveLoadedEventArgs e)
         {
-            int[] ExperienceCurve =
-                [
-                    100,
-                    380,
-                    770,
-                    1300,
-                    2150,
-                    3300,
-                    4800,
-                    6900,
-                    10000,
-                    15000,
-                    int.MaxValue
-                ];
+            int[] ExperienceCurve = new int[11];
+
+            for (int i = 0; i < 10; i++)
+            {
+                ExperienceCurve[i] = Farmer.getBaseExperienceForLevel(i + 1);
+            }
+
+            ExperienceCurve[10] = int.MaxValue;
 
             var skillList = (string[])AccessTools.Method("SpaceCore.Skills:GetSkillList").Invoke(null, null)!;
             var getSkill = AccessTools.Method("SpaceCore.Skills:GetSkill");
@@ -77,7 +71,7 @@ namespace MasteryExtended.Compatibility.WoL
         }
 
         /// <summary>Reload vanilla icons so WoL icons are correctly shown</summary>
-        private static void reloadIcons(object? _1, SaveLoadedEventArgs _2)
+        internal static void reloadIcons()
         {
             ModEntry.ModHelper.GameContent.InvalidateCache("LooseSprites/Cursors");
         }

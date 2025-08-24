@@ -44,8 +44,8 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                 // Lvl 20 (1)
                 //from: int rootId = player.GetCurrentRootProfessionForSkill(skill);
                 //to:   int rootId = lvl20Root(skillId);
-                matcher.
-                    MatchStartForward(
+                matcher
+                    .MatchStartForward(
                         new CodeMatch(OpCodes.Ldloc_0),
                         new CodeMatch(OpCodes.Ldloc_3),
                         new CodeMatch(OpCodes.Call),
@@ -81,8 +81,8 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                 // Lvl 20 (2)
                 //from: int rootId = player.GetCurrentRootProfessionForSkill(skill);
                 //to:   int rootId = lvl20Root(skill);
-                matcher.
-                    MatchStartForward(
+                matcher
+                    .MatchStartForward(
                         new CodeMatch(OpCodes.Ldloc_0),
                         new CodeMatch(OpCodes.Ldloc_S),
                         new CodeMatch(OpCodes.Call),
@@ -124,8 +124,8 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                 // Lvl 20 (3)
                 //from: 
                 //to:   rootId = lvl20Root(skill)
-                matcher.
-                    MatchStartForward(
+                matcher
+                    .MatchStartForward(
                         new CodeMatch(OpCodes.Ldloc_0),
                         new CodeMatch(OpCodes.Ldloc_S),
                         new CodeMatch(OpCodes.Call),
