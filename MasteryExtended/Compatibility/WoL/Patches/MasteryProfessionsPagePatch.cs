@@ -4,12 +4,13 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using StardewValley.Menus;
+using System.Reflection;
 
 namespace MasteryExtended.Compatibility.WoL.Patches
 {
     internal static class MasteryProfessionsPagePatch
     {
-        readonly static System.Reflection.MethodInfo profMethod = AccessTools.Method("DaLion.Professions.Framework.VanillaProfession:FromValue", [typeof(int)]);
+        internal readonly static MethodInfo profMethod = AccessTools.Method("DaLion.Professions.Framework.VanillaProfession:FromValue", [typeof(int)]);
 
         // Constructor, prestiged son myAlternateId = 3
         internal static void ctorPostfix(MasteryProfessionsPage __instance)

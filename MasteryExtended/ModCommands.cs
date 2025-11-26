@@ -107,11 +107,12 @@ namespace MasteryExtended
 
             foreach (Skill s in targetSkills)
             {
-                int points = s.getLevel() / 5;
-
-                for (int i = 1; i <= points; i++)
+                for (int i = 1; i <= s.getLevel(); i++)
                 {
-                    s.addNewLevel(5*i);
+                    if (s.ProfessionChooserLevels.Contains(i))
+                    {
+                        s.addNewLevel(i);
+                    }
                 }
 
                 LogMonitor.Log($"Skill '{s.GetName()}' reset.", LogLevel.Info);

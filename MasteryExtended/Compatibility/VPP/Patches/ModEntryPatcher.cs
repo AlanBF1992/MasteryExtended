@@ -78,15 +78,18 @@ namespace MasteryExtended.Compatibility.VPP.Patches
         {
             List<(int, string)> newIP = [];
 
+            var lvl15Count = MasterySkillsPage.skills.Count(p => p.unlockedProfessionsCount(15) > 0);
+
             foreach (var item in IndexAndProfessions)
             {
                 var profVPP = int.Parse(item.Item2);
-                var lvlToCheck = item.Item1 < 5 ? 15 : 20;
+                var lvlToCheck = lvl15Count > 0 ? 15 : 20;
                 var skill = MasterySkillsPage.skills.Find(s => s.containsProfession(profVPP));
                 var prof = skill?.Professions.Find(p => p.LevelRequired == lvlToCheck && p.IsProfessionUnlocked());
                 var profIDString = prof?.Id.ToString() ?? "0";
 
                 newIP.Add((item.Item1, profIDString));
+                lvl15Count--;
             }
 
             return newIP;

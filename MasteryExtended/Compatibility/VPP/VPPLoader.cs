@@ -54,6 +54,8 @@ namespace MasteryExtended.Compatibility.VPP
                                        textureSource: (Func<Texture2D>)(() => professionIcons),
                                        textureBounds: new Rectangle((VPPProfession.ID - 467830) % 6 * 16, (VPPProfession.ID - 467830) / 6 * 16, 16, 16));
 
+                skill.ProfessionChooserLevels.AddRange([15, 20]);
+
                 skill.Professions.Add(toAdd);
             }
         }

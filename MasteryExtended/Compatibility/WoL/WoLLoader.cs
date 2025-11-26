@@ -2,6 +2,7 @@
 using MasteryExtended.Compatibility.GMCM;
 using MasteryExtended.Compatibility.WoL.Patches;
 using MasteryExtended.Menu.Pages;
+using MasteryExtended.Skills.Professions;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
@@ -20,6 +21,10 @@ namespace MasteryExtended.Compatibility.WoL
             helper.Events.GameLoop.GameLaunched += GMCMConfigWoL;
             helper.Events.GameLoop.DayStarted += (_, _) => reloadIcons(); //Because fuck my life.
             ModEntry.MaxMasteryLevels += 20;
+            foreach (var skill in MasterySkillsPage.skills.Where(s => s.Id >= 0 && s.Id <= 4))
+            {
+                skill.ProfessionChooserLevels.AddRange([15, 20]);
+            }
         }
 
         /// <summary>Makes SpaceCore Skills only able to go to lvl 10</summary>
@@ -194,6 +199,12 @@ namespace MasteryExtended.Compatibility.WoL
             harmony.Patch(
                 original: AccessTools.PropertyGetter("DaLion.Professions.Framework.Configs.SkillsConfig:EnableSkillReset"),
                 prefix: new HarmonyMethod(typeof(ConfigPatch), nameof(ConfigPatch.alwaysFalsePrefix))
+            );
+
+            // Remove prestiges correctly when removing professions
+            harmony.Patch(
+                original: AccessTools.Method(typeof(Profession), nameof(Profession.RemoveProfessionFromPlayer)),
+                postfix: new HarmonyMethod(typeof(ProfessionPatch), nameof(ProfessionPatch.RemoveProfessionFromPlayerTranspiler))
             );
         }
     }

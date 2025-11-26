@@ -8,6 +8,7 @@ namespace MasteryExtended.Skills
     public partial class Skill
     {
         public Func<string> GetName = () => "";
+
         public int Id { get; set; }
         public List<Profession> Professions { get; set; } = [];
         public Texture2D TextureSource { get; set; } = Game1.content.Load<Texture2D>("Maps\\springobjects");
@@ -16,7 +17,7 @@ namespace MasteryExtended.Skills
         public Func<int> getLevel { get; set; } = null!;
         public Func<bool> showSkill { get; set; } = null!;
         public Action<int> addNewLevel { get; set; } = null!;
-
+        public List<int> ProfessionChooserLevels { get; set; } = null!;
         /*****************
         * Public methods *
         ******************/
@@ -43,10 +44,11 @@ namespace MasteryExtended.Skills
             getLevel = () => Game1.player.GetUnmodifiedSkillLevel(id);
             addNewLevel = (lvl) => Game1.player.newLevels.Add(new Point(id, lvl));
             showSkill = () => true;
+            ProfessionChooserLevels = [5, 10];
         }
 
         // SpaceCore Skills
-        public Skill(Func<string> name, int id, Texture2D? textureSource, List<Profession>? professions, Func<int> getLvl, Action<int> addLvl, Func<bool> showSk)
+        public Skill(Func<string> name, int id, Texture2D? textureSource, List<Profession>? professions, Func<int> getLvl, Action<int> addLvl, Func<bool> showSk, List<int>? professionChooserLevels)
         {
             Id = id;
             GetName = name;
@@ -55,6 +57,7 @@ namespace MasteryExtended.Skills
             getLevel = getLvl;
             addNewLevel = addLvl;
             showSkill = showSk;
+            if (professionChooserLevels != null) ProfessionChooserLevels = professionChooserLevels;
         }
 
         public bool containsProfession(int id)

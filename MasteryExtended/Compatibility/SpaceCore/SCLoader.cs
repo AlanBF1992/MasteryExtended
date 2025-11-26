@@ -71,7 +71,7 @@ namespace MasteryExtended.Compatibility.SpaceCore
             foreach (string id in skillList)
             {
                 dynamic actualSCSkill = getSkill.Invoke(null, [id])!;
-                IOrderedEnumerable<dynamic> actualSCProfessions = (actualSCSkill.ProfessionsForLevels as System.Collections.IList)!.Cast<dynamic>().OrderBy(p => p.Level);
+                IEnumerable<dynamic> actualSCProfessions = ((IList<dynamic>)actualSCSkill.ProfessionsForLevels)!.OrderBy(p => p.Level);
                 List<Profession> myProfessions = [];
                 foreach (var i in actualSCProfessions)
                 {
@@ -99,7 +99,8 @@ namespace MasteryExtended.Compatibility.SpaceCore
                                   myProfessions,
                                   () => (int)getSkillLvl.Invoke(null, [Game1.player, id])!,
                                   (lvl) => newLevels.Add(new KeyValuePair<string, int>(actualSCSkill.Id, lvl)),
-                                  () => actualSCSkill.ShouldShowOnSkillsPage);
+                                  () => actualSCSkill.ShouldShowOnSkillsPage,
+                                  [5,10]);
 
                 MasterySkillsPage.skills.Add(skill);
                 ModEntry.MaxMasteryLevels += 4;
