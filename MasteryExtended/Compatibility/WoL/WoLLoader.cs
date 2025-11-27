@@ -204,7 +204,7 @@ namespace MasteryExtended.Compatibility.WoL
             // Remove prestiges correctly when removing professions
             harmony.Patch(
                 original: AccessTools.Method(typeof(Profession), nameof(Profession.RemoveProfessionFromPlayer)),
-                postfix: new HarmonyMethod(typeof(ProfessionPatch), nameof(ProfessionPatch.RemoveProfessionFromPlayerTranspiler))
+                transpiler: new HarmonyMethod(typeof(ProfessionPatch), nameof(ProfessionPatch.RemoveProfessionFromPlayerTranspiler))
             );
         }
     }

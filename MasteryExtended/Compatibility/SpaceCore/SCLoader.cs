@@ -71,7 +71,7 @@ namespace MasteryExtended.Compatibility.SpaceCore
             foreach (string id in skillList)
             {
                 dynamic actualSCSkill = getSkill.Invoke(null, [id])!;
-                IEnumerable<dynamic> actualSCProfessions = ((IList<dynamic>)actualSCSkill.ProfessionsForLevels)!.OrderBy(p => p.Level);
+                IEnumerable<dynamic> actualSCProfessions = ((IEnumerable<dynamic>)actualSCSkill.ProfessionsForLevels)!.OrderBy(p => p.Level);
                 List<Profession> myProfessions = [];
                 foreach (var i in actualSCProfessions)
                 {
