@@ -5,6 +5,7 @@ using StardewValley;
 using StardewValley.Menus;
 using System.Reflection;
 using System.Reflection.Emit;
+using static HarmonyLib.Code;
 
 namespace MasteryExtended.Patches
 {
@@ -120,30 +121,48 @@ namespace MasteryExtended.Patches
 
         internal static int masteryRequired()
         {
-            return (ModEntry.Config.MasteryCaveAlternateOpening) ? ModEntry.Config.MasteryRequiredForCave : 999;
+            return (ModEntry.Config.SkillsVsMasteryPoints.Equals("Only Level 10 Skills")) ? 999 : ModEntry.Config.MasteryRequiredForCave;
         }
 
         internal static void masteryCaveString()
         {
             int masteryLevel = MasteryTrackerMenu.getCurrentMasteryLevel();
             int divisor = ModEntry.MasteryCaveChanges();
-            int fullSkills = Math.Min(Game1.player.farmingLevel.Value/divisor, 1)
-                             + Math.Min(Game1.player.fishingLevel.Value/divisor, 1)
-                             + Math.Min(Game1.player.foragingLevel.Value/divisor, 1)
-                             + Math.Min(Game1.player.combatLevel.Value/divisor, 1)
-                             + Math.Min(Game1.player.miningLevel.Value/divisor, 1);
+            int vanillaSkillsReady = MasterySkillsPage.skills.Count(s => s.getLevel() / divisor >= 1 && s.Id >= 0 && s.Id <= 4);
+            int allSkillsReady = MasterySkillsPage.skills.Count(s => s.getLevel() / divisor >= 1);
+            int skillCheck = ModEntry.Config.IncludeCustomSkills ? allSkillsReady : vanillaSkillsReady;
 
-            if (ModEntry.Config.MasteryCaveAlternateOpening)
+
+            switch (ModEntry.Config.SkillsVsMasteryPoints)
             {
-                Game1.drawObjectDialogue([
-                    Game1.content.LoadString("Strings\\1_6_Strings:MasteryCave", fullSkills).Replace(".",""),
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_TrascendMortalKnowledge") + $" ({masteryLevel}/{masteryRequired()})"
-                ]);
-                return;
+                case "Level 10 Skills or Mastery Points":
+                    Game1.drawObjectDialogue([
+                        Game1.content.LoadString("Strings\\1_6_Strings:MasteryCave", skillCheck).Replace(".","").Replace("/5", $"/{ModEntry.Config.SkillsRequiredForMasteryRoom}"),
+                        Game1.content.LoadString("Strings\\UI:MasteryExtended_TrascendMortalKnowledge") + $" ({masteryLevel}/{masteryRequired()})"
+                    ]);
+                    break;
+                case "Only Level 10 Skills":
+                    Game1.drawObjectDialogue(
+                        Game1.content.LoadString("Strings\\1_6_Strings:MasteryCave", skillCheck).Replace(".", "").Replace("/5", $"/{ModEntry.Config.SkillsRequiredForMasteryRoom}")
+                    );
+                    break;
+                case "Only Mastery Points":
+                    Game1.drawObjectDialogue(
+                        Game1.content.LoadString("Strings\\UI:MasteryExtended_TrascendMortalKnowledgeOnly") + $" ({masteryLevel}/{masteryRequired()})"
+                    );
+                    break;
+                case "Level 10 Skills AND Mastery Points":
+                    Game1.drawObjectDialogue([
+                        Game1.content.LoadString("Strings\\1_6_Strings:MasteryCave", skillCheck).Replace(".","").Replace("/5", $"/{ModEntry.Config.SkillsRequiredForMasteryRoom}"),
+                        Game1.content.LoadString("Strings\\UI:MasteryExtended_TrascendMortalKnowledgeTogether") + $" ({masteryLevel}/{masteryRequired()})"
+                    ]);
+                    break;
+                default:
+                    Game1.drawObjectDialogue(
+                        Game1.content.LoadString("Strings\\1_6_Strings:MasteryCave", skillCheck).Replace("/5", $"/{ModEntry.Config.SkillsRequiredForMasteryRoom}")
+                    );
+                    break;
             }
-            Game1.drawObjectDialogue(
-                Game1.content.LoadString("Strings\\1_6_Strings:MasteryCave", fullSkills)
-            );
         }
     }
 }

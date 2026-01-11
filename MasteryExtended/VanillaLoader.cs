@@ -207,14 +207,39 @@ namespace MasteryExtended
                 interval: 5000
             );
 
-            // Require Mastery for Cave
-            configMenu.AddBoolOption(
+            // Which way the Cave unlocks
+            configMenu.AddTextOption(
                 mod: ModEntry.ModManifest,
-                getValue: () => ModEntry.Config.MasteryCaveAlternateOpening,
-                setValue: (value) => ModEntry.Config.MasteryCaveAlternateOpening = value,
-                name: () => "Access Cave with Levels",
-                tooltip: () => "Default: true"
+                getValue: () => ModEntry.Config.SkillsVsMasteryPoints,
+                setValue: value => ModEntry.Config.SkillsVsMasteryPoints = value,
+                name: () => "How to access the Mastery Cave",
+                tooltip: () => "What is required to access the cave.\nDefault: \"Level 10 Skills or Mastery Points\"",
+                allowedValues: ["Level 10 Skills or Mastery Points", "Only Level 10 Skills", "Only Mastery Points", "Level 10 Skills AND Mastery Points"]
             );
+
+            // Level 10 Skills Required for Cave
+            configMenu.AddNumberOption(
+                mod: ModEntry.ModManifest,
+                getValue: () => ModEntry.Config.SkillsRequiredForMasteryRoom,
+                setValue: (value) => ModEntry.Config.SkillsRequiredForMasteryRoom = value,
+                name: () => "Mastery Levels for the cave",
+                tooltip: () => "Does nothing if \"Only Mastery Points\" is selected.\nDefault: 5",
+                min: 0,
+                max: ModEntry.SkillsAvailable,
+                interval: 1
+            );
+
+            if (ModEntry.CustomSkillsExist)
+            {
+                // Include Custom Skills on the count?
+                configMenu.AddBoolOption(
+                    mod: ModEntry.ModManifest,
+                    getValue: () => ModEntry.Config.IncludeCustomSkills,
+                    setValue: (value) => ModEntry.Config.IncludeCustomSkills = value,
+                    name: () => "Count Custom Skills?",
+                    tooltip: () => "Does nothing if \"Only Mastery Points\" is selected.\nDefault: True"
+                );
+            }
 
             // Mastery Required for Cave
             configMenu.AddNumberOption(
@@ -236,7 +261,7 @@ namespace MasteryExtended
                 text: () => "Mastery Cave Pillars and Pedestal Config"
             );
 
-            // Which way the Cave unlocks
+            // Which way the Pillars unlock
             configMenu.AddTextOption(
                 mod: ModEntry.ModManifest,
                 getValue: () => ModEntry.Config.PillarsVsProfessions,

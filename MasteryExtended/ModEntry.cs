@@ -35,6 +35,12 @@ namespace MasteryExtended
         /// <summary>For VPP Changes.</summary>
         public static Func<int> MasteryCaveChanges { get; internal set; } = () => 10;
 
+        /// <summary>Amount of Skills available</summary>
+        public static int SkillsAvailable { get; internal set; } = 5;
+
+        /// <summary>Are custom skills</summary>
+        public static bool CustomSkillsExist { get; internal set; } = false;
+
         /******************
         ** Public methods *
         *******************/
@@ -107,6 +113,8 @@ namespace MasteryExtended
                     editor.Data.Add("MasteryExtended_CantAccessSkill", ModHelper.Translation.Get("cant-access-skill"));
                     editor.Data.Add("MasteryExtended_EveryProfessionUnlocked", ModHelper.Translation.Get("every-profession-unlocked"));
                     editor.Data.Add("MasteryExtended_TrascendMortalKnowledge", ModHelper.Translation.Get("transcend-mortal-knowledge"));
+                    editor.Data.Add("MasteryExtended_TrascendMortalKnowledgeOnly", ModHelper.Translation.Get("transcend-mortal-knowledge-only"));
+                    editor.Data.Add("MasteryExtended_TrascendMortalKnowledgeTogether", ModHelper.Translation.Get("transcend-mortal-knowledge-together"));
                     editor.Data.Add("MasteryExtended_AlreadyUnlocked", ModHelper.Translation.Get("already-unlocked"));
                     editor.Data.Add("MasteryExtended_RequirementsTitle", ModHelper.Translation.Get("requirements-title"));
                     editor.Data.Add("MasteryExtended_RequirementsProfession", ModHelper.Translation.Get("requirements-profession"));

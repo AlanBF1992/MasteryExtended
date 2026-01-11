@@ -7,8 +7,14 @@
         public int MasteryExpPerLevel { get; set; } = 30000;
         // If you can open the Mastery Cave with Mastery Levels.
         public bool MasteryCaveAlternateOpening { get; set; } = true;
+        // How to unlock the Mastery Room
+        public string SkillsVsMasteryPoints { get; set; } = "Level 10 Skills or Mastery Points";
+        // Include custom Skills?
+        public bool IncludeCustomSkills { get; set; } = true;
         // Mastery required to access the Mastery Room.
         public int MasteryRequiredForCave { get; set; } = 5;
+        // Amount of level 10 skills required to access the Mastery Room
+        public int SkillsRequiredForMasteryRoom { get; set; } = 5;
         // Provide confirmation of profession added.
         public bool ConfirmProfession { get; set; } = true;
         // See title of Skill on Menu Hover.

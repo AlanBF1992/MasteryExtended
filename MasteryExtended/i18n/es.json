@@ -13,6 +13,8 @@
   "cant-access-skill": "No has desbloqueado la profesión de {0} de nivel 10.",
   "every-profession-unlocked": "¡Todas las profesiones de {0} desbloqueadas!",
   "transcend-mortal-knowledge": "o alguien que trasciende el conocimiento mortal.",
+  "transcend-mortal-knowledge-only": "Trasciende el conocimiento mortal para entrar.",
+  "transcend-mortal-knowledge-together": "si trasciende el conocimiento mortal.",
   "already-unlocked": "= Ya desbloqueado =",
   "requirements-title": "= Requiere =",
   "requirements-profession": "Profesión: {0}",

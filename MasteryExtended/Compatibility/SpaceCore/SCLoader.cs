@@ -104,10 +104,13 @@ namespace MasteryExtended.Compatibility.SpaceCore
 
                 MasterySkillsPage.skills.Add(skill);
                 ModEntry.MaxMasteryLevels += 4;
+                ModEntry.SkillsAvailable++;
+                ModEntry.CustomSkillsExist = true;
             }
 
             if (skillList.Contains("moonslime.Cooking") && skillList.Contains("blueberry.LoveOfCooking.CookingSkill"))
             {
+                ModEntry.SkillsAvailable--;
                 ModEntry.MaxMasteryLevels -= 4;
             }
 

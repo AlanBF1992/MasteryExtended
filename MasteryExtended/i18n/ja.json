@@ -13,6 +13,8 @@
   "cant-access-skill": "レベル10の{0}スキルのロック解除ができていない。",
   "every-profession-unlocked": "全ての{0}スキルのロックを解除した！",
   "transcend-mortal-knowledge": "あるいは熟練レベルが一定以上あれば…",
+  "transcend-mortal-knowledge-only": "人間の知識を超える者のみ進入可能",
+  "transcend-mortal-knowledge-together": "かつ人間の知識を超えれば…",
   "already-unlocked": "= ロック解除 =",
   "requirements-title": "= 要件 =",
   "requirements-profession": "スキル: {0}",

@@ -13,6 +13,8 @@
   "cant-access-skill": "You haven't unlocked the level 10 {0} profession.",
   "every-profession-unlocked": "Every {0} profession unlocked!",
   "transcend-mortal-knowledge": "or one that transcended mortal knowledge.",
+  "transcend-mortal-knowledge-only": "Transcend mortal knowledge to enter.",
+  "transcend-mortal-knowledge-together": "if they transcend mortal knowledge.",
   "already-unlocked": "= Already unlocked =",
   "requirements-title": "= Requires =",
   "requirements-profession": "Profession: {0}",
