@@ -18,7 +18,7 @@ namespace MasteryExtended.Compatibility.WoL
         {
             WoLPatches(harmony);
             helper.Events.GameLoop.SaveLoaded += fixExperienceCurve;
-            helper.Events.GameLoop.GameLaunched += GMCMConfigWoL;
+            helper.Events.GameLoop.UpdateTicked += GMCMConfigWoL;
             helper.Events.GameLoop.DayStarted += (_, _) => reloadIcons(); //Because fuck my life.
             ModEntry.MaxMasteryLevels += 20;
             foreach (var skill in MasterySkillsPage.skills.Where(s => s.Id >= 0 && s.Id <= 4))
@@ -49,8 +49,10 @@ namespace MasteryExtended.Compatibility.WoL
         }
 
         /// <summary>GMCM Compat WoL</summary>
-        private static void GMCMConfigWoL(object? _1, GameLaunchedEventArgs _2)
+        private static void GMCMConfigWoL(object? _1, UpdateTickedEventArgs e)
         {
+            if (e.Ticks < 15) return;
+            ModEntry.ModHelper.Events.GameLoop.UpdateTicked -= GMCMConfigWoL;
             // get Generic Mod Config Menu's API (if it's installed)
             var configMenu = ModEntry.ModHelper.ModRegistry.GetApi<IGMCMApi>("spacechase0.GenericModConfigMenu");
             if (configMenu is null)

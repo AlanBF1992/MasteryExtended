@@ -15,7 +15,7 @@ namespace MasteryExtended
         {
             VanillaPatches(harmony);
 
-            helper.Events.GameLoop.GameLaunched += GMCMConfigVanilla;
+            helper.Events.GameLoop.UpdateTicked += GMCMConfigVanilla;
         }
         /// <summary>Base patches for the mod.</summary>
         /// <param name="harmony">Harmony instance used to patch the game.</param>
@@ -156,8 +156,10 @@ namespace MasteryExtended
         }
 
         /// <summary>GMCM Compat Vanilla</summary>
-        private static void GMCMConfigVanilla(object? _1, GameLaunchedEventArgs _2)
+        private static void GMCMConfigVanilla(object? _1, UpdateTickedEventArgs e)
         {
+            if (e.Ticks < 10) return;
+            ModEntry.ModHelper.Events.GameLoop.UpdateTicked -= GMCMConfigVanilla;
             // get Generic Mod Config Menu's API (if it's installed)
             var configMenu = ModEntry.ModHelper.ModRegistry.GetApi<IGMCMApi>("spacechase0.GenericModConfigMenu");
             if (configMenu is null)
@@ -222,24 +224,21 @@ namespace MasteryExtended
                 mod: ModEntry.ModManifest,
                 getValue: () => ModEntry.Config.SkillsRequiredForMasteryRoom,
                 setValue: (value) => ModEntry.Config.SkillsRequiredForMasteryRoom = value,
-                name: () => "Mastery Levels for the cave",
+                name: () => "Skills ",
                 tooltip: () => "Does nothing if \"Only Mastery Points\" is selected.\nDefault: 5",
                 min: 0,
                 max: ModEntry.SkillsAvailable,
                 interval: 1
             );
 
-            if (ModEntry.CustomSkillsExist)
-            {
-                // Include Custom Skills on the count?
-                configMenu.AddBoolOption(
-                    mod: ModEntry.ModManifest,
-                    getValue: () => ModEntry.Config.IncludeCustomSkills,
-                    setValue: (value) => ModEntry.Config.IncludeCustomSkills = value,
-                    name: () => "Count Custom Skills?",
-                    tooltip: () => "Does nothing if \"Only Mastery Points\" is selected.\nDefault: True"
-                );
-            }
+            // Include Custom Skills on the count?
+            configMenu.AddBoolOption(
+                mod: ModEntry.ModManifest,
+                getValue: () => ModEntry.Config.IncludeCustomSkills,
+                setValue: (value) => ModEntry.Config.IncludeCustomSkills = value,
+                name: () => "Count Custom Skills?",
+                tooltip: () => "Does nothing if \"Only Mastery Points\" is selected.\nDefault: True"
+            );
 
             // Mastery Required for Cave
             configMenu.AddNumberOption(
