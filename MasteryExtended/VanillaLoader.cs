@@ -219,18 +219,6 @@ namespace MasteryExtended
                 allowedValues: ["Level 10 Skills or Mastery Points", "Only Level 10 Skills", "Only Mastery Points", "Level 10 Skills AND Mastery Points"]
             );
 
-            // Level 10 Skills Required for Cave
-            configMenu.AddNumberOption(
-                mod: ModEntry.ModManifest,
-                getValue: () => ModEntry.Config.SkillsRequiredForMasteryRoom,
-                setValue: (value) => ModEntry.Config.SkillsRequiredForMasteryRoom = value,
-                name: () => "Skills ",
-                tooltip: () => "Does nothing if \"Only Mastery Points\" is selected.\nDefault: 5",
-                min: 0,
-                max: ModEntry.SkillsAvailable,
-                interval: 1
-            );
-
             // Include Custom Skills on the count?
             configMenu.AddBoolOption(
                 mod: ModEntry.ModManifest,
@@ -238,6 +226,18 @@ namespace MasteryExtended
                 setValue: (value) => ModEntry.Config.IncludeCustomSkills = value,
                 name: () => "Count Custom Skills?",
                 tooltip: () => "Does nothing if \"Only Mastery Points\" is selected.\nDefault: True"
+            );
+
+            // Level 10 Skills Required for Cave
+            configMenu.AddNumberOption(
+                mod: ModEntry.ModManifest,
+                getValue: () => ModEntry.Config.SkillsRequiredForMasteryRoom,
+                setValue: (value) => ModEntry.Config.SkillsRequiredForMasteryRoom = value,
+                name: () => "Skills required for the Cave",
+                tooltip: () => "Does nothing if \"Only Mastery Points\" is selected.\nDefault: 5",
+                min: 0,
+                max: ModEntry.SkillsAvailable,
+                interval: 1
             );
 
             // Mastery Required for Cave

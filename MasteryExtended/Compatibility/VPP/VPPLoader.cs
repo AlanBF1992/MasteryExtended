@@ -20,7 +20,7 @@ namespace MasteryExtended.Compatibility.VPP
 
             helper.Events.GameLoop.GameLaunched += checkVPPAPI;
             helper.Events.GameLoop.GameLaunched += addVPPProfessions;
-            helper.Events.GameLoop.GameLaunched += GMCMConfigVPP;
+            helper.Events.GameLoop.UpdateTicked += GMCMConfigVPP;
 
             ModEntry.MaxMasteryLevels += 40;
         }
@@ -61,14 +61,16 @@ namespace MasteryExtended.Compatibility.VPP
         }
 
         /// <summary>GMCM Compat VPP</summary>
-        private static void GMCMConfigVPP(object? _1, GameLaunchedEventArgs _2)
+        private static void GMCMConfigVPP(object? _1, UpdateTickedEventArgs e)
         {
+            if (e.Ticks < 15) return;
+            ModEntry.ModHelper.Events.GameLoop.UpdateTicked -= GMCMConfigVPP;
             // get Generic Mod Config Menu's API (if it's installed)
             var configMenu = ModEntry.ModHelper.ModRegistry.GetApi<IGMCMApi>("spacechase0.GenericModConfigMenu");
             if (configMenu is null)
                 return;
 
-            // Add Wol Section
+            // Add VPP Section
             configMenu.AddSectionTitle(
                 mod: ModEntry.ModManifest,
                 text: () => "VPP Compat Options"

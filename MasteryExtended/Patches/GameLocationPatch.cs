@@ -129,7 +129,7 @@ namespace MasteryExtended.Patches
             int masteryLevel = MasteryTrackerMenu.getCurrentMasteryLevel();
             int divisor = ModEntry.MasteryCaveChanges();
             int vanillaSkillsReady = MasterySkillsPage.skills.Count(s => s.getLevel() / divisor >= 1 && s.Id >= 0 && s.Id <= 4);
-            int allSkillsReady = MasterySkillsPage.skills.Count(s => s.getLevel() / divisor >= 1);
+            int allSkillsReady = MasterySkillsPage.skills.Count(s => s.getLevel() / divisor >= 1 && s.isVisible());
             int skillCheck = ModEntry.Config.IncludeCustomSkills ? allSkillsReady : vanillaSkillsReady;
 
 

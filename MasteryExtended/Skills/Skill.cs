@@ -15,7 +15,7 @@ namespace MasteryExtended.Skills
         public Rectangle TextureBounds { get; set; } = new Rectangle(0, 0, 16, 16);
 
         public Func<int> getLevel { get; set; } = null!;
-        public Func<bool> showSkill { get; set; } = null!;
+        public Func<bool> isVisible { get; set; } = null!;
         public Action<int> addNewLevel { get; set; } = null!;
         public List<int> ProfessionChooserLevels { get; set; } = null!;
         /*****************
@@ -43,7 +43,7 @@ namespace MasteryExtended.Skills
 
             getLevel = () => Game1.player.GetUnmodifiedSkillLevel(id);
             addNewLevel = (lvl) => Game1.player.newLevels.Add(new Point(id, lvl));
-            showSkill = () => true;
+            isVisible = () => true;
             ProfessionChooserLevels = [5, 10];
         }
 
@@ -56,7 +56,7 @@ namespace MasteryExtended.Skills
             if (professions != null) Professions = professions;
             getLevel = getLvl;
             addNewLevel = addLvl;
-            showSkill = showSk;
+            isVisible = showSk;
             if (professionChooserLevels != null) ProfessionChooserLevels = professionChooserLevels;
         }
 

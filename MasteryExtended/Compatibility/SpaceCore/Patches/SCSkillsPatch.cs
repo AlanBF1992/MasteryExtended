@@ -14,7 +14,7 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
         internal readonly static IMonitor LogMonitor = ModEntry.LogMonitor;
 
         private static readonly IEnumerable<string> allSkillAdded = [];
-        private static bool keepChecking = true;
+        private static bool checkCookingSkills = true;
 
         internal static IEnumerable<CodeInstruction> AddExperienceTranspiler(IEnumerable<CodeInstruction> instructions)
         {
@@ -84,9 +84,9 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
             ModEntry.MaxMasteryLevels += 4;
             ModEntry.SkillsAvailable++;
 
-            if (keepChecking && allSkillAdded.Contains("moonslime.Cooking") && allSkillAdded.Contains("blueberry.LoveOfCooking.CookingSkill"))
+            if (checkCookingSkills && allSkillAdded.Contains("moonslime.Cooking") && allSkillAdded.Contains("blueberry.LoveOfCooking.CookingSkill"))
             {
-                keepChecking = false;
+                checkCookingSkills = false;
                 ModEntry.SkillsAvailable--;
                 ModEntry.MaxMasteryLevels -= 4;
             }

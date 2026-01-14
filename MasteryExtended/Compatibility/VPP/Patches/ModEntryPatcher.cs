@@ -99,7 +99,7 @@ namespace MasteryExtended.Compatibility.VPP.Patches
         {
             if (int.TryParse(name, out int value))
             {
-                var skill = MasterySkillsPage.skills.First(s => s.showSkill() && s.containsProfession(value));
+                var skill = MasterySkillsPage.skills.First(s => s.isVisible() && s.containsProfession(value));
                 var levelRequired = skill.Professions.Find(p => p.Id == value)!.LevelRequired;
                 return skill.Id + "," + levelRequired;
             }

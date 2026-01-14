@@ -20,7 +20,7 @@ namespace MasteryExtended.Menu.Pages
             closeSound = "stone_button";
             MenuTitle = Game1.content.LoadString("Strings\\UI:MasteryExtended_MenuTitleSkills");
 
-            List <Skill> shownSkills = skills.FindAll(s => s.showSkill());
+            List <Skill> shownSkills = skills.FindAll(s => s.isVisible());
 
             actualPage = page;
             totalPages = (int)Math.Ceiling(shownSkills.Count/5f);
