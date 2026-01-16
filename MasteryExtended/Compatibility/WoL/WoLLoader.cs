@@ -53,6 +53,7 @@ namespace MasteryExtended.Compatibility.WoL
         {
             if (e.Ticks < 15) return;
             ModEntry.ModHelper.Events.GameLoop.UpdateTicked -= GMCMConfigWoL;
+
             // get Generic Mod Config Menu's API (if it's installed)
             var configMenu = ModEntry.ModHelper.ModRegistry.GetApi<IGMCMApi>("spacechase0.GenericModConfigMenu");
             if (configMenu is null)
@@ -61,19 +62,22 @@ namespace MasteryExtended.Compatibility.WoL
             // Add Wol Section
             configMenu.AddSectionTitle(
                 mod: ModEntry.ModManifest,
-                text: () => "WoL Compat Options"
+                text: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_WoLCompatSettingsTitle")
             );
+
+            if (ModEntry.ModHelper.ModRegistry.IsLoaded("KediDili.VanillaPlusProfessions")) return;
 
             // Percentage of Exp to Mastery
             configMenu.AddNumberOption(
                 mod: ModEntry.ModManifest,
                 getValue: () => ModEntry.Config.MasteryPercentage,
                 setValue: (value) => ModEntry.Config.MasteryPercentage = value,
-                name: () => "Experience Percent for Mastery",
-                tooltip: () => "Between Level 11 and 20. Default: 20",
+                name: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_PercentMasteryExperienceSharedName"),
+                tooltip: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_PercentMasteryExperienceSharedTooltip"),
                 min: 0,
                 max: 100,
-                interval: 1
+                interval: 1,
+                formatValue: (value) => $"{value}%"
             );
         }
 

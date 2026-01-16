@@ -73,7 +73,7 @@ namespace MasteryExtended.Compatibility.VPP
             // Add VPP Section
             configMenu.AddSectionTitle(
                 mod: ModEntry.ModManifest,
-                text: () => "VPP Compat Options"
+                text: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_VPPCompatSettingsTitle")
             );
 
             // Percentage of Exp to Mastery
@@ -81,19 +81,20 @@ namespace MasteryExtended.Compatibility.VPP
                 mod: ModEntry.ModManifest,
                 getValue: () => ModEntry.Config.MasteryPercentage,
                 setValue: (value) => ModEntry.Config.MasteryPercentage = value,
-                name: () => "Experience Percent for Mastery",
-                tooltip: () => "Between Level 11 and 20. Default: 20",
+                name: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_PercentMasteryExperienceSharedName"),
+                tooltip: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_PercentMasteryExperienceSharedTooltip"),
                 min: 0,
                 max: 100,
-                interval: 1
+                interval: 1,
+                formatValue: (value) => $"{value}%"
             );
 
             configMenu.AddNumberOption(
                 mod: ModEntry.ModManifest,
                 getValue: () => ModEntry.Config.Lvl10ProfessionsRequired,
                 setValue: (value) => ModEntry.Config.Lvl10ProfessionsRequired = value,
-                name: () => "Lvl 10 for a Lvl 15",
-                tooltip: () => "Default: 2",
+                name: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_VPPLvl10ForLvl15Name"),
+                tooltip: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_VPPLvl10ForLvl15Tooltip"),
                 min: 1,
                 max: 4,
                 interval: 1
@@ -103,8 +104,8 @@ namespace MasteryExtended.Compatibility.VPP
                 mod: ModEntry.ModManifest,
                 getValue: () => ModEntry.Config.Lvl15ProfessionsRequired,
                 setValue: (value) => ModEntry.Config.Lvl15ProfessionsRequired = value,
-                name: () => "Lvl 15 for a Lvl 20",
-                tooltip: () => "Default: 4",
+                name: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_VPPLvl15ForLvl20Name"),
+                tooltip: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_VPPLvl15ForLvl20Tooltip"),
                 min: 1,
                 max: 8,
                 interval: 1

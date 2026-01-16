@@ -30,7 +30,7 @@ namespace MasteryExtended.Compatibility.GMCM
         /// <param name="mod">The mod's manifest.</param>
         /// <param name="text">The title text shown in the form.</param>
         /// <param name="tooltip">The tooltip text shown when the cursor hovers on the title, or <c>null</c> to disable the tooltip.</param>
-        void AddSectionTitle(IManifest mod, Func<string> text, Func<string> tooltip = null);
+        void AddSectionTitle(IManifest mod, Func<string> text, Func<string>? tooltip = null);
 
         /// <summary>Add a subheader at the current position in the form.</summary>
         /// <remarks>Larger than paragraph, smaller than title.</remarks>

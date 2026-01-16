@@ -86,7 +86,7 @@ namespace MasteryExtended.Patches
             {
                 if (__instance.Name != "MasteryCave") return;
 
-                int professionsRequired = ModEntry.Config.PillarsVsProfessions != "Professions required for Pillars" ? 2 : ModEntry.Config.RequiredProfessionForPillars;
+                int professionsRequired = ModEntry.Config.PillarsVsProfessions != "0" ? 2 : ModEntry.Config.RequiredProfessionForPillars;
 
                 for (int which = 0; which < 5; which++)
                 {
@@ -121,7 +121,7 @@ namespace MasteryExtended.Patches
 
         internal static int masteryRequired()
         {
-            return (ModEntry.Config.SkillsVsMasteryPoints.Equals("Only Level 10 Skills")) ? 999 : ModEntry.Config.MasteryRequiredForCave;
+            return (ModEntry.Config.SkillsVsMasteryPoints.Equals("1")) ? 999 : ModEntry.Config.MasteryRequiredForCave;
         }
 
         internal static void masteryCaveString()
@@ -135,23 +135,23 @@ namespace MasteryExtended.Patches
 
             switch (ModEntry.Config.SkillsVsMasteryPoints)
             {
-                case "Level 10 Skills or Mastery Points":
+                case "0":
                     Game1.drawObjectDialogue([
                         Game1.content.LoadString("Strings\\1_6_Strings:MasteryCave", skillCheck).Replace(".","").Replace("/5", $"/{ModEntry.Config.SkillsRequiredForMasteryRoom}"),
                         Game1.content.LoadString("Strings\\UI:MasteryExtended_TrascendMortalKnowledge") + $" ({masteryLevel}/{masteryRequired()})"
                     ]);
                     break;
-                case "Only Level 10 Skills":
+                case "1":
                     Game1.drawObjectDialogue(
                         Game1.content.LoadString("Strings\\1_6_Strings:MasteryCave", skillCheck).Replace(".", "").Replace("/5", $"/{ModEntry.Config.SkillsRequiredForMasteryRoom}")
                     );
                     break;
-                case "Only Mastery Points":
+                case "2":
                     Game1.drawObjectDialogue(
                         Game1.content.LoadString("Strings\\UI:MasteryExtended_TrascendMortalKnowledgeOnly") + $" ({masteryLevel}/{masteryRequired()})"
                     );
                     break;
-                case "Level 10 Skills AND Mastery Points":
+                case "3":
                     Game1.drawObjectDialogue([
                         Game1.content.LoadString("Strings\\1_6_Strings:MasteryCave", skillCheck).Replace(".","").Replace("/5", $"/{ModEntry.Config.SkillsRequiredForMasteryRoom}"),
                         Game1.content.LoadString("Strings\\UI:MasteryExtended_TrascendMortalKnowledgeTogether") + $" ({masteryLevel}/{masteryRequired()})"

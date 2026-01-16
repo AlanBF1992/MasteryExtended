@@ -171,30 +171,12 @@ namespace MasteryExtended
                 save: () => ModEntry.ModHelper.WriteConfig(ModEntry.Config)
             );
 
-            /***********************
-             * Mastery Base Working
-             ***********************/
+            /******************
+             * Basic Settings *
+             ******************/
             configMenu.AddSectionTitle(
                 mod: ModEntry.ModManifest,
-                text: () => "Exp per Level and Cave Access Settings"
-            );
-
-            // Show Skill Title on Hover of Skill Page
-            configMenu.AddBoolOption(
-                mod: ModEntry.ModManifest,
-                getValue: () => ModEntry.Config.SkillNameOnMenuHover,
-                setValue: (value) => ModEntry.Config.SkillNameOnMenuHover = value,
-                name: () => "Skill Name on Menu Hover",
-                tooltip: () => "Default: true"
-            );
-
-            // Show Profession Title on Hover of Skill Page
-            configMenu.AddBoolOption(
-                mod: ModEntry.ModManifest,
-                getValue: () => ModEntry.Config.ProfessionNameOnMenuHover,
-                setValue: (value) => ModEntry.Config.ProfessionNameOnMenuHover = value,
-                name: () => "Profession Name on Menu Hover",
-                tooltip: () => "Default: false"
+                text: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_BasicSettingsTitle")
             );
 
             // Mastery Experience per level
@@ -202,11 +184,46 @@ namespace MasteryExtended
                 mod: ModEntry.ModManifest,
                 getValue: () => ModEntry.Config.MasteryExpPerLevel,
                 setValue: (value) => ModEntry.Config.MasteryExpPerLevel = value,
-                name: () => "Mastery Experience for Level",
-                tooltip: () => "Default: 30000",
+                name: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_MasteryExperienceName"),
+                tooltip: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_MasteryExperienceTooltip"),
                 min: 15000,
                 max: 50000,
                 interval: 5000
+            );
+
+            /***********************
+             * Skill Menu Settings *
+             ***********************/
+            configMenu.AddSectionTitle(
+                mod: ModEntry.ModManifest,
+                text: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_SkillMenuTitle")
+            );
+
+            // Show Skill Title on Hover of Skill Page
+            configMenu.AddBoolOption(
+                mod: ModEntry.ModManifest,
+                getValue: () => ModEntry.Config.SkillNameOnMenuHover,
+                setValue: (value) => ModEntry.Config.SkillNameOnMenuHover = value,
+                name: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_SkillNameHoverName"),
+                tooltip: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_SkillNameHoverTooltip")
+            );
+
+            // Show Profession Title on Hover of Skill Page
+            configMenu.AddBoolOption(
+                mod: ModEntry.ModManifest,
+                getValue: () => ModEntry.Config.ProfessionNameOnMenuHover,
+                setValue: (value) => ModEntry.Config.ProfessionNameOnMenuHover = value,
+                name: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_ProfessionNameHoverName"),
+                tooltip: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_ProfessionNameHoverTooltip")
+            );
+
+
+            /************************
+             * Cave Access Settings *
+             ************************/
+            configMenu.AddSectionTitle(
+                mod: ModEntry.ModManifest,
+                text: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_CaveAccessSettingsTitle")
             );
 
             // Which way the Cave unlocks
@@ -214,18 +231,32 @@ namespace MasteryExtended
                 mod: ModEntry.ModManifest,
                 getValue: () => ModEntry.Config.SkillsVsMasteryPoints,
                 setValue: value => ModEntry.Config.SkillsVsMasteryPoints = value,
-                name: () => "How to access the Mastery Cave",
-                tooltip: () => "What is required to access the cave.\nDefault: \"Level 10 Skills or Mastery Points\"",
-                allowedValues: ["Level 10 Skills or Mastery Points", "Only Level 10 Skills", "Only Mastery Points", "Level 10 Skills AND Mastery Points"]
-            );
+                name: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_HowToAccessCaveName"),
+                tooltip: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_HowToAccessCaveTooltip", Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_HowToAccessCave0")),
+                allowedValues: ["0", "1", "2", "3"],
+                formatAllowedValue: (value) =>
+                {
+                    switch (value)
+                    {
+                        case "0":
+                        case "1":
+                        case "2":
+                        case "3":
+                            return Game1.content.LoadString($"Strings\\UI:MasteryExtended_GMCM_HowToAccessCave{value}");
+                        default:
+                            return Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_HowToAccessCave?");
+                    }
+
+                });
+
 
             // Include Custom Skills on the count?
             configMenu.AddBoolOption(
                 mod: ModEntry.ModManifest,
                 getValue: () => ModEntry.Config.IncludeCustomSkills,
                 setValue: (value) => ModEntry.Config.IncludeCustomSkills = value,
-                name: () => "Count Custom Skills?",
-                tooltip: () => "Does nothing if \"Only Mastery Points\" is selected.\nDefault: True"
+                name: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_CustomSkillsForCaveName"),
+                tooltip: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_CustomSkillsForCaveTooltip", Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_HowToAccessCave2"))
             );
 
             // Level 10 Skills Required for Cave
@@ -233,8 +264,8 @@ namespace MasteryExtended
                 mod: ModEntry.ModManifest,
                 getValue: () => ModEntry.Config.SkillsRequiredForMasteryRoom,
                 setValue: (value) => ModEntry.Config.SkillsRequiredForMasteryRoom = value,
-                name: () => "Skills required for the Cave",
-                tooltip: () => "Does nothing if \"Only Mastery Points\" is selected.\nDefault: 5",
+                name: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_SkillsRequiredForCaveName"),
+                tooltip: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_SkillsRequiredForCaveTooltip", Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_HowToAccessCave2")),
                 min: 0,
                 max: ModEntry.SkillsAvailable,
                 interval: 1
@@ -245,8 +276,8 @@ namespace MasteryExtended
                 mod: ModEntry.ModManifest,
                 getValue: () => ModEntry.Config.MasteryRequiredForCave,
                 setValue: (value) => ModEntry.Config.MasteryRequiredForCave = value,
-                name: () => "Mastery Levels for the cave",
-                tooltip: () => "Default: 5",
+                name: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_MasteryRequiredForCaveName"),
+                tooltip: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_MasteryRequiredForCaveTooltip", Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_HowToAccessCave1")),
                 min: 0,
                 max: 10,
                 interval: 1
@@ -257,7 +288,7 @@ namespace MasteryExtended
              *****************************/
             configMenu.AddSectionTitle(
                 mod: ModEntry.ModManifest,
-                text: () => "Mastery Cave Pillars and Pedestal Config"
+                text: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_CavePillarsAndPedestalSettingsTitle")
             );
 
             // Which way the Pillars unlock
@@ -265,9 +296,21 @@ namespace MasteryExtended
                 mod: ModEntry.ModManifest,
                 getValue: () => ModEntry.Config.PillarsVsProfessions,
                 setValue: value => ModEntry.Config.PillarsVsProfessions = value,
-                name: () => "Unlock order in Mastery Cave",
-                tooltip: () => "What is required to unlock what.\nDefault: \"Professions required for Pillars\"",
-                allowedValues: ["Professions required for Pillars", "Pillars required for Pedestal", "Neither"]
+                name: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_UnlockOrderCaveName"),
+                tooltip: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_UnlockOrderCaveTooltip", Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_UnlockOrderCave0")),
+                allowedValues: ["0", "1", "2"],
+                formatAllowedValue: (value) =>
+                {
+                    switch (value)
+                    {
+                        case "0":
+                        case "1":
+                        case "2":
+                            return Game1.content.LoadString($"Strings\\UI:MasteryExtended_GMCM_UnlockOrderCave{value}");
+                        default:
+                            return Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_UnlockOrderCave0?");
+                    }
+                }
             );
 
             // Required Professions per pillar
@@ -275,8 +318,8 @@ namespace MasteryExtended
                 mod: ModEntry.ModManifest,
                 getValue: () => ModEntry.Config.RequiredProfessionForPillars,
                 setValue: (value) => ModEntry.Config.RequiredProfessionForPillars = value,
-                name: () => "Professions required for pillars",
-                tooltip: () => "Does nothing if \"Professions required for Pillars\" is not selected.\nDefault: 3",
+                name: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_ProfessionsRequiredForPillarsName"),
+                tooltip: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_ProfessionsRequiredForPillarsTooltip", Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_UnlockOrderCave0")),
                 min: 3,
                 max: 6,
                 interval: 1
@@ -287,8 +330,8 @@ namespace MasteryExtended
                 mod: ModEntry.ModManifest,
                 getValue: () => ModEntry.Config.RequiredPilarsToThePedestal,
                 setValue: (value) => ModEntry.Config.RequiredPilarsToThePedestal = value,
-                name: () => "Pillars required to invest",
-                tooltip: () => "Does nothing if \"Pillars required for Pedestal\" is not selected.\nDefault: 3",
+                name: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_PillarsRequiredForProfessionsName"),
+                tooltip: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_PillarsRequiredForProfessionsTooltip", Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_UnlockOrderCave1")),
                 min: 1,
                 max: 5,
                 interval: 1
@@ -299,8 +342,8 @@ namespace MasteryExtended
                 mod: ModEntry.ModManifest,
                 getValue: () => ModEntry.Config.ConfirmProfession,
                 setValue: (value) => ModEntry.Config.ConfirmProfession = value,
-                name: () => "Confirm profession adquisition",
-                tooltip: () => "Default: true"
+                name: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_ConfirmProfessionAdquisitionName"),
+                tooltip: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_ConfirmProfessionAdquisitionTooltip")
             );
         }
     }

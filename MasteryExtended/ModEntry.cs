@@ -122,6 +122,52 @@ namespace MasteryExtended
                     editor.Data.Add("MasteryExtended_RequirementsLvl15", ModHelper.Translation.Get("requirements-lvl15"));
                     editor.Data.Add("MasteryExtended_RequirementsLvl20", ModHelper.Translation.Get("requirements-lvl20"));
                     editor.Data.Add("MasteryExtended_WoLMasteryWarning", ModHelper.Translation.Get("wol-mastery-warning"));
+
+                    editor.Data.Add("MasteryExtended_GMCM_BasicSettingsTitle", ModHelper.Translation.Get("gmcm-basic-settings-title"));
+                    editor.Data.Add("MasteryExtended_GMCM_MasteryExperienceName", ModHelper.Translation.Get("gmcm-mastery-experience-name"));
+                    editor.Data.Add("MasteryExtended_GMCM_MasteryExperienceTooltip", ModHelper.Translation.Get("gmcm-mastery-experience-tooltip"));
+                    editor.Data.Add("MasteryExtended_GMCM_SkillMenuTitle", ModHelper.Translation.Get("gmcm-skill-menu-settings-title"));
+                    editor.Data.Add("MasteryExtended_GMCM_SkillNameHoverName", ModHelper.Translation.Get("gmcm-skill-name-on-hover-name"));
+                    editor.Data.Add("MasteryExtended_GMCM_SkillNameHoverTooltip", ModHelper.Translation.Get("gmcm-skill-name-on-hover-tooltip"));
+                    editor.Data.Add("MasteryExtended_GMCM_ProfessionNameHoverName", ModHelper.Translation.Get("gmcm-profession-name-on-hover-name"));
+                    editor.Data.Add("MasteryExtended_GMCM_ProfessionNameHoverTooltip", ModHelper.Translation.Get("gmcm-profession-name-on-hover-tooltip"));
+                    editor.Data.Add("MasteryExtended_GMCM_CaveAccessSettingsTitle", ModHelper.Translation.Get("gmcm-cave-access-settings-title"));
+                    editor.Data.Add("MasteryExtended_GMCM_HowToAccessCaveName", ModHelper.Translation.Get("gmcm-how-to-access-cave-name"));
+                    editor.Data.Add("MasteryExtended_GMCM_HowToAccessCaveTooltip", ModHelper.Translation.Get("gmcm-how-to-access-cave-tooltip"));
+                    editor.Data.Add("MasteryExtended_GMCM_HowToAccessCave0", ModHelper.Translation.Get("gmcm-how-to-access-cave-0"));
+                    editor.Data.Add("MasteryExtended_GMCM_HowToAccessCave1", ModHelper.Translation.Get("gmcm-how-to-access-cave-1"));
+                    editor.Data.Add("MasteryExtended_GMCM_HowToAccessCave2", ModHelper.Translation.Get("gmcm-how-to-access-cave-2"));
+                    editor.Data.Add("MasteryExtended_GMCM_HowToAccessCave3", ModHelper.Translation.Get("gmcm-how-to-access-cave-3"));
+                    editor.Data.Add("MasteryExtended_GMCM_HowToAccessCave?", ModHelper.Translation.Get("gmcm-how-to-access-cave-?"));
+                    editor.Data.Add("MasteryExtended_GMCM_CustomSkillsForCaveName", ModHelper.Translation.Get("gmcm-custom-skills-for-cave-name"));
+                    editor.Data.Add("MasteryExtended_GMCM_CustomSkillsForCaveTooltip", ModHelper.Translation.Get("gmcm-custom-skills-for-cave-tooltip"));
+                    editor.Data.Add("MasteryExtended_GMCM_SkillsRequiredForCaveName", ModHelper.Translation.Get("gmcm-skills-required-for-cave-name"));
+                    editor.Data.Add("MasteryExtended_GMCM_SkillsRequiredForCaveTooltip", ModHelper.Translation.Get("gmcm-skills-required-for-cave-tooltip"));
+                    editor.Data.Add("MasteryExtended_GMCM_MasteryRequiredForCaveName", ModHelper.Translation.Get("gmcm-mastery-required-for-cave-name"));
+                    editor.Data.Add("MasteryExtended_GMCM_MasteryRequiredForCaveTooltip", ModHelper.Translation.Get("gmcm-mastery-required-for-cave-tooltip"));
+                    editor.Data.Add("MasteryExtended_GMCM_CavePillarsAndPedestalSettingsTitle", ModHelper.Translation.Get("gmcm-cave-pillars-and-pedestal-settings-title"));
+                    editor.Data.Add("MasteryExtended_GMCM_UnlockOrderCaveName", ModHelper.Translation.Get("gmcm-unlock-order-cave-name"));
+                    editor.Data.Add("MasteryExtended_GMCM_UnlockOrderCaveTooltip", ModHelper.Translation.Get("gmcm-unlock-order-cave-tooltip"));
+                    editor.Data.Add("MasteryExtended_GMCM_UnlockOrderCave0", ModHelper.Translation.Get("gmcm-unlock-order-cave-0"));
+                    editor.Data.Add("MasteryExtended_GMCM_UnlockOrderCave1", ModHelper.Translation.Get("gmcm-unlock-order-cave-1"));
+                    editor.Data.Add("MasteryExtended_GMCM_UnlockOrderCave2", ModHelper.Translation.Get("gmcm-unlock-order-cave-2"));
+                    editor.Data.Add("MasteryExtended_GMCM_UnlockOrderCave?", ModHelper.Translation.Get("gmcm-unlock-order-cave-?"));
+                    editor.Data.Add("MasteryExtended_GMCM_ProfessionsRequiredForPillarsName", ModHelper.Translation.Get("gmcm-professions-required-for-pillars-name"));
+                    editor.Data.Add("MasteryExtended_GMCM_ProfessionsRequiredForPillarsTooltip", ModHelper.Translation.Get("gmcm-professions-required-for-pillars-tooltip"));
+                    editor.Data.Add("MasteryExtended_GMCM_PillarsRequiredForProfessionsName", ModHelper.Translation.Get("gmcm-pillars-required-for-professions-name"));
+                    editor.Data.Add("MasteryExtended_GMCM_PillarsRequiredForProfessionsTooltip", ModHelper.Translation.Get("gmcm-pillars-required-for-professions-tooltip"));
+                    editor.Data.Add("MasteryExtended_GMCM_ConfirmProfessionAdquisitionName", ModHelper.Translation.Get("gmcm-confirm-profession-adquisition-name"));
+                    editor.Data.Add("MasteryExtended_GMCM_ConfirmProfessionAdquisitionTooltip", ModHelper.Translation.Get("gmcm-confirm-profession-adquisition-tooltip"));
+
+                    editor.Data.Add("MasteryExtended_GMCM_WoLCompatSettingsTitle", ModHelper.Translation.Get("gmcm-wol-compat-settings-title"));
+                    editor.Data.Add("MasteryExtended_GMCM_PercentMasteryExperienceSharedName", ModHelper.Translation.Get("gmcm-percent-mastery-experience-shared-name"));
+                    editor.Data.Add("MasteryExtended_GMCM_PercentMasteryExperienceSharedTooltip", ModHelper.Translation.Get("gmcm-percent-mastery-experience-shared-tooltip"));
+
+                    editor.Data.Add("MasteryExtended_GMCM_VPPCompatSettingsTitle", ModHelper.Translation.Get("gmcm-vpp-compat-settings-title"));
+                    editor.Data.Add("MasteryExtended_GMCM_VPPLvl10ForLvl15Name", ModHelper.Translation.Get("gmcm-vpp-lvl10-for-lvl15-name"));
+                    editor.Data.Add("MasteryExtended_GMCM_VPPLvl10ForLvl15Tooltip", ModHelper.Translation.Get("gmcm-vpp-lvl10-for-lvl15-tooltip"));
+                    editor.Data.Add("MasteryExtended_GMCM_VPPLvl15ForLvl20Name", ModHelper.Translation.Get("gmcm-vpp-lvl15-for-lvl20-name"));
+                    editor.Data.Add("MasteryExtended_GMCM_VPPLvl15ForLvl20Tooltip", ModHelper.Translation.Get("gmcm-vpp-lvl15-for-lvl20-tooltip"));
                 });
             }
         }

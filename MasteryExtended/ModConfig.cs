@@ -8,7 +8,7 @@
         // If you can open the Mastery Cave with Mastery Levels.
         public bool MasteryCaveAlternateOpening { get; set; } = true;
         // How to unlock the Mastery Room
-        public string SkillsVsMasteryPoints { get; set; } = "Level 10 Skills or Mastery Points";
+        public string SkillsVsMasteryPoints { get; set; } = "0";
         // Include custom Skills?
         public bool IncludeCustomSkills { get; set; } = true;
         // Mastery required to access the Mastery Room.
@@ -22,7 +22,7 @@
         // See title of Profession on Menu Hover.
         public bool ProfessionNameOnMenuHover { get; set; } = false;
         // Order of the unlocking.
-        public string PillarsVsProfessions { get; set; } = "Professions required for Pillars";
+        public string PillarsVsProfessions { get; set; } = "0";
         // Require n professions for the pillars, with 2<=n<=6.
         public int RequiredProfessionForPillars { get; set; } = 3;
         // Require n pillars for the pedestal, with 1<=n<=5.

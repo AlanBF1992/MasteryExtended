@@ -113,13 +113,13 @@ namespace MasteryExtended.Patches
                     __instance.snapCursorToCurrentSnappedComponent();
                 }
 
-                bool canClaim = ModEntry.Config.PillarsVsProfessions != "Pillars required for Pedestal" || Utilities.countClaimedPillars() >= ModEntry.Config.RequiredPilarsToThePedestal;
+                bool canClaim = ModEntry.Config.PillarsVsProfessions != "1" || Utilities.countClaimedPillars() >= ModEntry.Config.RequiredPilarsToThePedestal;
 
                 __instance.SetInstanceField("canClaim", canClaim);
             }
             else
             {
-                int professionsRequired = ModEntry.Config.PillarsVsProfessions != "Professions required for Pillars" ? 2 : ModEntry.Config.RequiredProfessionForPillars;
+                int professionsRequired = ModEntry.Config.PillarsVsProfessions != "0" ? 2 : ModEntry.Config.RequiredProfessionForPillars;
                 int numUnlockedProfessions = MasterySkillsPage.skills.Find(s => s.Id == whichSkill)!.unlockedProfessionsCount(0,10);
                 bool canClaim = levelsNotSpent > 0 && numUnlockedProfessions>= professionsRequired;
 
@@ -172,7 +172,7 @@ namespace MasteryExtended.Patches
                 }
 
                 // Can invest
-                bool canClaim = ModEntry.Config.PillarsVsProfessions != "Pillars required for Pedestal" || Utilities.countClaimedPillars() >= ModEntry.Config.RequiredPilarsToThePedestal;
+                bool canClaim = ModEntry.Config.PillarsVsProfessions != "1" || Utilities.countClaimedPillars() >= ModEntry.Config.RequiredPilarsToThePedestal;
 
                 if (__instance.mainButton != null && !canClaim)
                 {
@@ -279,7 +279,7 @@ namespace MasteryExtended.Patches
 
                 if (which != -1)
                 {
-                    int professionsRequired = ModEntry.Config.PillarsVsProfessions != "Professions required for Pillars" ? 2 : ModEntry.Config.RequiredProfessionForPillars;
+                    int professionsRequired = ModEntry.Config.PillarsVsProfessions != "0" ? 2 : ModEntry.Config.RequiredProfessionForPillars;
                     bool enoughProfessions = MasterySkillsPage.skills.Find(s => s.Id == which)!.unlockedProfessionsCount(0,10) >= professionsRequired;
 
                     __instance.mainButton.name +=
