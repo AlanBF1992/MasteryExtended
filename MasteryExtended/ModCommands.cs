@@ -51,8 +51,9 @@ namespace MasteryExtended
                 spentLevelsInProfessions += Math.Max(s.unlockedProfessionsCount() - Math.Min((int)Math.Floor(s.getLevel() / 5f), maxBaseProfLvl), 0);
             }
 
-            ModEntry.Data.claimedRewards = Utilities.countClaimedPillars();
-            int totalSpentLevels = Utilities.countClaimedPillars() + spentLevelsInProfessions;
+            Utilities.SetMasteryPillarsClaimed();
+
+            int totalSpentLevels = (int)Game1.player.stats.Get("mastery_total_pillars") + spentLevelsInProfessions;
 
             Game1.stats.Set("masteryLevelsSpent", totalSpentLevels);
         }
@@ -72,7 +73,7 @@ namespace MasteryExtended
                 spentLevelsInProfessions += Math.Max(s.unlockedProfessionsCount() - Math.Min((int)Math.Floor(s.getLevel() / 5f), maxBaseProfLvl), 0);
             }
 
-            int totalSpentLevels = Utilities.countClaimedPillars() + spentLevelsInProfessions;
+            int totalSpentLevels = (int)Game1.player.stats.Get("mastery_total_pillars") + spentLevelsInProfessions;
 
             int expToSet = MasteryTrackerMenu.getMasteryExpNeededForLevel(totalSpentLevels);
 

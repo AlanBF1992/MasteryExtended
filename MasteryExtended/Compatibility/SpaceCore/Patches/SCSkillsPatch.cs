@@ -80,7 +80,6 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
 
             MasterySkillsPage.skills.Add(newSkill);
             allSkillAdded.AddItem((string)skill.Id);
-            ModEntry.CustomSkillsExist = true;
             ModEntry.MaxMasteryLevels += 4;
             ModEntry.SkillsAvailable++;
 

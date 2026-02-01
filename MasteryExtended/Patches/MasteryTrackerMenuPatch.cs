@@ -113,7 +113,7 @@ namespace MasteryExtended.Patches
                     __instance.snapCursorToCurrentSnappedComponent();
                 }
 
-                bool canClaim = ModEntry.Config.PillarsVsProfessions != "1" || Utilities.countClaimedPillars() >= ModEntry.Config.RequiredPilarsToThePedestal;
+                bool canClaim = ModEntry.Config.PillarsVsProfessions != "1" || (int)Game1.player.stats.Get("mastery_total_pillars") >= ModEntry.Config.RequiredPilarsToThePedestal;
 
                 __instance.SetInstanceField("canClaim", canClaim);
             }
@@ -152,9 +152,9 @@ namespace MasteryExtended.Patches
                 {
                     b.Draw(Game1.mouseCursors_1_6,
                         new Vector2((float)(__instance.xPositionOnScreen + __instance.width / 2) - 110f + (float)(i * 11 * 4), __instance.yPositionOnScreen + 220),
-                        new Rectangle((i >= Utilities.countClaimedPillars() && i < levelsAchieved) ?
+                        new Rectangle((i >= (int)Game1.player.stats.Get("mastery_total_pillars") && i < levelsAchieved) ?
                             (43 + (int)Game1.currentGameTime.TotalGameTime.TotalMilliseconds % 600 / 100 * 10) :
-                            ((Utilities.countClaimedPillars() > i) ? 33 : 23), //23 = vacío, 33 el dorado
+                            (((int)Game1.player.stats.Get("mastery_total_pillars") > i) ? 33 : 23), //23 = vacío, 33 el dorado
                             89, 10, 11),
                         Color.White, 0f, Vector2.Zero, 4f, SpriteEffects.None, 0.88f);
                 }
@@ -172,7 +172,7 @@ namespace MasteryExtended.Patches
                 }
 
                 // Can invest
-                bool canClaim = ModEntry.Config.PillarsVsProfessions != "1" || Utilities.countClaimedPillars() >= ModEntry.Config.RequiredPilarsToThePedestal;
+                bool canClaim = ModEntry.Config.PillarsVsProfessions != "1" || (int)Game1.player.stats.Get("mastery_total_pillars") >= ModEntry.Config.RequiredPilarsToThePedestal;
 
                 if (__instance.mainButton != null && !canClaim)
                 {
@@ -207,7 +207,7 @@ namespace MasteryExtended.Patches
             {
                 if (((float)__instance.GetInstanceField("destroyTimer")! <= 0f) && __instance.mainButton?.containsPoint(x, y) == true && (float)__instance.GetInstanceField("pressedButtonTimer")! <= 0f && canClaim)
                 {
-                    ModEntry.Data.claimedRewards++;
+                    Game1.player.stats.Increment("mastery_total_pillars");
                 }
                 return true;
             }

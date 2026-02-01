@@ -5,6 +5,7 @@ using MasteryExtended.Compatibility.WoL;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
+using StardewValley;
 
 namespace MasteryExtended
 {
@@ -38,8 +39,6 @@ namespace MasteryExtended
         /// <summary>Amount of Skills available</summary>
         public static int SkillsAvailable { get; internal set; } = 5;
 
-        /// <summary>Are custom skills</summary>
-        public static bool CustomSkillsExist { get; internal set; } = false;
 
         /******************
         ** Public methods *
@@ -190,7 +189,7 @@ namespace MasteryExtended
             {
                 Data = new ModData
                 {
-                    claimedRewards = Utilities.countClaimedPillars()
+                    claimedRewards = (int)Game1.player.stats.Get("mastery_total_pillars")
                 };
             }
         }

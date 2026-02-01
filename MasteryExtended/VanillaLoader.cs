@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
+using StardewValley.Constants;
 using StardewValley.Menus;
 
 namespace MasteryExtended
@@ -16,7 +17,9 @@ namespace MasteryExtended
             VanillaPatches(harmony);
 
             helper.Events.GameLoop.UpdateTicked += GMCMConfigVanilla;
+            helper.Events.GameLoop.SaveLoaded += CalculatePillarsUnlocked;
         }
+
         /// <summary>Base patches for the mod.</summary>
         /// <param name="harmony">Harmony instance used to patch the game.</param>
         private static void VanillaPatches(Harmony harmony)
@@ -345,6 +348,16 @@ namespace MasteryExtended
                 name: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_ConfirmProfessionAdquisitionName"),
                 tooltip: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_ConfirmProfessionAdquisitionTooltip")
             );
+        }
+
+        private static void CalculatePillarsUnlocked(object? _1, SaveLoadedEventArgs _2)
+        {
+            uint count = 0;
+            for (int i = 0; i < 5; i++)
+            {
+                count += Game1.player.stats.Get(StatKeys.Mastery(i));
+            }
+            Game1.player.stats.Set("mastery_total_pillars", count);
         }
     }
 }

@@ -1,13 +1,23 @@
 ﻿using StardewValley;
+using StardewValley.Constants;
 
 namespace MasteryExtended
 {
     internal static class Utilities
     {
-        internal static int countClaimedPillars()
+        internal static int CountClaimedPillars()
         {
-            List<string> checkRecipeList = ["Statue Of Blessings", "Heavy Furnace", "Challenge Bait", "Treasure Totem", "Anvil"];
-            return checkRecipeList.Count(x => Game1.player.craftingRecipes.ContainsKey(x));
+            return (int)Game1.player.stats.Get("mastery_total_pillars");
+        }
+
+        internal static void SetMasteryPillarsClaimed()
+        {
+            uint count = 0;
+            for (int i = 0; i < 5; i++)
+            {
+                count += Game1.player.stats.Get(StatKeys.Mastery(i));
+            }
+            Game1.player.stats.Set("mastery_total_pillars", count);
         }
 
         public static int countDigits(this int n) =>
