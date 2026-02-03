@@ -82,6 +82,7 @@ namespace MasteryExtended.Patches
                         new CodeInstruction(OpCodes.Brfalse, labelExpGain)
                     )
                 ;
+                matcher.Instructions().ForEach(Console.WriteLine);
 
                 return matcher.InstructionEnumeration();
             }
