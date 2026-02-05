@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using MasteryExtended.Patches;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Menus;
@@ -103,13 +104,13 @@ namespace MasteryExtended.Compatibility.WoL.Patches
          ***********/
         private static int howMuchWhich(int howMuch, int which)
         {
-            return Math.Max(1, which == 0 ? (int)(0.5 * howMuch) : howMuch);
+            return Math.Max(1, which == 0 ? (FarmerPatch.newMasteryAmount(howMuch, which) / 2) : FarmerPatch.newMasteryAmount(howMuch, which));
         }
 
         private static void expShare(object skill, int howMuch)
         {
             var currentSkillLevel = (int)skill.InvokeFunction("get_CurrentLevel", [])!;
-            var skillId = (int)skill.InvokeFunction("get_Id", [])!;
+            var which = (int)skill.InvokeFunction("get_Id", [])!;
             var currentExp = (int)skill.InvokeFunction("get_CurrentExp", [])!;
             var maxLevel = (int)skill.InvokeFunction("get_MaxLevel", [])!;
 
@@ -120,8 +121,9 @@ namespace MasteryExtended.Compatibility.WoL.Patches
 
             int expToSkill = (int)Math.Ceiling(howMuch * (100 - p) / 100.0);
             int expToMastery = howMuch - expToSkill;
+            expToMastery = FarmerPatch.newMasteryAmount(expToMastery, which);
 
-            if (skillId == 0 && expToMastery > 0)
+            if (which == 0 && expToMastery > 0)
             {
                 expToMastery = Math.Max(1, expToMastery / 2);
             }

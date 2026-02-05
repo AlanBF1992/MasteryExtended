@@ -33,5 +33,7 @@
         public int Lvl10ProfessionsRequired { get; set; } = 2;
         // VPP: Level 15 Professions required to get an extra combo.
         public int Lvl15ProfessionsRequired { get; set; } = 4;
+        // Book Config
+        public string BooksQuantity { get; set; } = "0";
     }
 }

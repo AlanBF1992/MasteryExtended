@@ -83,6 +83,7 @@ namespace MasteryExtended.Compatibility.VPP.Patches
 
             int expToSkill = (int)Math.Ceiling(howMuch * (100 - p) / 100.0);
             int expToMastery = howMuch - expToSkill;
+            expToMastery = MasteryExtended.Patches.FarmerPatch.newMasteryAmount(expToMastery, which);
 
             if (which == 0 && expToMastery > 0)
             {

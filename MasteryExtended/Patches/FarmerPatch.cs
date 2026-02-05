@@ -54,17 +54,8 @@ namespace MasteryExtended.Patches
             try
             {
                 CodeMatcher matcher = new(instructions);
-                FieldInfo experiencePointsInfo = AccessTools.Field(typeof(Farmer), nameof(Farmer.experiencePoints));
                 MethodInfo masteryGainInfo = AccessTools.Method(typeof(FarmerPatch), nameof(ShouldGainMasteryExp));
-
-                Label labelExpGain =
-                    matcher.MatchStartForward(
-                        new CodeMatch(OpCodes.Ldarg_0),
-                        new CodeMatch(OpCodes.Ldfld, experiencePointsInfo)
-                    )
-                    .ThrowIfNotMatch("Vanillla gainExperience: IL code 1 not found")
-                    .Labels[0]
-                ;
+                MethodInfo newMasteryAmountInfo = AccessTools.Method(typeof(FarmerPatch), nameof(newMasteryAmount));
 
                 //from: if (this.Level >= 25)
                 //to:   if (ShouldGainMasteryExp(this, which))
@@ -73,16 +64,37 @@ namespace MasteryExtended.Patches
                         new CodeMatch(OpCodes.Stelem_Ref),
                         new CodeMatch(OpCodes.Call)
                     )
-                    .ThrowIfNotMatch("Vanillla gainExperience: IL code 2 not found")
+                    .ThrowIfNotMatch("Vanillla gainExperience: IL code 1 not found")
                     .Advance(3)
-                    .RemoveInstructions(3)
+                    .RemoveInstructions(2)
+                    .InsertAndAdvance(
+                        new CodeInstruction(OpCodes.Ldarg_1),
+                        new CodeInstruction(OpCodes.Call, masteryGainInfo)
+                    )
+                    .SetOpcodeAndAdvance(OpCodes.Brfalse)
+                ;
+
+                //from: howMuch
+                //to:   newAmount(howMuch) 
+
+                matcher
+                    .MatchStartForward(new CodeMatch(OpCodes.Ldarg_2))
+                    .Advance(1)
                     .Insert(
                         new CodeInstruction(OpCodes.Ldarg_1),
-                        new CodeInstruction(OpCodes.Call, masteryGainInfo),
-                        new CodeInstruction(OpCodes.Brfalse, labelExpGain)
+                        new CodeInstruction(OpCodes.Call, newMasteryAmountInfo)
                     )
                 ;
-                matcher.Instructions().ForEach(Console.WriteLine);
+
+
+                matcher
+                    .MatchStartForward(new CodeMatch(OpCodes.Ldarg_2))
+                    .Advance(1)
+                    .Insert(
+                        new CodeInstruction(OpCodes.Ldarg_1),
+                        new CodeInstruction(OpCodes.Call, newMasteryAmountInfo)
+                    )
+                ;
 
                 return matcher.InstructionEnumeration();
             }
@@ -91,6 +103,11 @@ namespace MasteryExtended.Patches
                 LogMonitor.Log($"Failed in {nameof(gainExperienceTranspiler)}:\n{ex}", LogLevel.Error);
                 return instructions;
             }
+        }
+
+        internal static int newMasteryAmount(int howMuch, int which)
+        {
+            return (int)(howMuch * (1 + ExtraMasteryExperienceMultiplier(which)));
         }
 
         /// <summary>Arregla el título para si contar la suerte, en caso de que se agregue el mod, aunque permitiendo solo hasta lvl 30</summary>
@@ -162,6 +179,82 @@ namespace MasteryExtended.Patches
                 4 => farmer.combatLevel.Value >= 10,
                 _ => false
             };
+        }
+
+        internal static float ExtraMasteryExperienceMultiplier(int which)
+        {
+            // Ugly AF, fix later
+            float extraMultiplier = 0;
+            string modID = ModEntry.ModManifest.UniqueID;
+
+            if (!ModEntry.Config.BooksQuantity.Equals("2") && GameStateQuery.CheckConditions($"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookCompleteMastery 1"))
+            {
+                extraMultiplier += 0.2f;
+            }
+
+
+            if (ModEntry.Config.BooksQuantity.Equals("0"))
+            {
+                switch (which)
+                {
+                    case 0 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookFarmingMastery 1"):
+                    case 1 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookFishingMastery 1"):
+                    case 2 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookForagingMastery 1"):
+                    case 3 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookMiningMastery 1"):
+                    case 4 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookCombatMastery 1"):
+                        extraMultiplier += 0.5f;
+                        break;
+                }
+
+            }
+            else if (ModEntry.Config.BooksQuantity.Equals("1"))
+            {
+                switch (which)
+                {
+                    case 0 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookCoopmasterMastery 1"):
+                    case 1 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookAnglerMastery 1"):
+                    case 2 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookLumberjackMastery 1"):
+                    case 3 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookBlacksmithMastery 1"):
+                    case 4 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookBruteMastery 1"):
+                        extraMultiplier += 0.25f;
+                        break;
+                }
+
+                switch (which)
+                {
+                    case 0 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookShepherdMastery 1"):
+                    case 1 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookPirateMastery 1"):
+                    case 2 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookTapperMastery 1"):
+                    case 3 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookProspectorMastery 1"):
+                    case 4 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookDefenderMastery 1"):
+                        extraMultiplier += 0.25f;
+                        break;
+                }
+
+                switch (which)
+                {
+                    case 0 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookArtisanMastery 1"):
+                    case 1 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookMarinerMastery 1"):
+                    case 2 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookBotanistMastery 1"):
+                    case 3 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookExcavatorMastery 1"):
+                    case 4 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookAcrobatMastery 1"):
+                        extraMultiplier += 0.25f;
+                        break;
+                }
+
+                switch (which)
+                {
+                    case 0 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookAgriculturistMastery 1"):
+                    case 1 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookLuremasterMastery 1"):
+                    case 2 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookTrackerMastery 1"):
+                    case 3 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookGemologistMastery 1"):
+                    case 4 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookDesperadoMastery 1"):
+                        extraMultiplier += 0.25f;
+                        break;
+                }
+            }
+
+            return extraMultiplier;
         }
     }
 }
