@@ -103,7 +103,7 @@
   "book-skill-combat-mastery-description": "Gana un 50% extra de Maestría de Combate",
   "book-complete-mastery-description": "Gana un 20% extra de Maestría con cualquier habilidad",
   "gmcm-book-mastery-name": "Libros añadidos al Librero",
-  "gmcm-book-mastery-tooltip": "Todos: 4 libros por cada habilidad, 100% extra\nPocos: 1 libro por cada habilidad, 50% extra\nNinguno: ninguno\nDefault: \"{0}\"",
+  "gmcm-book-mastery-tooltip": "Todos: 1 libro por cada profesión, 25% extra cada uno\nPocos: 1 libro por cada habilidad, 50% extra\nNinguno: ninguno\nDefault: \"{0}\"",
   "gmcm-book-mastery-0": "Todos",
   "gmcm-book-mastery-1": "Pocos",
   "gmcm-book-mastery-2": "Ninguno",

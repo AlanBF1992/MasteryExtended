@@ -1,10 +1,12 @@
 ﻿using HarmonyLib;
 using MasteryExtended.Menu.Pages;
+using MasteryExtended.Patches;
 using MasteryExtended.Skills;
 using MasteryExtended.Skills.Professions;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewValley;
+using System.Reflection;
 using System.Reflection.Emit;
 
 namespace MasteryExtended.Compatibility.SpaceCore.Patches
@@ -22,6 +24,8 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
             {
                 CodeMatcher matcher = new(instructions);
 
+                MethodInfo newMasteryAmountInfo = AccessTools.Method(typeof(FarmerPatch), nameof(FarmerPatch.newMasteryAmount));
+
                 //from: if (prevLevel >= 10 && level >= 25)
                 //to:   if (prevLevel >= 10)
                 matcher
@@ -30,9 +34,22 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
                         new CodeMatch(OpCodes.Ldc_I4_S),
                         new CodeMatch(OpCodes.Blt_S)
                     )
-                    .ThrowIfNotMatch("SCSkillsPatch.AddExperienceTranspiler: IL code not found")
+                    .ThrowIfNotMatch("SCSkillsPatch.AddExperienceTranspiler: IL code 1 not found")
                     .RemoveInstructions(3)
                 ;
+
+                matcher
+                    .MatchStartForward(
+                            new CodeMatch(OpCodes.Ldarg_2)
+                    )
+                    .ThrowIfNotMatch("SCSkillsPatch.AddExperienceTranspiler: IL code 2 not found")
+                    .Advance(1)
+                    .Insert(
+                        new CodeInstruction(OpCodes.Ldc_I4_5), // >= 5 doesn't give extra, only the 20%
+                        new CodeInstruction(OpCodes.Call, newMasteryAmountInfo)
+                    )
+                ;
+
 
                 return matcher.InstructionEnumeration();
             }

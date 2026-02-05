@@ -103,7 +103,7 @@
   "book-skill-combat-mastery-description": "Gain an extra 50% Mastery with Combat",
   "book-complete-mastery-description": "Gain an extra 20% Mastery with any Skill",
   "gmcm-book-mastery-name": "Books added to the bookseller",
-  "gmcm-book-mastery-tooltip": "Full: 4 book for each skill, 100% extra\nLight: 1 book for each skill, 50% extra\nNone: none\nDefault: \"{0}\"",
+  "gmcm-book-mastery-tooltip": "Full: 1 book for each profession, 25% extra each one\nLight: 1 book for each skill, 50% extra\nNone: none\nDefault: \"{0}\"",
   "gmcm-book-mastery-0": "Full",
   "gmcm-book-mastery-1": "Lite",
   "gmcm-book-mastery-2": "None",
