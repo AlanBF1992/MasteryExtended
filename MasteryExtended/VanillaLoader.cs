@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using MasteryExtended.Compatibility.BGM;
 using MasteryExtended.Compatibility.GMCM;
 using MasteryExtended.Patches;
 using Microsoft.Xna.Framework;
@@ -26,6 +27,17 @@ namespace MasteryExtended
 
             helper.Events.GameLoop.UpdateTicked += GMCMConfigVanilla;
             helper.Events.GameLoop.SaveLoaded += CalculatePillarsUnlocked;
+
+            helper.Events.Display.MenuChanged += ReloadPowers;
+        }
+
+        private static void ReloadPowers(object? _, MenuChangedEventArgs e)
+        {
+            if (e.NewMenu is GameMenu ||
+                ModEntry.ModHelper.ModRegistry.GetApi<IBetterGameMenuApi>("leclair.bettergamemenu")?.IsMenu(e.NewMenu) == true)
+            {
+                ModEntry.ModHelper.GameContent.InvalidateCache("Data\\Powers");
+            }
         }
 
         /// <summary>Base patches for the mod.</summary>
@@ -222,7 +234,6 @@ namespace MasteryExtended
                         "0" or "1" or "2" => Game1.content.LoadString($"Strings\\UI:MasteryExtended_GMCM_BookMasteryName{value}"),
                         _ => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_BookMasteryName?"),
                     };
-                    
                 }
             );
 
@@ -372,6 +383,7 @@ namespace MasteryExtended
             );
         }
 
+
         private static void CalculatePillarsUnlocked(object? _1, SaveLoadedEventArgs _2)
         {
             uint count = 0;
@@ -513,6 +525,12 @@ namespace MasteryExtended
                     editor.Data.Add("MasteryExtended_GMCM_BookMasteryName1", ModEntry.ModHelper.Translation.Get("gmcm-book-mastery-1"));
                     editor.Data.Add("MasteryExtended_GMCM_BookMasteryName2", ModEntry.ModHelper.Translation.Get("gmcm-book-mastery-2"));
                     editor.Data.Add("MasteryExtended_GMCM_BookMasteryName?", ModEntry.ModHelper.Translation.Get("gmcm-book-mastery-?"));
+
+                    editor.Data.Add("MasteryExtended_PowerSkillFarmingMasteryBookDescription", ModEntry.ModHelper.Translation.Get("power-skill-farming-mastery-description"));
+                    editor.Data.Add("MasteryExtended_PowerSkillFishingMasteryBookDescription", ModEntry.ModHelper.Translation.Get("power-skill-fishing-mastery-description"));
+                    editor.Data.Add("MasteryExtended_PowerSkillForagingMasteryBookDescription", ModEntry.ModHelper.Translation.Get("power-skill-foraging-mastery-description"));
+                    editor.Data.Add("MasteryExtended_PowerSkillMiningMasteryBookDescription", ModEntry.ModHelper.Translation.Get("power-skill-mining-mastery-description"));
+                    editor.Data.Add("MasteryExtended_PowerSkillCombatMasteryBookDescription", ModEntry.ModHelper.Translation.Get("power-skill-combat-mastery-description"));
                 });
             }
         }
@@ -590,29 +608,60 @@ namespace MasteryExtended
             }
             else if (e.NameWithoutLocale.IsEquivalentTo("Data/Powers"))
             {
+                int[] calculatedExtra = [50, 50, 50, 50, 50, 50];
+                string[] unlockCondition = ["", "", "", "", "", ""];
+                string[] powerStrings =
+                [
+                    Game1.content.LoadString("Strings\\UI:MasteryExtended_PowerSkillFarmingMasteryBookDescription"),
+                    Game1.content.LoadString("Strings\\UI:MasteryExtended_PowerSkillFishingMasteryBookDescription"),
+                    Game1.content.LoadString("Strings\\UI:MasteryExtended_PowerSkillForagingMasteryBookDescription"),
+                    Game1.content.LoadString("Strings\\UI:MasteryExtended_PowerSkillMiningMasteryBookDescription"),
+                    Game1.content.LoadString("Strings\\UI:MasteryExtended_PowerSkillCombatMasteryBookDescription"),
+                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookCompleteMasteryBookDescription")
+                ];
+
                 if (ModEntry.Config.BooksQuantity.Equals("0"))
                 {
-                    books = BookPowerListComplete();
+                    books = BookPowerListShort();
+                    var allBooks = BookPowerListComplete();
+
+
+                    for (int i = 0; i < 5; i ++)
+                    {
+                        unlockCondition[i] = "ANY";
+
+                        for (int j = 0; j < 4; j ++)
+                        {
+                            unlockCondition[i] += $" \"PLAYER_STAT Current {allBooks[4 * i + j].Id} 1\"";
+                        }
+                        calculatedExtra[i] = (int)(FarmerPatch.ExtraMasteryExperienceMultiplier(i, false) * 100);
+                    }
+                    unlockCondition[5] = $"PLAYER_STAT Current {books[5].Id} 1";
                 }
                 else if (ModEntry.Config.BooksQuantity.Equals("1"))
                 {
                     books = BookPowerListShort();
+
+                    for (int i = 0; i < 6; i ++)
+                    {
+                        unlockCondition[i] = $"PLAYER_STAT Current {books[i].Id} 1";
+                    }
                 }
 
                 e.Edit(rawInfo =>
                 {
                     var data = rawInfo.AsDictionary<string, PowersData>().Data;
 
-                    foreach (var book in books)
+                    for (int i = 0; i < books.Length; i++)
                     {
+                        BookPowerInfo book = books[i];
                         PowersData toAdd = new()
                         {
                             DisplayName = book.DisplayName,
-                            Description = book.Description,
+                            Description = string.Format(powerStrings[i], calculatedExtra[i]),
                             TexturePath = $"Tilesheets/{ModEntry.ModManifest.UniqueID}/MasteryBooks",
-                            TexturePosition = new Point(book.SpriteIndex%6 * 16, book.SpriteIndex/6 * 16),
-                            UnlockedCondition = $"PLAYER_STAT Current {book.Id} 1"
-
+                            TexturePosition = new Point(book.SpriteIndex % 6 * 16, book.SpriteIndex / 6 * 16),
+                            UnlockedCondition = unlockCondition[i]
                         };
 
                         data.TryAdd(book.Id, toAdd);
@@ -629,7 +678,7 @@ namespace MasteryExtended
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookSkillFarmingMasteryBookName"),
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookSkillFarmingMasteryBookDescription"),
                     24,
-                    "PLAYER_HAS_PROFESSION Current 2",
+                    "PLAYER_BASE_FARMING_LEVEL Current 10",
                     ["book_item", "color_gold"]
                 ),
                 (
@@ -637,7 +686,7 @@ namespace MasteryExtended
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookSkillFishingMasteryBookName"),
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookSkillFishingMasteryBookDescription"),
                     25,
-                    "PLAYER_HAS_PROFESSION Current 8",
+                    "PLAYER_BASE_FISHING_LEVEL Current 10",
                     ["book_item", "color_blue"]
                 ),
                 (
@@ -645,7 +694,7 @@ namespace MasteryExtended
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookSkillForagingMasteryBookName"),
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookSkillForagingMasteryBookDescription"),
                     26,
-                    "PLAYER_HAS_PROFESSION Current 14",
+                    "PLAYER_BASE_FORAGING_LEVEL Current 10",
                     ["book_item", "color_green"]
                 ),
                 (
@@ -653,7 +702,7 @@ namespace MasteryExtended
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookSkillMiningMasteryBookName"),
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookSkillMiningMasteryBookDescription"),
                     27,
-                    "PLAYER_HAS_PROFESSION Current 20",
+                    "PLAYER_BASE_MINING_LEVEL Current 10",
                     ["book_item", "color_brown"]
                 ),
                 (
@@ -661,7 +710,7 @@ namespace MasteryExtended
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookSkillCombatMasteryBookName"),
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookSkillCombatMasteryBookDescription"),
                     28,
-                    "PLAYER_HAS_PROFESSION Current 26",
+                    "PLAYER_BASE_COMBAT_LEVEL Current 10",
                     ["book_item", "color_red"]
                 ),
                 (

@@ -181,33 +181,18 @@ namespace MasteryExtended.Patches
             };
         }
 
-        internal static float ExtraMasteryExperienceMultiplier(int which)
+        internal static float ExtraMasteryExperienceMultiplier(int which, bool includeComplete = true)
         {
-            // Ugly AF, fix later
+            // Ugly AF, fix later?
             float extraMultiplier = 0;
             string modID = ModEntry.ModManifest.UniqueID;
 
-            if (!ModEntry.Config.BooksQuantity.Equals("2") && GameStateQuery.CheckConditions($"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookCompleteMastery 1"))
+            if (includeComplete && !ModEntry.Config.BooksQuantity.Equals("2") && GameStateQuery.CheckConditions($"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookCompleteMastery 1"))
             {
                 extraMultiplier += 0.2f;
             }
 
-
             if (ModEntry.Config.BooksQuantity.Equals("0"))
-            {
-                switch (which)
-                {
-                    case 0 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookFarmingMastery 1"):
-                    case 1 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookFishingMastery 1"):
-                    case 2 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookForagingMastery 1"):
-                    case 3 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookMiningMastery 1"):
-                    case 4 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookCombatMastery 1"):
-                        extraMultiplier += 0.5f;
-                        break;
-                }
-
-            }
-            else if (ModEntry.Config.BooksQuantity.Equals("1"))
             {
                 switch (which)
                 {
@@ -250,6 +235,19 @@ namespace MasteryExtended.Patches
                     case 3 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookGemologistMastery 1"):
                     case 4 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookDesperadoMastery 1"):
                         extraMultiplier += 0.25f;
+                        break;
+                }
+            }
+            else if (ModEntry.Config.BooksQuantity.Equals("1"))
+            {
+                switch (which)
+                {
+                    case 0 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookFarmingMastery 1"):
+                    case 1 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookFishingMastery 1"):
+                    case 2 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookForagingMastery 1"):
+                    case 3 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookMiningMastery 1"):
+                    case 4 when GameStateQuery.CheckConditions($"PLAYER_STAT Current {modID}_BookCombatMastery 1"):
+                        extraMultiplier += 0.5f;
                         break;
                 }
             }
