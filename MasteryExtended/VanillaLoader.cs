@@ -516,6 +516,9 @@ namespace MasteryExtended
                     editor.Data.Add("MasteryExtended_BookDesperadoMasteryBookName", ModEntry.ModHelper.Translation.Get("book-desperado-mastery-name"));
                     editor.Data.Add("MasteryExtended_BookProfessionCombatMasteryBookDescription", ModEntry.ModHelper.Translation.Get("book-profession-combat-mastery-description"));
 
+                    editor.Data.Add("MasteryExtended_BookUnlockMasteryBookName", ModEntry.ModHelper.Translation.Get("book-unlock-mastery-name"));
+                    editor.Data.Add("MasteryExtended_BookUnlockMasteryBookDescription", ModEntry.ModHelper.Translation.Get("book-unlock-mastery-description"));
+
                     editor.Data.Add("MasteryExtended_BookCompleteMasteryBookName", ModEntry.ModHelper.Translation.Get("book-complete-mastery-name"));
                     editor.Data.Add("MasteryExtended_BookCompleteMasteryBookDescription", ModEntry.ModHelper.Translation.Get("book-complete-mastery-description"));
 
@@ -602,14 +605,14 @@ namespace MasteryExtended
                             AvailableStock = 1,
                             Condition = book.Condition
                         };
-                        data["BookSeller"].Items.Add(toAdd);
+                        data["Bookseller"].Items.Add(toAdd);
                     }
                 });
             }
             else if (e.NameWithoutLocale.IsEquivalentTo("Data/Powers"))
             {
-                int[] calculatedExtra = [50, 50, 50, 50, 50, 50];
-                string[] unlockCondition = ["", "", "", "", "", ""];
+                int[] calculatedExtra = [50, 50, 50, 50, 50, 50, 50];
+                string[] unlockCondition = ["", "", "", "", "", "", ""];
                 string[] powerStrings =
                 [
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_PowerSkillFarmingMasteryBookDescription"),
@@ -617,6 +620,7 @@ namespace MasteryExtended
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_PowerSkillForagingMasteryBookDescription"),
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_PowerSkillMiningMasteryBookDescription"),
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_PowerSkillCombatMasteryBookDescription"),
+                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookUnlockMasteryBookDescription"),
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookCompleteMasteryBookDescription")
                 ];
 
@@ -637,12 +641,13 @@ namespace MasteryExtended
                         calculatedExtra[i] = (int)(FarmerPatch.ExtraMasteryExperienceMultiplier(i, false) * 100);
                     }
                     unlockCondition[5] = $"PLAYER_STAT Current {books[5].Id} 1";
+                    unlockCondition[6] = $"PLAYER_STAT Current {books[6].Id} 1";
                 }
                 else if (ModEntry.Config.BooksQuantity.Equals("1"))
                 {
                     books = BookPowerListShort();
 
-                    for (int i = 0; i < 6; i ++)
+                    for (int i = 0; i < 7; i ++)
                     {
                         unlockCondition[i] = $"PLAYER_STAT Current {books[i].Id} 1";
                     }
@@ -672,53 +677,62 @@ namespace MasteryExtended
 
         private static BookPowerInfo[] BookPowerListShort()
         {
+            string uniqueID = ModEntry.ModManifest.UniqueID;
             return [
                 (
-                    $"{ModEntry.ModManifest.UniqueID}_BookFarmingMastery",
+                    $"{uniqueID}_BookFarmingMastery",
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookSkillFarmingMasteryBookName"),
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookSkillFarmingMasteryBookDescription"),
                     24,
-                    "PLAYER_BASE_FARMING_LEVEL Current 10",
+                    $"PLAYER_BASE_FARMING_LEVEL Current 10, PLAYER_STAT Current {uniqueID}_BookFarmingMastery 0 0",
                     ["book_item", "color_gold"]
                 ),
                 (
-                    $"{ModEntry.ModManifest.UniqueID}_BookFishingMastery",
+                    $"{uniqueID}_BookFishingMastery",
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookSkillFishingMasteryBookName"),
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookSkillFishingMasteryBookDescription"),
                     25,
-                    "PLAYER_BASE_FISHING_LEVEL Current 10",
+                    $"PLAYER_BASE_FISHING_LEVEL Current 10, PLAYER_STAT Current {uniqueID}_BookFishingMastery 0 0",
                     ["book_item", "color_blue"]
                 ),
                 (
-                    $"{ModEntry.ModManifest.UniqueID}_BookForagingMastery",
+                    $"{uniqueID}_BookForagingMastery",
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookSkillForagingMasteryBookName"),
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookSkillForagingMasteryBookDescription"),
                     26,
-                    "PLAYER_BASE_FORAGING_LEVEL Current 10",
+                    $"PLAYER_BASE_FORAGING_LEVEL Current 10, PLAYER_STAT Current {uniqueID}_BookForagingMastery 0 0",
                     ["book_item", "color_green"]
                 ),
                 (
-                    $"{ModEntry.ModManifest.UniqueID}_BookMiningMastery",
+                    $"{uniqueID}_BookMiningMastery",
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookSkillMiningMasteryBookName"),
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookSkillMiningMasteryBookDescription"),
                     27,
-                    "PLAYER_BASE_MINING_LEVEL Current 10",
+                    $"PLAYER_BASE_MINING_LEVEL Current 10, PLAYER_STAT Current {uniqueID}_BookMiningMastery 0 0",
                     ["book_item", "color_brown"]
                 ),
                 (
-                    $"{ModEntry.ModManifest.UniqueID}_BookCombatMastery",
+                    $"{uniqueID}_BookCombatMastery",
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookSkillCombatMasteryBookName"),
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookSkillCombatMasteryBookDescription"),
                     28,
-                    "PLAYER_BASE_COMBAT_LEVEL Current 10",
+                    $"PLAYER_BASE_COMBAT_LEVEL Current 10, PLAYER_STAT Current {uniqueID}_BookCombatMastery 0 0",
                     ["book_item", "color_red"]
                 ),
                 (
-                    $"{ModEntry.ModManifest.UniqueID}_BookCompleteMastery",
+                    $"{uniqueID}_BookUnlockMastery",
+                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookUnlockMasteryBookName"),
+                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookUnlockMasteryBookDescription"),
+                    11,
+                    $"PLAYER_VISITED_LOCATION Current MasteryCave, PLAYER_STAT Current {uniqueID}_BookUnlockMastery 0 0",
+                    ["book_item", "color_iridium"]
+                ),
+                (
+                    $"{uniqueID}_BookCompleteMastery",
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookCompleteMasteryBookName"),
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookCompleteMasteryBookDescription"),
                     5,
-                    "PLAYER_VISITED_LOCATION Current MasteryCave",
+                    $"PLAYER_VISITED_LOCATION Current MasteryCave, PLAYER_STAT Current {uniqueID}_BookUnlockMastery 1, PLAYER_STAT Current {uniqueID}_BookCompleteMastery 0 0",
                     ["book_item", "color_iridium"]
                 ),
             ];
@@ -726,173 +740,182 @@ namespace MasteryExtended
         }
         private static BookPowerInfo[] BookPowerListComplete()
         {
+            string uniqueID = ModEntry.ModManifest.UniqueID;
             return [
                 (
-                    $"{ModEntry.ModManifest.UniqueID}_BookCoopmasterMastery",
+                    $"{uniqueID}_BookCoopmasterMastery",
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookCoopmasterMasteryBookName"),
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionFarmingMasteryBookDescription"),
                     0,
-                    "PLAYER_HAS_PROFESSION Current 2",
+                    $"PLAYER_HAS_PROFESSION Current 2, PLAYER_STAT Current {uniqueID}_BookCoopmasterMastery 0 0",
                     ["book_item", "color_gold"]
                 ),
                 (
-                    $"{ModEntry.ModManifest.UniqueID}_BookShepherdMastery",
+                    $"{uniqueID}_BookShepherdMastery",
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookShepherdMasteryBookName"),
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionFarmingMasteryBookDescription"),
                     6,
-                    "PLAYER_HAS_PROFESSION Current 3",
+                    $"PLAYER_HAS_PROFESSION Current 3, PLAYER_STAT Current {uniqueID}_BookShepherdMastery 0 0",
                     ["book_item", "color_gold"]
                 ),
                 (
-                    $"{ModEntry.ModManifest.UniqueID}_BookArtisanMastery",
+                    $"{uniqueID}_BookArtisanMastery",
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookArtisanMasteryBookName"),
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionFarmingMasteryBookDescription"),
                     12,
-                    "PLAYER_HAS_PROFESSION Current 4",
+                    $"PLAYER_HAS_PROFESSION Current 4, PLAYER_STAT Current {uniqueID}_BookArtisanMastery 0 0",
                     ["book_item", "color_gold"]
                 ),
                 (
-                    $"{ModEntry.ModManifest.UniqueID}_BookAgriculturistMastery",
+                    $"{uniqueID}_BookAgriculturistMastery",
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookAgriculturistMasteryBookName"),
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionFarmingMasteryBookDescription"),
                     18,
-                    "PLAYER_HAS_PROFESSION Current 5",
+                    $"PLAYER_HAS_PROFESSION Current 5, PLAYER_STAT Current {uniqueID}_BookAgriculturistMastery 0 0",
                     ["book_item", "color_gold"]
                 ),
                 (
-                    $"{ModEntry.ModManifest.UniqueID}_BookAnglerMastery",
+                    $"{uniqueID}_BookAnglerMastery",
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookAnglerMasteryBookName"),
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionFishingMasteryBookDescription"),
                     1,
-                    "PLAYER_HAS_PROFESSION Current 8",
+                    $"PLAYER_HAS_PROFESSION Current 8, PLAYER_STAT Current {uniqueID}_BookAnglerMastery 0 0",
                     ["book_item", "color_blue"]
                 ),
                 (
-                    $"{ModEntry.ModManifest.UniqueID}_BookPirateMastery",
+                    $"{uniqueID}_BookPirateMastery",
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookPirateMasteryBookName"),
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionFishingMasteryBookDescription"),
                     7,
-                    "PLAYER_HAS_PROFESSION Current 9",
+                    $"PLAYER_HAS_PROFESSION Current 9, PLAYER_STAT Current {uniqueID}_BookPirateMastery 0 0",
                     ["book_item", "color_blue"]
                 ),
                 (
-                    $"{ModEntry.ModManifest.UniqueID}_BookMarinerMastery",
+                    $"{uniqueID}_BookMarinerMastery",
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookMarinerMasteryBookName"),
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionFishingMasteryBookDescription"),
                     13,
-                    "PLAYER_HAS_PROFESSION Current 10",
+                    $"PLAYER_HAS_PROFESSION Current 10, PLAYER_STAT Current {uniqueID}_BookMarinerMastery 0 0",
                     ["book_item", "color_blue"]
                 ),
                 (
-                    $"{ModEntry.ModManifest.UniqueID}_BookLuremasterMastery",
+                    $"{uniqueID}_BookLuremasterMastery",
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookLuremasterMasteryBookName"),
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionFishingMasteryBookDescription"),
                     19,
-                    "PLAYER_HAS_PROFESSION Current 11",
+                    $"PLAYER_HAS_PROFESSION Current 11, PLAYER_STAT Current {uniqueID}_BookLuremasterMastery 0 0",
                     ["book_item", "color_blue"]
                 ),
                 (
-                    $"{ModEntry.ModManifest.UniqueID}_BookLumberjackMastery",
+                    $"{uniqueID}_BookLumberjackMastery",
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookLumberjackMasteryBookName"),
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionForagingMasteryBookDescription"),
                     2,
-                    "PLAYER_HAS_PROFESSION Current 14",
+                    $"PLAYER_HAS_PROFESSION Current 14, PLAYER_STAT Current {uniqueID}_BookLumberjackMastery 0 0",
                     ["book_item", "color_green"]
                 ),
                 (
-                    $"{ModEntry.ModManifest.UniqueID}_BookTapperMastery",
+                    $"{uniqueID}_BookTapperMastery",
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookTapperMasteryBookName"),
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionForagingMasteryBookDescription"),
                     8,
-                    "PLAYER_HAS_PROFESSION Current 15",
+                    $"PLAYER_HAS_PROFESSION Current 15, PLAYER_STAT Current {uniqueID}_BookTapperMastery 0 0",
                     ["book_item", "color_green"]
                 ),
                 (
-                    $"{ModEntry.ModManifest.UniqueID}_BookBotanistMastery",
+                    $"{uniqueID}_BookBotanistMastery",
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookBotanistMasteryBookName"),
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionForagingMasteryBookDescription"),
                     14,
-                    "PLAYER_HAS_PROFESSION Current 16",
+                    $"PLAYER_HAS_PROFESSION Current 16, PLAYER_STAT Current {uniqueID}_BookBotanistMastery 0 0",
                     ["book_item", "color_green"]
                 ),
                 (
-                    $"{ModEntry.ModManifest.UniqueID}_BookTrackerMastery",
+                    $"{uniqueID}_BookTrackerMastery",
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookTrackerMasteryBookName"),
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionForagingMasteryBookDescription"),
                     20,
-                    "PLAYER_HAS_PROFESSION Current 17",
+                    $"PLAYER_HAS_PROFESSION Current 17, PLAYER_STAT Current {uniqueID}_BookTrackerMastery 0 0",
                     ["book_item", "color_green"]
                 ),
                 (
-                    $"{ModEntry.ModManifest.UniqueID}_BookBlacksmithMastery",
+                    $"{uniqueID}_BookBlacksmithMastery",
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookBlacksmithMasteryBookName"),
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionMiningMasteryBookDescription"),
                     3,
-                    "PLAYER_HAS_PROFESSION Current 20",
+                    $"PLAYER_HAS_PROFESSION Current 20, PLAYER_STAT Current {uniqueID}_BookBlacksmithMastery 0 0",
                     ["book_item", "color_brown"]
                 ),
                 (
-                    $"{ModEntry.ModManifest.UniqueID}_BookProspectorMastery",
+                    $"{uniqueID}_BookProspectorMastery",
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProspectorMasteryBookName"),
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionMiningMasteryBookDescription"),
                     9,
-                    "PLAYER_HAS_PROFESSION Current 21",
+                    $"PLAYER_HAS_PROFESSION Current 21, PLAYER_STAT Current {uniqueID}_BookProspectorMastery 0 0",
                     ["book_item", "color_brown"]
                 ),
                 (
-                    $"{ModEntry.ModManifest.UniqueID}_BookExcavatorMastery",
+                    $"{uniqueID}_BookExcavatorMastery",
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookExcavatorMasteryBookName"),
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionMiningMasteryBookDescription"),
                     15,
-                    "PLAYER_HAS_PROFESSION Current 22",
+                    $"PLAYER_HAS_PROFESSION Current 22, PLAYER_STAT Current {uniqueID}_BookExcavatorMastery 0 0",
                     ["book_item", "color_brown"]
                 ),
                 (
-                    $"{ModEntry.ModManifest.UniqueID}_BookGemologistMastery",
+                    $"{uniqueID}_BookGemologistMastery",
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookGemologistMasteryBookName"),
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionMiningMasteryBookDescription"),
                     21,
-                    "PLAYER_HAS_PROFESSION Current 23",
+                    $"PLAYER_HAS_PROFESSION Current 23, PLAYER_STAT Current {uniqueID}_BookGemologistMastery 0 0",
                     ["book_item", "color_brown"]
                 ),
                 (
-                    $"{ModEntry.ModManifest.UniqueID}_BookBruteMastery",
+                    $"{uniqueID}_BookBruteMastery",
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookBruteMasteryBookName"),
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionCombatMasteryBookDescription"),
                     4,
-                    "PLAYER_HAS_PROFESSION Current 26",
+                    $"PLAYER_HAS_PROFESSION Current 26, PLAYER_STAT Current {uniqueID}_BookBruteMastery 0 0",
                     ["book_item", "color_red"]
                 ),
                 (
-                    $"{ModEntry.ModManifest.UniqueID}_BookDefenderMastery",
+                    $"{uniqueID}_BookDefenderMastery",
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookDefenderMasteryBookName"),
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionCombatMasteryBookDescription"),
                     10,
-                    "PLAYER_HAS_PROFESSION Current 27",
+                    $"PLAYER_HAS_PROFESSION Current 27, PLAYER_STAT Current {uniqueID}_BookDefenderMastery 0 0",
                     ["book_item", "color_red"]
                 ),
                 (
-                    $"{ModEntry.ModManifest.UniqueID}_BookAcrobatMastery",
+                    $"{uniqueID}_BookAcrobatMastery",
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookAcrobatMasteryBookName"),
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionCombatMasteryBookDescription"),
                     16,
-                    "PLAYER_HAS_PROFESSION Current 28",
+                    $"PLAYER_HAS_PROFESSION Current 28, PLAYER_STAT Current {uniqueID}_BookAcrobatMastery 0 0",
                     ["book_item", "color_red"]
                 ),
                 (
-                    $"{ModEntry.ModManifest.UniqueID}_BookDesperadoMastery",
+                    $"{uniqueID}_BookDesperadoMastery",
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookDesperadoMasteryBookName"),
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionCombatMasteryBookDescription"),
                     22,
-                    "PLAYER_HAS_PROFESSION Current 29",
+                    $"PLAYER_HAS_PROFESSION Current 29, PLAYER_STAT Current {uniqueID}_BookDesperadoMastery 0 0",
                     ["book_item", "color_red"]
                 ),
                 (
-                    $"{ModEntry.ModManifest.UniqueID}_BookCompleteMastery",
+                    $"{uniqueID}_BookUnlockMastery",
+                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookUnlockMasteryBookName"),
+                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookUnlockMasteryBookDescription"),
+                    11,
+                    $"PLAYER_VISITED_LOCATION Current MasteryCave, PLAYER_STAT Current {uniqueID}_BookUnlockMastery 0 0",
+                    ["book_item", "color_iridium"]
+                ),
+                (
+                    $"{uniqueID}_BookCompleteMastery",
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookCompleteMasteryBookName"),
                     Game1.content.LoadString("Strings\\UI:MasteryExtended_BookCompleteMasteryBookDescription"),
                     5,
-                    "PLAYER_VISITED_LOCATION Current MasteryCave",
+                    $"PLAYER_VISITED_LOCATION Current MasteryCave, PLAYER_STAT Current {uniqueID}_BookUnlockMastery 1, PLAYER_STAT Current {uniqueID}_BookCompleteMastery 0 0",
                     ["book_item", "color_iridium"]
                 ),
             ];

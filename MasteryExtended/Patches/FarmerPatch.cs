@@ -107,6 +107,10 @@ namespace MasteryExtended.Patches
 
         internal static int newMasteryAmount(int howMuch, int which)
         {
+            if (which is <= 0 or >= 5 && !ModEntry.Config.BooksQuantity.Equals("2") && GameStateQuery.CheckConditions($"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookUnlockMastery 1"))
+            {
+                howMuch *= 2;
+            }
             return (int)(howMuch * (1 + ExtraMasteryExperienceMultiplier(which)));
         }
 
@@ -187,7 +191,9 @@ namespace MasteryExtended.Patches
             float extraMultiplier = 0;
             string modID = ModEntry.ModManifest.UniqueID;
 
-            if (includeComplete && !ModEntry.Config.BooksQuantity.Equals("2") && GameStateQuery.CheckConditions($"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookCompleteMastery 1"))
+            if  (ModEntry.Config.BooksQuantity.Equals("2")) return extraMultiplier;
+
+            if (includeComplete && GameStateQuery.CheckConditions($"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookCompleteMastery 1"))
             {
                 extraMultiplier += 0.2f;
             }
