@@ -1,4 +1,4 @@
-﻿
+
 using HarmonyLib;
 using MasteryExtended.Menu.Pages;
 using Microsoft.Xna.Framework;
@@ -87,7 +87,7 @@ namespace MasteryExtended.Compatibility.VPP.Patches
 
             if (which == 0 && expToMastery > 0)
             {
-                expToMastery = Math.Max(1, expToMastery/2);
+                expToMastery = Math.Max(1, expToMastery / 2);
             }
 
             int currentMasteryLevel = MasteryTrackerMenu.getCurrentMasteryLevel();

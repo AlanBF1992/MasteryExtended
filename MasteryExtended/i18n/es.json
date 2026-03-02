@@ -114,5 +114,7 @@
   "gmcm-book-mastery-0": "Todos",
   "gmcm-book-mastery-1": "Pocos",
   "gmcm-book-mastery-2": "Ninguno",
-  "gmcm-book-mastery-?": "???"
+  "gmcm-book-mastery-?": "???",
+  "gmcm-book-mastery-price-name": "Precio de los Libros",
+  "gmcm-book-mastery-price-tooltip": "Precio de cada libro de maestría",
 }

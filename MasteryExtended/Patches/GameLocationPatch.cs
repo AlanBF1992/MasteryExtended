@@ -1,11 +1,10 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using MasteryExtended.Menu.Pages;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Menus;
 using System.Reflection;
 using System.Reflection.Emit;
-using static HarmonyLib.Code;
 
 namespace MasteryExtended.Patches
 {
@@ -26,6 +25,8 @@ namespace MasteryExtended.Patches
                 MethodInfo masteryConfigInfo = AccessTools.Method(typeof(GameLocationPatch), nameof(masteryRequired));
                 MethodInfo currentMasteryInfo = AccessTools.Method(typeof(MasteryTrackerMenu), nameof(MasteryTrackerMenu.getCurrentMasteryLevel));
                 MethodInfo dialogueStringInfo = AccessTools.Method(typeof(GameLocationPatch), nameof(masteryCaveString));
+                MethodInfo fullSkillsCompletedInfo = AccessTools.Method(typeof(GameLocationPatch), nameof(fullSkillsCompleted));
+                MethodInfo fullSkillsRequiredInfo = AccessTools.Method(typeof(GameLocationPatch), nameof(fullSkillsRequired));
 
                 //from: Game1.drawObjectDialogue(Game1.content.LoadString("Strings\\1_6_Strings:MasteryCave", num2));
                 //to:   Game1.drawObjectDialogue(masteryCaveString());
@@ -54,7 +55,7 @@ namespace MasteryExtended.Patches
                 ;
 
                 //from: if(int2 >= 5)
-                //to:   if(currentMasteryLevel >= masteryRequired || int2 >= 5)
+                //to:   if(currentMasteryLevel() >= masteryRequired() || fullSkillsCompleted() >= fullSkillsRequired())
                 matcher
                     .Start()
                     .MatchStartForward(
@@ -63,11 +64,16 @@ namespace MasteryExtended.Patches
                         new CodeMatch(OpCodes.Blt_S)
                     )
                     .ThrowIfNotMatch("Vanilla performAction: GetInMasteryCave IL code not found")
-                    .Insert(
+                    .InsertAndAdvance(
                         new CodeInstruction(OpCodes.Call, currentMasteryInfo),
                         new CodeInstruction(OpCodes.Call, masteryConfigInfo),
                         new CodeInstruction(OpCodes.Bge_S, getInsideCave)
                     )
+                    .InsertAndAdvance(
+                        new CodeInstruction(OpCodes.Call, fullSkillsCompletedInfo),
+                        new CodeInstruction(OpCodes.Call, fullSkillsRequiredInfo)
+                    )
+                    .RemoveInstructions(2)
                 ;
 
                 return matcher.InstructionEnumeration();
@@ -90,7 +96,7 @@ namespace MasteryExtended.Patches
 
                 for (int which = 0; which < 5; which++)
                 {
-                    bool enoughProfessions = MasterySkillsPage.skills.Find(s => s.Id == which)!.unlockedProfessionsCount(0,10) >= professionsRequired;
+                    bool enoughProfessions = MasterySkillsPage.skills.Find(s => s.Id == which)!.unlockedProfessionsCount(0, 10) >= professionsRequired;
 
                     Game1.stats.Get("MasteryExp");
                     bool freeLevel = MasteryTrackerMenu.getCurrentMasteryLevel() > (int)Game1.stats.Get("masteryLevelsSpent");
@@ -107,12 +113,58 @@ namespace MasteryExtended.Patches
             }
         }
 
-       // Profession Forget After Recount Used Mastery Levels
+        // Profession Forget After Recount Used Mastery Levels
         internal static void answerDialogueActionPostFix(string questionAndAnswer)
         {
             if (!questionAndAnswer.StartsWith("professionForget_")) return;
 
             ModCommands.recountUsedMasteryLevels();
+        }
+
+        // Extra Fishing tries with Specific Bait
+        internal static IEnumerable<CodeInstruction> GetFishFromLocationDataTranspiler(IEnumerable<CodeInstruction> instructions)
+        {
+            try
+            {
+                CodeMatcher matcher = new(instructions);
+
+                MethodInfo fishingTriesInfo = AccessTools.Method(typeof(GameLocationPatch), nameof(fishingTries));
+
+                // from: for (int i = 0; i < 2; i++)
+                // to:   for (int i = 0; i < fishingTries(); i++)
+                matcher
+                    .MatchStartForward(
+                        new CodeMatch(OpCodes.Ldc_I4_2)
+                    )
+                    .InsertAndAdvance(
+                        new CodeInstruction(OpCodes.Ldarg_3)
+                    )
+                    .SetInstruction(
+                        new CodeInstruction(OpCodes.Call, fishingTriesInfo)
+                    )
+                ;
+
+                // from: if (baitTargetFish == null || !(fish.QualifiedItemId != baitTargetFish) || targetedBaitTries >= 2)
+                // to:   if (baitTargetFish == null || !(fish.QualifiedItemId != baitTargetFish) || targetedBaitTries >= fishingTries())
+                matcher
+                    .MatchStartForward(
+                        new CodeMatch(OpCodes.Ldc_I4_2)
+                    )
+                    .InsertAndAdvance(
+                        new CodeInstruction(OpCodes.Ldarg_3)
+                    )
+                    .SetInstruction(
+                        new CodeInstruction(OpCodes.Call, fishingTriesInfo)
+                    )
+                ;
+
+                return matcher.InstructionEnumeration();
+            }
+            catch (Exception ex)
+            {
+                LogMonitor.Log($"Failed in {nameof(GetFishFromLocationDataTranspiler)}:\n{ex}", LogLevel.Error);
+                return instructions;
+            }
         }
 
         /***********
@@ -163,6 +215,26 @@ namespace MasteryExtended.Patches
                     );
                     break;
             }
+        }
+
+        internal static int fullSkillsCompleted()
+        {
+            int divisor = ModEntry.MasteryCaveChanges();
+            int vanillaSkillsReady = MasterySkillsPage.skills.Count(s => s.getLevel() / divisor >= 1 && s.Id >= 0 && s.Id <= 4);
+            int allSkillsReady = MasterySkillsPage.skills.Count(s => s.getLevel() / divisor >= 1 && s.isVisible());
+
+            return ModEntry.Config.IncludeCustomSkills ? allSkillsReady : vanillaSkillsReady;
+        }
+
+        internal static int fullSkillsRequired()
+        {
+            return ModEntry.Config.SkillsRequiredForMasteryRoom;
+        }
+
+        internal static int fishingTries(Farmer who)
+        {
+            if (!who.modData.TryGetValue("ME_Specialist", out string value)) return 2;
+            return bool.Parse(value) ? 5 : 2;
         }
     }
 }

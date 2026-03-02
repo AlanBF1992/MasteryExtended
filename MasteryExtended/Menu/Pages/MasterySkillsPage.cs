@@ -1,4 +1,4 @@
-﻿using MasteryExtended.Skills;
+using MasteryExtended.Skills;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
@@ -20,10 +20,10 @@ namespace MasteryExtended.Menu.Pages
             closeSound = "stone_button";
             MenuTitle = Game1.content.LoadString("Strings\\UI:MasteryExtended_MenuTitleSkills");
 
-            List <Skill> shownSkills = skills.FindAll(s => s.isVisible());
+            List<Skill> shownSkills = skills.FindAll(s => s.isVisible());
 
             actualPage = page;
-            totalPages = (int)Math.Ceiling(shownSkills.Count/5f);
+            totalPages = (int)Math.Ceiling(shownSkills.Count / 5f);
 
             int skillsToShow = Math.Min(5, shownSkills.Count - (actualPage - 1) * 5);
 
@@ -35,7 +35,7 @@ namespace MasteryExtended.Menu.Pages
                     hoverText = Game1.content.LoadString("Strings\\UI:MasteryExtended_HoverSkill", s.GetName()),
                     myID = s.Id, // Skill of the button
                     region = 0, // For the highlight
-                    myAlternateID = s.getLevel() >= 10 && s.unlockedProfessionsCount() >= 2? 1: 0 //Visible o no
+                    myAlternateID = s.getLevel() >= 10 && s.unlockedProfessionsCount() >= 2 ? 1 : 0 //Visible o no
                 });
             }
 
@@ -154,7 +154,7 @@ namespace MasteryExtended.Menu.Pages
                 const float sScale = 1f;
                 previousPageButton.draw(b, Color.White, 0.88f);
                 string sBack = Game1.content.LoadString("Strings\\UI:MasteryExtended_BackButton");
-                Vector2 sSize = sScale*Game1.dialogueFont.MeasureString(sBack);
+                Vector2 sSize = sScale * Game1.dialogueFont.MeasureString(sBack);
                 Utility.drawTextWithColoredShadow(b, sBack, Game1.dialogueFont, previousPageButton.getVector2() + new Vector2((float)(previousPageButton.bounds.Width / 2) - sSize.X / 2f, 32f - sSize.Y / 2f + (float)((previousPageButton.sourceRect.X == 84) ? 8 : 0)), Color.Black * 1f, Color.Black * 0.2f, sScale * 1f, 0.9f);
             }
             if (nextPageButton != null)
@@ -186,11 +186,11 @@ namespace MasteryExtended.Menu.Pages
                 Utility.drawWithShadow(b, c.texture, c.getVector2() + new Vector2(12f, 6f), c.sourceRect, Color.White, 0f, Vector2.Zero, 3f * iconScale, shadowIntensity: 0.25f);
                 // Dibuja el nombre
                 Utility.drawTextWithColoredShadow(b, c.name, Game1.dialogueFont,
-                    c.getVector2() + new Vector2(72f, c.bounds.Height/2) - new Vector2(0, (int)Math.Ceiling(Game1.dialogueFont.MeasureString(c.name).Y / 2) - 3),
+                    c.getVector2() + new Vector2(72f, c.bounds.Height / 2) - new Vector2(0, (int)Math.Ceiling(Game1.dialogueFont.MeasureString(c.name).Y / 2) - 3),
                     Color.Black, Color.Black * 0.15f);
             }
 
-            if(MasteryTrackerMenu.getCurrentMasteryLevel() <= (int)Game1.stats.Get("masteryLevelsSpent"))
+            if (MasteryTrackerMenu.getCurrentMasteryLevel() <= (int)Game1.stats.Get("masteryLevelsSpent"))
             {
                 drawHoverText(b, Game1.content.LoadString("Strings\\UI:MasteryExtended_LookOnly"), Game1.smallFont, overrideX: 0, overrideY: 0,
                     boxTexture: Game1.mouseCursors_1_6, boxSourceRect: new Rectangle(1, 85, 21, 21), boxShadowColor: Color.Black,

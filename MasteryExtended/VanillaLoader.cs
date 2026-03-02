@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using MasteryExtended.Compatibility.BGM;
 using MasteryExtended.Compatibility.GMCM;
 using MasteryExtended.Patches;
@@ -12,6 +12,8 @@ using StardewValley.Constants;
 using StardewValley.GameData.Objects;
 using StardewValley.GameData.Powers;
 using StardewValley.GameData.Shops;
+using StardewValley.Internal;
+using StardewValley.Locations;
 using StardewValley.Menus;
 
 namespace MasteryExtended
@@ -175,6 +177,21 @@ namespace MasteryExtended
                 original: AccessTools.Method(typeof(GameLocation), nameof(GameLocation.answerDialogueAction)),
                 postfix: new HarmonyMethod(typeof(GameLocationPatch), nameof(GameLocationPatch.answerDialogueActionPostFix))
             );
+
+            /***************
+             * Fish Test
+             ***************/
+            // Normal fish
+            harmony.Patch(
+                original: AccessTools.Method(typeof(GameLocation), nameof(GameLocation.GetFishFromLocationData), [typeof(string), typeof(Vector2), typeof(int), typeof(Farmer), typeof(bool), typeof(bool), typeof(GameLocation), typeof(ItemQueryContext)]),
+                transpiler: new HarmonyMethod(typeof(GameLocationPatch), nameof(GameLocationPatch.GetFishFromLocationDataTranspiler))
+            );
+            // Cave fish
+            harmony.Patch(
+                original: AccessTools.Method(typeof(MineShaft), nameof(MineShaft.getFish)),
+                transpiler: new HarmonyMethod(typeof(MineShaftPatch), nameof(MineShaftPatch.getFishTranspiler))
+            );
+
             #endregion
         }
 
@@ -218,7 +235,8 @@ namespace MasteryExtended
             configMenu.AddTextOption(
                 mod: ModEntry.ModManifest,
                 getValue: () => ModEntry.Config.BooksQuantity,
-                setValue: value => {
+                setValue: value =>
+                {
                     ModEntry.Config.BooksQuantity = value;
                     ModEntry.ModHelper.GameContent.InvalidateCache("Data\\Objects");
                     ModEntry.ModHelper.GameContent.InvalidateCache("Data\\Shops");
@@ -235,6 +253,18 @@ namespace MasteryExtended
                         _ => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_BookMasteryName?"),
                     };
                 }
+            );
+
+            // Book Price
+            configMenu.AddNumberOption(
+                mod: ModEntry.ModManifest,
+                getValue: () => ModEntry.Config.BookPrice,
+                setValue: (value) => ModEntry.Config.BookPrice = value,
+                name: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_BookMasteryPriceName"),
+                tooltip: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_BookMasteryPriceTooltip"),
+                min: 15000,
+                max: 35000,
+                interval: 5000
             );
 
             /***********************
@@ -529,6 +559,9 @@ namespace MasteryExtended
                     editor.Data.Add("MasteryExtended_GMCM_BookMasteryName2", ModEntry.ModHelper.Translation.Get("gmcm-book-mastery-2"));
                     editor.Data.Add("MasteryExtended_GMCM_BookMasteryName?", ModEntry.ModHelper.Translation.Get("gmcm-book-mastery-?"));
 
+                    editor.Data.Add("MasteryExtended_GMCM_BookMasteryPriceName", ModEntry.ModHelper.Translation.Get("gmcm-book-mastery-price-name"));
+                    editor.Data.Add("MasteryExtended_GMCM_BookMasteryPriceTooltip", ModEntry.ModHelper.Translation.Get("gmcm-book-mastery-price-tooltip"));
+
                     editor.Data.Add("MasteryExtended_PowerSkillFarmingMasteryBookDescription", ModEntry.ModHelper.Translation.Get("power-skill-farming-mastery-description"));
                     editor.Data.Add("MasteryExtended_PowerSkillFishingMasteryBookDescription", ModEntry.ModHelper.Translation.Get("power-skill-fishing-mastery-description"));
                     editor.Data.Add("MasteryExtended_PowerSkillForagingMasteryBookDescription", ModEntry.ModHelper.Translation.Get("power-skill-foraging-mastery-description"));
@@ -542,7 +575,7 @@ namespace MasteryExtended
         {
             BookPowerInfo[] books = [];
 
-            if(e.NameWithoutLocale.IsEquivalentTo($"Tilesheets/{ModEntry.ModManifest.UniqueID}/MasteryBooks"))
+            if (e.NameWithoutLocale.IsEquivalentTo($"Tilesheets/{ModEntry.ModManifest.UniqueID}/MasteryBooks"))
             {
                 e.LoadFromModFile<Texture2D>("assets/Books.png", AssetLoadPriority.Exclusive);
             }
@@ -601,7 +634,7 @@ namespace MasteryExtended
                         {
                             Id = book.Id,
                             ItemId = book.Id,
-                            Price = 25000,
+                            Price = ModEntry.Config.BookPrice,
                             AvailableStock = 1,
                             Condition = book.Condition
                         };
@@ -630,11 +663,11 @@ namespace MasteryExtended
                     var allBooks = BookPowerListComplete();
 
 
-                    for (int i = 0; i < 5; i ++)
+                    for (int i = 0; i < 5; i++)
                     {
                         unlockCondition[i] = "ANY";
 
-                        for (int j = 0; j < 4; j ++)
+                        for (int j = 0; j < 4; j++)
                         {
                             unlockCondition[i] += $" \"PLAYER_STAT Current {allBooks[4 * i + j].Id} 1\"";
                         }
@@ -647,7 +680,7 @@ namespace MasteryExtended
                 {
                     books = BookPowerListShort();
 
-                    for (int i = 0; i < 7; i ++)
+                    for (int i = 0; i < 7; i++)
                     {
                         unlockCondition[i] = $"PLAYER_STAT Current {books[i].Id} 1";
                     }

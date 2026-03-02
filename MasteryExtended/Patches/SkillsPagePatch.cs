@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using MasteryExtended.Menu.Pages;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -234,7 +234,8 @@ namespace MasteryExtended.Patches
 
         internal static string joinSkillLvl(int skill, int lvl)
         {
-            var skillId = skill switch {
+            var skillId = skill switch
+            {
                 0 => 0,
                 1 => 3,
                 2 => 2,
@@ -281,7 +282,7 @@ namespace MasteryExtended.Patches
                               (masteryLevel >= ModEntry.MaxMasteryLevels ? new(70, 210, 90) : (masterySpent == masteryLevel ? Color.OrangeRed : Color.SandyBrown)) * ((masteryLevel == 0) ? 0.75f : 1f),
                               1f, 0.87f, 1f, 0);
 
-            xOffset += masteryLevel < 10 ? 28 : (masteryLevel < 100? 0 : -24);
+            xOffset += masteryLevel < 10 ? 28 : (masteryLevel < 100 ? 0 : -24);
 
             // Luego el separador
             b.Draw(Game1.mouseCursors,
@@ -319,13 +320,13 @@ namespace MasteryExtended.Patches
             var yPosition = 0;
             var xPosition = 0;
 
-            if(ModEntry.Config.SkillNameOnMenuHover)
+            if (ModEntry.Config.SkillNameOnMenuHover)
             {
                 IClickableMenu.drawHoverText(b, skill.GetName(), Game1.smallFont, overrideX: xSpacing, overrideY: ySpacing, boxScale: 1f);
                 yPosition += 72;
             }
 
-            var unlockedProfessions = skill.unlockedProfessions().Where(p => p.LevelRequired == lvlRequired).OrderByDescending(p => (ModEntry.Config.ProfessionNameOnMenuHover? p.GetName() + ": " : "") +  p.GetDescription().Length).ToArray();
+            var unlockedProfessions = skill.unlockedProfessions().Where(p => p.LevelRequired == lvlRequired).OrderByDescending(p => (ModEntry.Config.ProfessionNameOnMenuHover ? p.GetName() + ": " : "") + p.GetDescription().Length).ToArray();
 
             for (int i = unlockedProfessions.Length - 1; i >= 0; i--)
             {
@@ -336,19 +337,19 @@ namespace MasteryExtended.Patches
                 b.Draw(prof.TextureSource(), new Rectangle(xPosition + xSpacing + 12, yPosition + ySpacing + 12, 66 - 24, 66 - 24), prof.TextureBounds, Color.White);
 
                 // Description
-                var descText = Game1.parseText((ModEntry.Config.ProfessionNameOnMenuHover ? prof.GetName() + ": " : "") +  prof.GetDescription(), Game1.smallFont, 460);
+                var descText = Game1.parseText((ModEntry.Config.ProfessionNameOnMenuHover ? prof.GetName() + ": " : "") + prof.GetDescription(), Game1.smallFont, 460);
                 var descSize = Game1.smallFont.MeasureString(descText);
 
                 IClickableMenu.drawHoverText(b, descText, Game1.smallFont, overrideX: xPosition + xSpacing + 72, overrideY: yPosition + ySpacing, boxScale: 0.75f);
 
                 yPosition += (int)descSize.Y + 32 + 8;
-                var nextHeight = i == 0 ? 0: Game1.smallFont.MeasureString(Game1.parseText(unlockedProfessions[i - 1].GetDescription(), Game1.smallFont, 460)).Y + 32;
+                var nextHeight = i == 0 ? 0 : Game1.smallFont.MeasureString(Game1.parseText(unlockedProfessions[i - 1].GetDescription(), Game1.smallFont, 460)).Y + 32;
 
                 if (yPosition + nextHeight + 8 >= Game1.uiViewport.Height)
                 {
                     xPosition += 600;
 
-                    foreach(var prof2 in unlockedProfessions[0..i])
+                    foreach (var prof2 in unlockedProfessions[0..i])
                     {
                         var descSize2 = (int)Game1.smallFont.MeasureString(Game1.parseText(prof2.GetDescription(), Game1.smallFont, 460)).Y;
 

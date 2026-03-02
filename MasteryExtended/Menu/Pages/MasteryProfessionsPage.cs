@@ -1,4 +1,4 @@
-﻿using MasteryExtended.Skills;
+using MasteryExtended.Skills;
 using MasteryExtended.Skills.Professions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -11,7 +11,7 @@ namespace MasteryExtended.Menu.Pages
     /// <summary>
     /// Menu that shows the Professions
     /// </summary>
-    public class MasteryProfessionsPage: MasteryPage
+    public class MasteryProfessionsPage : MasteryPage
     {
         public Skill innerSkill;
         public List<Profession> LeftProfessionTree = [];
@@ -213,7 +213,7 @@ namespace MasteryExtended.Menu.Pages
                     {
                         nameSize = Game1.smallFont.MeasureString(parsedName[i].Trim());
                         Utility.drawTextWithColoredShadow(b, parsedName[i], Game1.smallFont,
-                            c.getVector2() - new Vector2(nameSize.X / 2, nameSize.Y + 16 + (20 - 30 * i)* (parsedName.Length > 1 ? 1 : 0)) + new Vector2(c.bounds.Width / 2, c.bounds.Height),
+                            c.getVector2() - new Vector2(nameSize.X / 2, nameSize.Y + 16 + (20 - 30 * i) * (parsedName.Length > 1 ? 1 : 0)) + new Vector2(c.bounds.Width / 2, c.bounds.Height),
                             Color.Black, Color.Black * 0.15f);
                     }
                 }
@@ -275,7 +275,7 @@ namespace MasteryExtended.Menu.Pages
                     if (!string.IsNullOrEmpty(c.hoverText))
                     {
                         Profession hoveredProfession = innerSkill.Professions.Find(p => p.Id == c.myID)!;
-                        string unlocked = hoveredProfession.IsProfessionUnlocked() ? Game1.content.LoadString("Strings\\UI:MasteryExtended_AlreadyUnlocked") +"\n" : "";
+                        string unlocked = hoveredProfession.IsProfessionUnlocked() ? Game1.content.LoadString("Strings\\UI:MasteryExtended_AlreadyUnlocked") + "\n" : "";
                         string requires = "";
                         if (hoveredProfession.RequiredProfessions?.IsProfessionUnlocked() == false)
                         {

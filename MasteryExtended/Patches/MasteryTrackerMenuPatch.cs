@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using MasteryExtended.Menu;
 using MasteryExtended.Menu.Pages;
 using Microsoft.Xna.Framework;
@@ -21,7 +21,7 @@ namespace MasteryExtended.Patches
             int levelCap = (ModEntry.Config.MasteryExpPerLevel / 5000) - 1;
             int n = Math.Min(levelCap, level);
             __result = 5000 * n * (n + 3) / 2;
-            __result += ModEntry.Config.MasteryExpPerLevel * Math.Max(0,level - levelCap);
+            __result += ModEntry.Config.MasteryExpPerLevel * Math.Max(0, level - levelCap);
 
             return false;
         }
@@ -120,8 +120,8 @@ namespace MasteryExtended.Patches
             else
             {
                 int professionsRequired = ModEntry.Config.PillarsVsProfessions != "0" ? 2 : ModEntry.Config.RequiredProfessionForPillars;
-                int numUnlockedProfessions = MasterySkillsPage.skills.Find(s => s.Id == whichSkill)!.unlockedProfessionsCount(0,10);
-                bool canClaim = levelsNotSpent > 0 && numUnlockedProfessions>= professionsRequired;
+                int numUnlockedProfessions = MasterySkillsPage.skills.Find(s => s.Id == whichSkill)!.unlockedProfessionsCount(0, 10);
+                bool canClaim = levelsNotSpent > 0 && numUnlockedProfessions >= professionsRequired;
 
                 __instance.SetInstanceField("canClaim", canClaim);
             }
@@ -241,7 +241,7 @@ namespace MasteryExtended.Patches
         {
             if ((int)__instance.GetInstanceField("which")! != -1)
             {
-                    return true;
+                return true;
             }
 
             if ((float)__instance.GetInstanceField("destroyTimer")! > 0f)
@@ -280,7 +280,7 @@ namespace MasteryExtended.Patches
                 if (which != -1)
                 {
                     int professionsRequired = ModEntry.Config.PillarsVsProfessions != "0" ? 2 : ModEntry.Config.RequiredProfessionForPillars;
-                    bool enoughProfessions = MasterySkillsPage.skills.Find(s => s.Id == which)!.unlockedProfessionsCount(0,10) >= professionsRequired;
+                    bool enoughProfessions = MasterySkillsPage.skills.Find(s => s.Id == which)!.unlockedProfessionsCount(0, 10) >= professionsRequired;
 
                     __instance.mainButton.name +=
                         (!enoughProfessions ?
@@ -288,7 +288,8 @@ namespace MasteryExtended.Patches
                         (!enoughProfessions && !freeLevel ? "\n" : "") +
                         (!freeLevel ? Game1.content.LoadString("Strings\\UI:MasteryExtended_NeedMoreLevels") : "");
                 }
-                else {
+                else
+                {
                     __instance.mainButton.name += "We require more minerals";
 
                     __instance.mainButton.name +=

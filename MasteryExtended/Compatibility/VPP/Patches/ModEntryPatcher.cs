@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using MasteryExtended.Menu.Pages;
 using StardewModdingAPI;
 using System.Reflection;
@@ -74,7 +74,7 @@ namespace MasteryExtended.Compatibility.VPP.Patches
             }
         }
 
-        private static List<(int, string)> indexAndProfessionChanger(List<(int,string)> IndexAndProfessions)
+        private static List<(int, string)> indexAndProfessionChanger(List<(int, string)> IndexAndProfessions)
         {
             List<(int, string)> newIP = [];
 

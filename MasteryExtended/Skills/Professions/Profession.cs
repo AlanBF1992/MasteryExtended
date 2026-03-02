@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using StardewValley.Menus;
@@ -19,7 +19,7 @@ namespace MasteryExtended.Skills.Professions
 
         public Func<Texture2D> TextureSource { get; set; } = () => Game1.mouseCursors;
 
-        public Rectangle TextureBounds { get; set; } = new Rectangle(0,0,16,16);
+        public Rectangle TextureBounds { get; set; } = new Rectangle(0, 0, 16, 16);
 
         /*****************
         * Public methods *
@@ -52,7 +52,8 @@ namespace MasteryExtended.Skills.Professions
 
             RequiredProfessions = requiredProfession;
             TextureSource = textureSource;
-            if (textureBounds != null) {
+            if (textureBounds != null)
+            {
                 TextureBounds = textureBounds.Value;
             }
         }

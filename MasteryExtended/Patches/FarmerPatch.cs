@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using StardewModdingAPI;
 using StardewValley;
 using System.Reflection;
@@ -15,7 +15,7 @@ namespace MasteryExtended.Patches
          ***********/
 
         /// <summary>Ya que el juego base nunca espera que luck sea mayor a 0, lo eliminamos, por si acaso</summary>
-        internal static IEnumerable<CodeInstruction> LevelTranspiler (IEnumerable<CodeInstruction> instructions)
+        internal static IEnumerable<CodeInstruction> LevelTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             try
             {
@@ -169,7 +169,7 @@ namespace MasteryExtended.Patches
                     + farmer.foragingLevel.Value
                     + farmer.combatLevel.Value
                     + farmer.miningLevel.Value
-                    + (luck? farmer.luckLevel.Value : 0)) / 2;
+                    + (luck ? farmer.luckLevel.Value : 0)) / 2;
         }
 
         internal static bool ShouldGainMasteryExp(Farmer farmer, int which)
@@ -191,7 +191,7 @@ namespace MasteryExtended.Patches
             float extraMultiplier = 0;
             string modID = ModEntry.ModManifest.UniqueID;
 
-            if  (ModEntry.Config.BooksQuantity.Equals("2")) return extraMultiplier;
+            if (ModEntry.Config.BooksQuantity.Equals("2")) return extraMultiplier;
 
             if (includeComplete && GameStateQuery.CheckConditions($"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookCompleteMastery 1"))
             {

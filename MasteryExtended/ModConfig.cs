@@ -1,4 +1,4 @@
-﻿namespace MasteryExtended
+namespace MasteryExtended
 {
     /// <summary>The mod configuration class from the player.</summary>
     public sealed class ModConfig
@@ -33,7 +33,10 @@
         public int Lvl10ProfessionsRequired { get; set; } = 2;
         // VPP: Level 15 Professions required to get an extra combo.
         public int Lvl15ProfessionsRequired { get; set; } = 4;
-        // Book Config
+        // Book Quantity Config
         public string BooksQuantity { get; set; } = "0";
+        // Book Price
+        public int BookPrice { get; set; } = 25000;
+
     }
 }

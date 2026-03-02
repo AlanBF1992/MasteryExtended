@@ -114,5 +114,7 @@
   "gmcm-book-mastery-0": "Full",
   "gmcm-book-mastery-1": "Lite",
   "gmcm-book-mastery-2": "None",
-  "gmcm-book-mastery-?": "???"
+  "gmcm-book-mastery-?": "???",
+  "gmcm-book-mastery-price-name": "Book's Price",
+  "gmcm-book-mastery-price-tooltip": "Price of each Mastery Book",
 }
