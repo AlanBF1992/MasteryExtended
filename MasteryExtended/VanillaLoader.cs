@@ -15,6 +15,7 @@ using StardewValley.GameData.Shops;
 using StardewValley.Internal;
 using StardewValley.Locations;
 using StardewValley.Menus;
+using StardewValley.Objects;
 
 namespace MasteryExtended
 {
@@ -190,6 +191,15 @@ namespace MasteryExtended
             harmony.Patch(
                 original: AccessTools.Method(typeof(MineShaft), nameof(MineShaft.getFish)),
                 transpiler: new HarmonyMethod(typeof(MineShaftPatch), nameof(MineShaftPatch.getFishTranspiler))
+            );
+            // Crab Pots
+            harmony.Patch(
+                original: AccessTools.Method(typeof(CrabPot), nameof(CrabPot.DayUpdate)),
+                transpiler: new HarmonyMethod(typeof(CrabPotPatch), nameof(CrabPotPatch.DayUpdateTranspiler))
+            );
+            harmony.Patch(
+                original: AccessTools.Method(typeof(CrabPot), nameof(CrabPot.performObjectDropInAction)),
+                prefix: new HarmonyMethod(typeof(CrabPotPatch), nameof(CrabPotPatch.performObjectDropInActionPrefix))
             );
 
             #endregion
