@@ -16,6 +16,7 @@ using StardewValley.Internal;
 using StardewValley.Locations;
 using StardewValley.Menus;
 using StardewValley.Objects;
+using StardewValley.Tools;
 
 namespace MasteryExtended
 {
@@ -179,9 +180,9 @@ namespace MasteryExtended
                 postfix: new HarmonyMethod(typeof(GameLocationPatch), nameof(GameLocationPatch.answerDialogueActionPostFix))
             );
 
-            /***************
-             * Fish Test
-             ***************/
+            /**************
+             * Specialist *
+             **************/
             // Normal fish
             harmony.Patch(
                 original: AccessTools.Method(typeof(GameLocation), nameof(GameLocation.GetFishFromLocationData), [typeof(string), typeof(Vector2), typeof(int), typeof(Farmer), typeof(bool), typeof(bool), typeof(GameLocation), typeof(ItemQueryContext)]),
@@ -200,6 +201,21 @@ namespace MasteryExtended
             harmony.Patch(
                 original: AccessTools.Method(typeof(CrabPot), nameof(CrabPot.performObjectDropInAction)),
                 prefix: new HarmonyMethod(typeof(CrabPotPatch), nameof(CrabPotPatch.performObjectDropInActionPrefix))
+            );
+
+
+            /**********
+             * Reaper * 
+             **********/
+            // Change Area of Effect of the Scythe
+            harmony.Patch(
+                original: AccessTools.Method(typeof(MeleeWeapon), nameof(MeleeWeapon.getAreaOfEffect)),
+                prefix: new HarmonyMethod(typeof(MeleeWeaponPatch), nameof(MeleeWeaponPatch.getAreaOfEffectPrefix))
+            );
+            // Change the way the area is calculated so it works correctly
+            harmony.Patch(
+                original: AccessTools.Method(typeof(MeleeWeapon), nameof(MeleeWeapon.DoDamage)),
+                transpiler: new HarmonyMethod(typeof(MeleeWeaponPatch), nameof(MeleeWeaponPatch.DoDamageTranspiler))
             );
 
             #endregion

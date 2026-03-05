@@ -52,7 +52,7 @@ namespace MasteryExtended.Patches
 
         private static double extraSpawnPercentage(int i, Farmer who)
         {
-            if (!who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Specialist", out string value)) return 10;
+            if (!who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/BaitSpecialist", out string value)) return 10;
 
             double[] percentage = [32, 27.5, 23];
             return bool.Parse(value)? percentage[i]: 10;

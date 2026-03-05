@@ -70,7 +70,6 @@ namespace MasteryExtended.Patches
                         new CodeMatch(OpCodes.Ret)
                     )
                 ;
-                Console.WriteLine(matcher.Instruction);
 
                 matcher
                     .Insert(
@@ -98,8 +97,7 @@ namespace MasteryExtended.Patches
         // Can put SpecificBait even with Mariner
         internal static bool performObjectDropInActionPrefix(CrabPot __instance, Item dropInItem, bool probe, Farmer who, ref bool __result)
         {
-            if (!who.professions.Contains(11)) return true;
-            if (!who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Specialist", out string value) || !bool.Parse(value)) return true;
+            if (!who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/BaitSpecialist", out string value) || !bool.Parse(value)) return true;
 
             GameLocation location = __instance.Location;
             if (location == null) return true;
@@ -124,7 +122,7 @@ namespace MasteryExtended.Patches
 
         private static void marinerProbability(CrabPot crabPot, Farmer who, string baitTargetFish, List<string> marinerList, Random r, int quantity, int quality)
         {
-            if (!who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Specialist", out string value) || !bool.Parse(value)) return;
+            if (!who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/BaitSpecialist", out string value) || !bool.Parse(value)) return;
 
             if (baitTargetFish != null && marinerList.Contains(baitTargetFish) && r.NextDouble() < 0.75)
             {
@@ -134,7 +132,7 @@ namespace MasteryExtended.Patches
 
         private static int extraProbability(Farmer who, int extraMult)
         {
-            if (!who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Specialist", out string value)) return 1;
+            if (!who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/BaitSpecialist", out string value)) return 1;
             return bool.Parse(value) ? extraMult : 1;
         }
     }

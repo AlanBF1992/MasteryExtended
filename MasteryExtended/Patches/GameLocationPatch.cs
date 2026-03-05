@@ -233,7 +233,7 @@ namespace MasteryExtended.Patches
 
         internal static int fishingTries(Farmer who)
         {
-            if (!who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Specialist", out string value)) return 2;
+            if (!who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/BaitSpecialist", out string value)) return 2;
             return bool.Parse(value) ? 5 : 2;
         }
     }
