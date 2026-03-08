@@ -2,6 +2,7 @@ using HarmonyLib;
 using MasteryExtended.Menu.Pages;
 using StardewModdingAPI;
 using StardewValley;
+using StardewValley.Locations;
 using StardewValley.Menus;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -15,7 +16,6 @@ namespace MasteryExtended.Patches
         /***********
          * PATCHES *
          ***********/
-
         internal static IEnumerable<CodeInstruction> performActionTranspiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
         {
             try
@@ -170,7 +170,6 @@ namespace MasteryExtended.Patches
         /***********
          * METHODS *
          ***********/
-
         internal static int masteryRequired()
         {
             return (ModEntry.Config.SkillsVsMasteryPoints.Equals("1")) ? 999 : ModEntry.Config.MasteryRequiredForCave;

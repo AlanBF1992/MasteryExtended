@@ -13,6 +13,9 @@ namespace MasteryExtended.Patches
     {
         internal readonly static IMonitor LogMonitor = ModEntry.LogMonitor;
 
+        /***********
+         * PATCHES *
+         ***********/
         internal static IEnumerable<CodeInstruction> DoDamageTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             try
@@ -41,22 +44,29 @@ namespace MasteryExtended.Patches
             }
         }
 
+        /***********
+         * METHODS *
+         ***********/
         private static List<Vector2> pickListOfTiles(Rectangle area, Tool tool)
         {
-            if (!tool.isScythe())
+            if (!tool.isScythe()
+                || !tool.lastUser.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Reaper", out string value)
+                || !bool.Parse(value))
+            {
                 return Utility.getListOfTileLocationsForBordersOfNonTileRectangle(area);
-            if (!tool.lastUser.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Reaper", out string value) || !bool.Parse(value))
-                return Utility.getListOfTileLocationsForBordersOfNonTileRectangle(area);
+            }
 
             return Utilities.getListOfTileLocationsForNonTileRectangle(area);
         }
 
-        internal static bool getAreaOfEffectPrefix(MeleeWeapon __instance, int x, int y, int facingDirection, ref Vector2 tileLocation1, ref Vector2 tileLocation2, Rectangle wielderBoundingBox, int indexInCurrentAnimation, ref Rectangle __result)
+        internal static void getAreaOfEffectPostfix(MeleeWeapon __instance, int x, int y, int facingDirection, ref Vector2 tileLocation1, ref Vector2 tileLocation2, Rectangle wielderBoundingBox, int indexInCurrentAnimation, ref Rectangle __result)
         {
-            if (!__instance.isScythe())
-                return true;
-            if (!__instance.lastUser.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Reaper", out string value) || !bool.Parse(value))
-                return true;
+            if (!__instance.isScythe()
+                || !__instance.lastUser.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Reaper", out string value)
+                || !bool.Parse(value))
+            {
+                return;
+            }
 
             Rectangle areaOfEffect = Rectangle.Empty;
 
@@ -189,7 +199,6 @@ namespace MasteryExtended.Patches
 
             areaOfEffect.Inflate(__instance.addedAreaOfEffect.Value, __instance.addedAreaOfEffect.Value);
             __result = areaOfEffect;
-            return false;
         }
     }
 }

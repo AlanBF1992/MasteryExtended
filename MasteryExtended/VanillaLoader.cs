@@ -16,7 +16,9 @@ using StardewValley.Internal;
 using StardewValley.Locations;
 using StardewValley.Menus;
 using StardewValley.Objects;
+using StardewValley.TerrainFeatures;
 using StardewValley.Tools;
+using Object = StardewValley.Object;
 
 namespace MasteryExtended
 {
@@ -180,6 +182,23 @@ namespace MasteryExtended
                 postfix: new HarmonyMethod(typeof(GameLocationPatch), nameof(GameLocationPatch.answerDialogueActionPostFix))
             );
 
+            /**********
+             * Reaper * 
+             **********/
+            // Change Area of Effect of the Scythe
+            harmony.Patch(
+                original: AccessTools.Method(typeof(MeleeWeapon), nameof(MeleeWeapon.getAreaOfEffect)),
+                postfix: new HarmonyMethod(typeof(MeleeWeaponPatch), nameof(MeleeWeaponPatch.getAreaOfEffectPostfix))
+            );
+            // Change the way the area is calculated so it works correctly
+            if (!ModEntry.ModHelper.ModRegistry.IsLoaded("DaLion.Enchantments"))
+            {
+                harmony.Patch(
+                    original: AccessTools.Method(typeof(MeleeWeapon), nameof(MeleeWeapon.DoDamage)),
+                    transpiler: new HarmonyMethod(typeof(MeleeWeaponPatch), nameof(MeleeWeaponPatch.DoDamageTranspiler))
+                );
+            }
+
             /**************
              * Specialist *
              **************/
@@ -203,20 +222,27 @@ namespace MasteryExtended
                 prefix: new HarmonyMethod(typeof(CrabPotPatch), nameof(CrabPotPatch.performObjectDropInActionPrefix))
             );
 
+            /*********
+             * Mason * 
+             *********/
+            harmony.Patch(
+                original: AccessTools.Method(typeof(MineShaft), nameof(MineShaft.checkStoneForItems)),
+                transpiler: new HarmonyMethod(typeof(MineShaftPatch), nameof(MineShaftPatch.checkStoneForItemsTranspiler))
+            );
 
             /**********
-             * Reaper * 
+             * Ranger * 
              **********/
-            // Change Area of Effect of the Scythe
             harmony.Patch(
-                original: AccessTools.Method(typeof(MeleeWeapon), nameof(MeleeWeapon.getAreaOfEffect)),
-                prefix: new HarmonyMethod(typeof(MeleeWeaponPatch), nameof(MeleeWeaponPatch.getAreaOfEffectPrefix))
+                original: AccessTools.Method(typeof(Object), nameof(Object.placementAction)),
+                transpiler: new HarmonyMethod(typeof(ObjectPatch), nameof(ObjectPatch.placementActionTranspiler))
             );
-            // Change the way the area is calculated so it works correctly
             harmony.Patch(
-                original: AccessTools.Method(typeof(MeleeWeapon), nameof(MeleeWeapon.DoDamage)),
-                transpiler: new HarmonyMethod(typeof(MeleeWeaponPatch), nameof(MeleeWeaponPatch.DoDamageTranspiler))
+                original: AccessTools.Method(typeof(Tree), nameof(Tree.dayUpdate)),
+                transpiler: new HarmonyMethod(typeof(TreePatch), nameof(TreePatch.dayUpdateTranspiler))
             );
+
+
 
             #endregion
         }
@@ -795,8 +821,8 @@ namespace MasteryExtended
                     ["book_item", "color_iridium"]
                 ),
             ];
-
         }
+
         private static BookPowerInfo[] BookPowerListComplete()
         {
             string uniqueID = ModEntry.ModManifest.UniqueID;
@@ -979,7 +1005,6 @@ namespace MasteryExtended
                 ),
             ];
         }
-
     }
 
     internal record struct BookPowerInfo(string Id, string DisplayName, string Description, int SpriteIndex, string Condition, List<string> ContextTags)
