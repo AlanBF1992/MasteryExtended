@@ -28,6 +28,7 @@ namespace MasteryExtended
         {
             VanillaPatches(harmony);
 
+            helper.Events.Content.AssetRequested += UpdateTentKit;
             helper.Events.Content.AssetRequested += UIStringsAssetRequested;
             helper.Events.Content.AssetRequested += BookPowersAssetRequested;
 
@@ -240,6 +241,14 @@ namespace MasteryExtended
             harmony.Patch(
                 original: AccessTools.Method(typeof(Tree), nameof(Tree.dayUpdate)),
                 transpiler: new HarmonyMethod(typeof(TreePatch), nameof(TreePatch.dayUpdateTranspiler))
+            );
+            harmony.Patch(
+                original: AccessTools.Method(typeof(Tree), nameof(Tree.tickUpdate)),
+                transpiler: new HarmonyMethod(typeof(TreePatch), nameof(TreePatch.tickUpdateTranspiler))
+            );
+            harmony.Patch(
+                original: AccessTools.Method(typeof(Tree), "performTreeFall"),
+                transpiler: new HarmonyMethod(typeof(TreePatch), nameof(TreePatch.performTreeFallTranspiler))
             );
 
 
@@ -479,6 +488,26 @@ namespace MasteryExtended
         /**********
          * ASSETS *
          **********/
+        private static void UpdateTentKit(object? sender, AssetRequestedEventArgs e)
+        {
+            if (e.NameWithoutLocale.IsEquivalentTo("Data/CraftingRecipes"))
+            {
+                if (Game1.player is not Farmer who
+                    || !who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Ranger", out string value)
+                    || !bool.Parse(value))
+                {
+                    return;
+                }
+
+                e.Edit(rawInfo =>
+                {
+                    var data = rawInfo.AsDictionary<string, string>().Data;
+
+                    data["Tent Kit"] = data["Tent Kit"].Replace("TentKit", "TentKit 2");
+                });
+            }
+        }
+
         private static void UIStringsAssetRequested(object? sender, AssetRequestedEventArgs e)
         {
             if (e.NameWithoutLocale.IsEquivalentTo(PathUtilities.NormalizeAssetName("Strings/UI")))

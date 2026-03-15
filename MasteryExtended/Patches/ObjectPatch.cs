@@ -20,7 +20,7 @@ namespace MasteryExtended.Patches
             {
                 CodeMatcher matcher = new(instructions);
                 MethodInfo fertilizeInfo = AccessTools.Method(typeof(Tree), nameof(Tree.fertilize));
-                MethodInfo ModDataFertilizerInfo = AccessTools.Method(typeof(ObjectPatch), nameof(addModDataFertilizer));
+                MethodInfo addModDataFertilizerInfo = AccessTools.Method(typeof(ObjectPatch), nameof(addModDataFertilizer));
 
                 matcher
                     .MatchStartForward(
@@ -30,7 +30,7 @@ namespace MasteryExtended.Patches
                     .Insert(
                         new CodeInstruction(OpCodes.Ldarg_S, 4),
                         new CodeInstruction(OpCodes.Ldloc_S, 23),
-                        new CodeInstruction(OpCodes.Call, ModDataFertilizerInfo)
+                        new CodeInstruction(OpCodes.Call, addModDataFertilizerInfo)
                     )
                 ;
 

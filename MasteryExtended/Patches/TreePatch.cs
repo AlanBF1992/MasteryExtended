@@ -43,6 +43,83 @@ namespace MasteryExtended.Patches
             }
         }
 
+        internal static IEnumerable<CodeInstruction> tickUpdateTranspiler(IEnumerable<CodeInstruction> instructions)
+        {
+            try
+            {
+                CodeMatcher matcher = new(instructions);
+                MethodInfo checkExtraWoodInfo = AccessTools.Method(typeof(TreePatch), nameof(checkExtraWood));
+
+                for (int i = 0; i < 2; i++)
+                {
+                    matcher
+                        .MatchStartForward(
+                            new CodeMatch(OpCodes.Conv_R8),
+                            new CodeMatch(OpCodes.Mul),
+                            new CodeMatch(OpCodes.Conv_I4)
+                        )
+                        .Insert(
+                            new CodeInstruction(OpCodes.Ldarg_0),
+                            new CodeInstruction(OpCodes.Call, checkExtraWoodInfo),
+                            new CodeInstruction(OpCodes.Add)
+                        )
+                    ;
+
+                }
+
+                return matcher.InstructionEnumeration();
+            }
+            catch (Exception ex)
+            {
+                LogMonitor.Log($"Failed in {nameof(dayUpdateTranspiler)}:\n{ex}", LogLevel.Error);
+                return instructions;
+            }
+        }
+
+        internal static IEnumerable<CodeInstruction> performTreeFallTranspiler(IEnumerable<CodeInstruction> instructions)
+        {
+            try
+            {
+                CodeMatcher matcher = new(instructions);
+                MethodInfo checkExtraWoodInfo = AccessTools.Method(typeof(TreePatch), nameof(checkExtraWood));
+
+                matcher
+                    .MatchStartForward(
+                        new CodeMatch(OpCodes.Conv_R8),
+                        new CodeMatch(OpCodes.Mul),
+                        new CodeMatch(OpCodes.Conv_I4)
+                    )
+                    .Insert(
+                        new CodeInstruction(OpCodes.Ldarg_0),
+                        new CodeInstruction(OpCodes.Call, checkExtraWoodInfo),
+                        new CodeInstruction(OpCodes.Add)
+                    )
+                ;
+
+                return matcher.InstructionEnumeration();
+            }
+            catch (Exception ex)
+            {
+                LogMonitor.Log($"Failed in {nameof(dayUpdateTranspiler)}:\n{ex}", LogLevel.Error);
+                return instructions;
+            }
+        }
+
+        private static int checkExtraWood(Tree tree)
+        {
+            if (tree.growthStage.Value >= 5
+                || !tree.fertilized.Value
+                || !tree.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/TreeData/FertilizedBy", out string stringId)
+                || !long.TryParse(stringId, out long id)
+                || Game1.GetPlayer(id) is not Farmer who
+                || !who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Ranger", out string value)
+                || !bool.Parse(value))
+            {
+                return 2;
+            }
+            return 0;
+        }
+
         /***********
          * METHODS *
          ***********/
