@@ -24,7 +24,7 @@ namespace MasteryExtended
         internal static int countDigits(this int n) =>
             n == 0 ? 1 : (n > 0 ? 1 : 2) + (int)Math.Log10(Math.Abs((double)n));
 
-        internal static List<Vector2> getListOfTileLocationsForNonTileRectangle(Rectangle area)
+        internal static List<Vector2> getListOfTileLocationsForTileRectangle(Rectangle area)
         {
             int leftTile = area.Left / 64;
             int rightTile = area.Right / 64;

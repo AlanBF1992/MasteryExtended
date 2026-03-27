@@ -56,7 +56,7 @@ namespace MasteryExtended.Patches
                 return Utility.getListOfTileLocationsForBordersOfNonTileRectangle(area);
             }
 
-            return Utilities.getListOfTileLocationsForNonTileRectangle(area);
+            return Utilities.getListOfTileLocationsForTileRectangle(area);
         }
 
         internal static void getAreaOfEffectPostfix(MeleeWeapon __instance, int x, int y, int facingDirection, ref Vector2 tileLocation1, ref Vector2 tileLocation2, Rectangle wielderBoundingBox, int indexInCurrentAnimation, ref Rectangle __result)

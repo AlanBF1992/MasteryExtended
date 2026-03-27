@@ -14,7 +14,7 @@ namespace MasteryExtended.Patches
         /***********
          * PATCHES *
          ***********/
-        public static IEnumerable<CodeInstruction> dayUpdateTranspiler(IEnumerable<CodeInstruction> instructions)
+        internal static IEnumerable<CodeInstruction> dayUpdateTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             try
             {
@@ -105,33 +105,21 @@ namespace MasteryExtended.Patches
             }
         }
 
-        private static int checkExtraWood(Tree tree)
+        internal static bool IsGrowthBlockedByNearbyTreePrefix(Tree tree, ref bool __result)
         {
-            if (tree.growthStage.Value >= 5
-                || !tree.fertilized.Value
-                || !tree.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/TreeData/FertilizedBy", out string stringId)
-                || !long.TryParse(stringId, out long id)
-                || Game1.GetPlayer(id) is not Farmer who
-                || !who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Ranger", out string value)
-                || !bool.Parse(value))
+            if (IsFertilizedByWoodlander(tree))
             {
-                return 2;
+                __result = false;
+                return false;
             }
-            return 0;
+            return true;
         }
-
         /***********
          * METHODS *
          ***********/
         internal static void checkGrowthStage(Tree tree)
         {
-            if (tree.growthStage.Value >= 5
-                || !tree.fertilized.Value
-                || !tree.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/TreeData/FertilizedBy", out string stringId)
-                || !long.TryParse(stringId, out long id)
-                || Game1.GetPlayer(id) is not Farmer who
-                || !who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Ranger", out string value)
-                || !bool.Parse(value))
+            if (tree.growthStage.Value >= 5 || !IsFertilizedByWoodlander(tree))
             {
                 tree.growthStage.Value++;
             }
@@ -139,6 +127,24 @@ namespace MasteryExtended.Patches
             {
                 tree.growthStage.Value = 5;
             }
+        }
+        internal static int checkExtraWood(Tree tree)
+        {
+            if (tree.growthStage.Value >= 5 && IsFertilizedByWoodlander(tree))
+            {
+                return 1;
+            }
+            return 0;
+        }
+
+        internal static bool IsFertilizedByWoodlander(Tree tree)
+        {
+            return tree.fertilized.Value
+                && tree.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/TreeData/FertilizedBy", out string stringId)
+                && long.TryParse(stringId, out long id)
+                && Game1.GetPlayer(id) is Farmer who
+                && who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Woodlander", out string value)
+                && bool.Parse(value);
         }
     }
 }

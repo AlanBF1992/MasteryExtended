@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using MasteryExtended.Compatibility.SpaceCore;
 using MasteryExtended.Compatibility.VPP;
 using MasteryExtended.Compatibility.WoL;
@@ -30,7 +30,7 @@ namespace MasteryExtended
         public static ModData Data { get; internal set; } = null!;
 
         /// <summary>Max Mastery Levels, including 5 for the pillars.</summary>
-        public static int MaxMasteryLevels { get; internal set; } = 25;
+        public static int MaxMasteryLevels { get; internal set; } = 0;
 
         /// <summary>For VPP Changes.</summary>
         public static Func<int> MasteryCaveChanges { get; internal set; } = () => 10;

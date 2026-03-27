@@ -26,6 +26,9 @@ namespace MasteryExtended
     {
         internal static void Loader(IModHelper helper, Harmony harmony)
         {
+            ModEntry.MaxMasteryLevels += 25;
+            ModEntry.MaxMasteryLevels += 6;
+
             VanillaPatches(harmony);
 
             helper.Events.Content.AssetRequested += UpdateTentKit;
@@ -200,9 +203,9 @@ namespace MasteryExtended
                 );
             }
 
-            /**************
-             * Specialist *
-             **************/
+            /*******************
+             * Bait Specialist *
+             *******************/
             // Normal fish
             harmony.Patch(
                 original: AccessTools.Method(typeof(GameLocation), nameof(GameLocation.GetFishFromLocationData), [typeof(string), typeof(Vector2), typeof(int), typeof(Farmer), typeof(bool), typeof(bool), typeof(GameLocation), typeof(ItemQueryContext)]),
@@ -231,9 +234,9 @@ namespace MasteryExtended
                 transpiler: new HarmonyMethod(typeof(MineShaftPatch), nameof(MineShaftPatch.checkStoneForItemsTranspiler))
             );
 
-            /**********
-             * Ranger * 
-             **********/
+            /**************
+             * Woodlander * 
+             **************/
             harmony.Patch(
                 original: AccessTools.Method(typeof(Object), nameof(Object.placementAction)),
                 transpiler: new HarmonyMethod(typeof(ObjectPatch), nameof(ObjectPatch.placementActionTranspiler))
@@ -241,6 +244,10 @@ namespace MasteryExtended
             harmony.Patch(
                 original: AccessTools.Method(typeof(Tree), nameof(Tree.dayUpdate)),
                 transpiler: new HarmonyMethod(typeof(TreePatch), nameof(TreePatch.dayUpdateTranspiler))
+            );
+            harmony.Patch(
+                original: AccessTools.Method(typeof(Tree), nameof(Tree.IsGrowthBlockedByNearbyTree)),
+                prefix: new HarmonyMethod(typeof(TreePatch), nameof(TreePatch.IsGrowthBlockedByNearbyTreePrefix))
             );
             harmony.Patch(
                 original: AccessTools.Method(typeof(Tree), nameof(Tree.tickUpdate)),
@@ -493,7 +500,7 @@ namespace MasteryExtended
             if (e.NameWithoutLocale.IsEquivalentTo("Data/CraftingRecipes"))
             {
                 if (Game1.player is not Farmer who
-                    || !who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Ranger", out string value)
+                    || !who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Woodlander", out string value)
                     || !bool.Parse(value))
                 {
                     return;
