@@ -12,6 +12,9 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
     {
         internal readonly static IMonitor LogMonitor = ModEntry.LogMonitor;
 
+        /***********
+         * PATCHES *
+         ***********/
         internal static IEnumerable<CodeInstruction> ctorTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             try
@@ -292,6 +295,9 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
             }
         }
 
+        /***********
+         * METHODS *
+         ***********/
         private static string joinCustomSkillLvl(object skill, int lvl)
         {
             var metodoSC = AccessTools.Method("SpaceCore.Skills+Skill:GetName");

@@ -1,5 +1,4 @@
-
-using HarmonyLib;
+﻿using HarmonyLib;
 using MasteryExtended.Menu.Pages;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
@@ -14,6 +13,9 @@ namespace MasteryExtended.Compatibility.VPP.Patches
     {
         internal readonly static IMonitor LogMonitor = ModEntry.LogMonitor;
 
+        /***********
+         * PATCHES *
+         ***********/
         internal static IEnumerable<CodeInstruction> gainExperienceTranspiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
         {
             try
@@ -23,7 +25,6 @@ namespace MasteryExtended.Compatibility.VPP.Patches
                 MethodInfo expShareInfo = AccessTools.Method(typeof(FarmerPatch), nameof(expShare));
                 MethodInfo currentLevelInfo = AccessTools.Method(typeof(FarmerPatch), nameof(currentLevel));
 
-                // add:   if (currentSkillLevel(which) >= 10 && currentSkillLevel(which) < 20) expShare(who, which, howMuch); return;
                 matcher
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Pop),
@@ -33,9 +34,6 @@ namespace MasteryExtended.Compatibility.VPP.Patches
                     .ThrowIfNotMatch("VPP FarmerGainExperiencePrefixTranspiler: IL code 3 not found")
                 ;
 
-                // ldarg_0 = this (Farmer)
-                // ldarg_1 = which (int)
-                // ldarg_2 = howMuch (int)
                 matcher
                     .Advance(1)
                     .SetOpcodeAndAdvance(OpCodes.Ldarg_1)
@@ -44,7 +42,6 @@ namespace MasteryExtended.Compatibility.VPP.Patches
                     )
                     .CreateLabel(out Label baseExpLbl)
                     .Insert(
-                        // If
                         new CodeInstruction(OpCodes.Call, currentLevelInfo),
                         new CodeInstruction(OpCodes.Ldc_I4_S, 10),
                         new CodeInstruction(OpCodes.Blt_S, baseExpLbl),
@@ -52,12 +49,10 @@ namespace MasteryExtended.Compatibility.VPP.Patches
                         new CodeInstruction(OpCodes.Call, currentLevelInfo),
                         new CodeInstruction(OpCodes.Ldc_I4_S, 20),
                         new CodeInstruction(OpCodes.Bge_S, baseExpLbl),
-                        // Code
                         new CodeInstruction(OpCodes.Ldarg_0),
                         new CodeInstruction(OpCodes.Ldarg_1),
                         new CodeInstruction(OpCodes.Ldarg_2),
                         new CodeInstruction(OpCodes.Call, expShareInfo),
-                        // Early return
                         new CodeInstruction(OpCodes.Ret)
                     )
                 ;
@@ -71,6 +66,40 @@ namespace MasteryExtended.Compatibility.VPP.Patches
             }
         }
 
+        internal static IEnumerable<CodeInstruction> ShouldGainMasteryExpTranspiler(IEnumerable<CodeInstruction> instructions)
+        {
+            try
+            {
+                CodeMatcher matcher = new(instructions);
+
+                for (int i = 0; i < 5; i++)
+                {
+                    matcher
+                        .MatchEndForward(
+                            new CodeMatch(OpCodes.Ldarg_0),
+                            new CodeMatch(OpCodes.Ldfld),
+                            new CodeMatch(OpCodes.Callvirt),
+                            new CodeMatch(OpCodes.Ldc_I4_S),
+                            new CodeMatch(OpCodes.Clt)
+
+                        )
+                        .ThrowIfNotMatch("Something Really Bad Happened: " + i)
+                        .Advance(-1)
+                        .Operand = 20;
+                }
+
+                return matcher.InstructionEnumeration();
+            }
+            catch (Exception ex)
+            {
+                LogMonitor.Log($"Failed in {nameof(ShouldGainMasteryExpTranspiler)}:\n{ex}", LogLevel.Error);
+                return instructions;
+            }
+        }
+
+        /***********
+         * METHODS *
+         ***********/
         private static int currentLevel(int which)
         {
             return MasterySkillsPage.skills.Find(s => s.Id == which)!.getLevel();
@@ -143,39 +172,6 @@ namespace MasteryExtended.Compatibility.VPP.Patches
                 {
                     Game1.showGlobalMessage(Game1.content.LoadString("Strings\\1_6_Strings:NewIdeas"));
                 }
-            }
-        }
-
-        internal static IEnumerable<CodeInstruction> ShouldGainMasteryExpTranspiler(IEnumerable<CodeInstruction> instructions)
-        {
-            try
-            {
-                CodeMatcher matcher = new(instructions);
-
-                for (int i = 0; i < 5; i++)
-                {
-                    // from:  >= 10
-                    // to:    >= MasteryCaveChanges()
-                    matcher
-                        .MatchEndForward(
-                            new CodeMatch(OpCodes.Ldarg_0),
-                            new CodeMatch(OpCodes.Ldfld),
-                            new CodeMatch(OpCodes.Callvirt),
-                            new CodeMatch(OpCodes.Ldc_I4_S),
-                            new CodeMatch(OpCodes.Clt)
-
-                        )
-                        .ThrowIfNotMatch("Something Really Bad Happened: " + i)
-                        .Advance(-1)
-                        .Operand = 20;
-                }
-
-                return matcher.InstructionEnumeration();
-            }
-            catch (Exception ex)
-            {
-                LogMonitor.Log($"Failed in {nameof(ShouldGainMasteryExpTranspiler)}:\n{ex}", LogLevel.Error);
-                return instructions;
             }
         }
     }

@@ -10,6 +10,9 @@ namespace MasteryExtended.Compatibility.WoL.Patches
     {
         internal readonly static IMonitor LogMonitor = ModEntry.LogMonitor;
 
+        /***********
+         * PATCHES *
+         ***********/
         internal static IEnumerable<CodeInstruction> RemoveProfessionFromPlayerTranspiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
         {
             try
@@ -37,6 +40,9 @@ namespace MasteryExtended.Compatibility.WoL.Patches
             }
         }
 
+        /***********
+         * METHODS *
+         ***********/
         internal static void removePrestiged(int id)
         {
             if (id is >= 0 and < 30)

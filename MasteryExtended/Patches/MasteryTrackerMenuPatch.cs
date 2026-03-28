@@ -1,4 +1,4 @@
-using HarmonyLib;
+﻿using HarmonyLib;
 using MasteryExtended.Menu;
 using MasteryExtended.Menu.Pages;
 using Microsoft.Xna.Framework;
@@ -16,6 +16,9 @@ namespace MasteryExtended.Patches
     {
         internal readonly static IMonitor LogMonitor = ModEntry.LogMonitor;
 
+        /***********
+         * PATCHES *
+         ***********/
         internal static bool getMasteryExpNeededForLevelPrefix(int level, ref int __result)
         {
             int levelCap = (ModEntry.Config.MasteryExpPerLevel / 5000) - 1;

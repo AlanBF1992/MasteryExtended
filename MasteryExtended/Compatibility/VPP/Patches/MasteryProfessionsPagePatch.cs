@@ -9,6 +9,9 @@ namespace MasteryExtended.Compatibility.VPP.Patches
 {
     internal static class MasteryProfessionsPagePatch
     {
+        /***********
+         * PATCHES *
+         ***********/
         internal static void ctorPostfix(MasteryProfessionsPage __instance, Skill innerSkill)
         {
             if (innerSkill.Id is > 4 or < 0) return;

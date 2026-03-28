@@ -14,6 +14,9 @@ namespace MasteryExtended.Patches
     {
         internal readonly static IMonitor LogMonitor = ModEntry.LogMonitor;
 
+        /***********
+         * PATCHES *
+         ***********/
         internal static IEnumerable<CodeInstruction> ctorTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             try
@@ -228,6 +231,9 @@ namespace MasteryExtended.Patches
             }
         }
 
+        /***********
+         * METHODS *
+         ***********/
         internal static bool stringCompare(string str1, string str2)
         {
             return str1.Trim().Equals(str2.Trim());

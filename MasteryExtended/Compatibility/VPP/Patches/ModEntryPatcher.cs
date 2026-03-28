@@ -10,6 +10,9 @@ namespace MasteryExtended.Compatibility.VPP.Patches
     {
         internal readonly static IMonitor LogMonitor = ModEntry.LogMonitor;
 
+        /***********
+         * PATCHES *
+         ***********/
         internal static IEnumerable<CodeInstruction> OnButtonPressedTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             try
@@ -74,6 +77,9 @@ namespace MasteryExtended.Compatibility.VPP.Patches
             }
         }
 
+        /***********
+         * METHODS *
+         ***********/
         private static List<(int, string)> indexAndProfessionChanger(List<(int, string)> IndexAndProfessions)
         {
             List<(int, string)> newIP = [];

@@ -1,4 +1,4 @@
-using HarmonyLib;
+﻿using HarmonyLib;
 using MasteryExtended.Menu.Pages;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -12,9 +12,12 @@ namespace MasteryExtended.Compatibility.WoL.Patches
     {
         internal readonly static MethodInfo profMethod = AccessTools.Method("DaLion.Professions.Framework.VanillaProfession:FromValue", [typeof(int)]);
 
-        // Prestiged are myAlternateId = 3
+        /***********
+         * PATCHES *
+         ***********/
         internal static void ctorPostfix(MasteryProfessionsPage __instance)
         {
+            // Prestiged are myAlternateId = 3
             foreach (var c in __instance.pageTextureComponents.Where(c => Game1.player.professions.Contains(c.myID + 100)))
             {
                 c.myAlternateID = 3;

@@ -12,6 +12,9 @@ namespace MasteryExtended.Compatibility.WoL.Patches
     {
         internal readonly static IMonitor LogMonitor = ModEntry.LogMonitor;
 
+        /***********
+         * PATCHES *
+         ***********/
         internal static IEnumerable<CodeInstruction> ctorTranspiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
         {
             try
@@ -134,6 +137,9 @@ namespace MasteryExtended.Compatibility.WoL.Patches
             }
         }
 
+        /***********
+         * METHODS *
+         ***********/
         internal static string newWarning()
         {
             return Game1.content.LoadString("Strings\\UI:MasteryExtended_WoLMasteryWarning");

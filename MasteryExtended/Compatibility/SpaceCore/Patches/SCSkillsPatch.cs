@@ -18,6 +18,9 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
         private static readonly IEnumerable<string> allSkillAdded = [];
         private static bool checkCookingSkills = true;
 
+        /***********
+         * PATCHES *
+         ***********/
         internal static IEnumerable<CodeInstruction> AddExperienceTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             try

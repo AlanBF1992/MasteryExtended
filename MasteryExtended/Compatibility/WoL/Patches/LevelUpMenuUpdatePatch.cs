@@ -1,4 +1,4 @@
-using HarmonyLib;
+﻿using HarmonyLib;
 using MasteryExtended.Menu.Pages;
 using StardewModdingAPI;
 using StardewValley;
@@ -11,6 +11,9 @@ namespace MasteryExtended.Compatibility.WoL.Patches
     {
         internal readonly static IMonitor LogMonitor = ModEntry.LogMonitor;
 
+        /***********
+         * PATCHES *
+         ***********/
         internal static IEnumerable<CodeInstruction> LevelUpMenuUpdatePrefixTranspiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
         {
             try
@@ -156,7 +159,7 @@ namespace MasteryExtended.Compatibility.WoL.Patches
         }
 
         /***********
-         * Methods *
+         * METHODS *
          ***********/
         internal static void lvl15AddRange(List<int> professionsToChoose, int skillId)
         {

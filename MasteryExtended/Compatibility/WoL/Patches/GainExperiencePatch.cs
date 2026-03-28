@@ -12,6 +12,9 @@ namespace MasteryExtended.Compatibility.WoL.Patches
     {
         internal readonly static IMonitor LogMonitor = ModEntry.LogMonitor;
 
+        /***********
+         * PATCHES *
+         ***********/
         internal static IEnumerable<CodeInstruction> FarmerGainExperiencePrefixTranspiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
         {
             try
@@ -100,7 +103,7 @@ namespace MasteryExtended.Compatibility.WoL.Patches
         }
 
         /***********
-         * Methods *
+         * METHODS *
          ***********/
         private static int howMuchWhich(int howMuch, int which)
         {

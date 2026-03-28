@@ -1,4 +1,4 @@
-using HarmonyLib;
+﻿using HarmonyLib;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
@@ -42,21 +42,6 @@ namespace MasteryExtended.Patches
                 LogMonitor.Log($"Failed in {nameof(DoDamageTranspiler)}:\n{ex}", LogLevel.Error);
                 return instructions;
             }
-        }
-
-        /***********
-         * METHODS *
-         ***********/
-        private static List<Vector2> pickListOfTiles(Rectangle area, Tool tool)
-        {
-            if (!tool.isScythe()
-                || !tool.lastUser.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Reaper", out string value)
-                || !bool.Parse(value))
-            {
-                return Utility.getListOfTileLocationsForBordersOfNonTileRectangle(area);
-            }
-
-            return Utilities.getListOfTileLocationsForTileRectangle(area);
         }
 
         internal static void getAreaOfEffectPostfix(MeleeWeapon __instance, int x, int y, int facingDirection, ref Vector2 tileLocation1, ref Vector2 tileLocation2, Rectangle wielderBoundingBox, int indexInCurrentAnimation, ref Rectangle __result)
@@ -199,6 +184,21 @@ namespace MasteryExtended.Patches
 
             areaOfEffect.Inflate(__instance.addedAreaOfEffect.Value, __instance.addedAreaOfEffect.Value);
             __result = areaOfEffect;
+        }
+
+        /***********
+         * METHODS *
+         ***********/
+        private static List<Vector2> pickListOfTiles(Rectangle area, Tool tool)
+        {
+            if (!tool.isScythe()
+                || !tool.lastUser.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Reaper", out string value)
+                || !bool.Parse(value))
+            {
+                return Utility.getListOfTileLocationsForBordersOfNonTileRectangle(area);
+            }
+
+            return Utilities.getListOfTileLocationsForTileRectangle(area);
         }
     }
 }

@@ -1,4 +1,4 @@
-using HarmonyLib;
+﻿using HarmonyLib;
 using StardewModdingAPI;
 using StardewValley;
 using System.Reflection;
@@ -13,7 +13,6 @@ namespace MasteryExtended.Patches
         /***********
          * PATCHES *
          ***********/
-
         internal static IEnumerable<CodeInstruction> LevelTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             try
@@ -83,7 +82,6 @@ namespace MasteryExtended.Patches
                         new CodeInstruction(OpCodes.Call, newMasteryAmountInfo)
                     )
                 ;
-
 
                 matcher
                     .MatchStartForward(new CodeMatch(OpCodes.Ldarg_2))

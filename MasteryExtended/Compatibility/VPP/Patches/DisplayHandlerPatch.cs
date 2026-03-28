@@ -11,6 +11,9 @@ namespace MasteryExtended.Compatibility.VPP.Patches
         internal readonly static IMonitor LogMonitor = ModEntry.LogMonitor;
         internal readonly static Type newSkillsPageType = AccessTools.TypeByName("SpaceCore.Interface.NewSkillsPage");
 
+        /***********
+         * PATCHES *
+         ***********/
         internal static IEnumerable<CodeInstruction> OnRenderedActiveMenuTranspiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
         {
             try

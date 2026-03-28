@@ -1,9 +1,12 @@
-using StardewValley;
+﻿using StardewValley;
 
 namespace MasteryExtended.Compatibility.WoL.Patches
 {
     internal static class VanillaSkillPatch
     {
+        /***********
+         * PATCHES *
+         ***********/
         internal static void OnSaveLoadedImplPostfix()
         {
             Game1.player.newLevels.Clear();

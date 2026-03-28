@@ -2,6 +2,9 @@
 {
     internal static class ConfigPatch
     {
+        /***********
+         * PATCHES *
+         ***********/
         internal static bool alwaysFalsePrefix(ref bool __result)
         {
             __result = false;

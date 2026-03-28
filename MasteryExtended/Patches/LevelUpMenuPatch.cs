@@ -6,6 +6,9 @@ namespace MasteryExtended.Patches
 {
     internal static class LevelUpMenuPatch
     {
+        /***********
+         * PATCHES *
+         ***********/
         internal static bool AddMissedProfessionChoicesPrefix(Farmer farmer)
         {
             int[] skills = [0, 3, 2, 1, 4];

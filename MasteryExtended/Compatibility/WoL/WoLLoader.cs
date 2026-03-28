@@ -1,4 +1,4 @@
-using HarmonyLib;
+﻿using HarmonyLib;
 using MasteryExtended.Compatibility.GMCM;
 using MasteryExtended.Compatibility.WoL.Patches;
 using MasteryExtended.Menu.Pages;
@@ -111,7 +111,7 @@ namespace MasteryExtended.Compatibility.WoL
             /***********************
              * CHANGE COMBAT LIMIT *
              ***********************/
-            // Access the menu and reactivate the main button
+            // Access the menu and reactivate the main button for the Combat pillar
             harmony.Patch(
                 original: AccessTools.Constructor(typeof(MasteryTrackerMenu), [typeof(int)]),
                 postfix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.ctorPostfix))

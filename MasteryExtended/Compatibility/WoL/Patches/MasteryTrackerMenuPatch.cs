@@ -12,7 +12,9 @@ namespace MasteryExtended.Compatibility.WoL.Patches
     {
         internal readonly static IMonitor LogMonitor = ModEntry.LogMonitor;
 
-        /// <summary>Re adds the Claim button to the Combat Mastery Pillar</summary>
+        /***********
+         * PATCHES *
+         ***********/
         internal static void ctorPostfix(MasteryTrackerMenu __instance, int whichSkill = -1)
         {
             if (whichSkill != Skill.Combat.Id) return;

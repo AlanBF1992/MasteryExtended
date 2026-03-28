@@ -1,4 +1,4 @@
-using HarmonyLib;
+﻿using HarmonyLib;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Objects;
@@ -12,7 +12,9 @@ namespace MasteryExtended.Patches
     {
         internal readonly static IMonitor LogMonitor = ModEntry.LogMonitor;
 
-        // Better probability with Specific Bait
+        /***********
+         * PATCHES *
+         ***********/
         internal static IEnumerable<CodeInstruction> DayUpdateTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             try
@@ -62,7 +64,6 @@ namespace MasteryExtended.Patches
 
                 // With Mariner
                 // add:
-
                 matcher
                     .MatchEndForward(
                         new CodeMatch(OpCodes.Call),
@@ -83,7 +84,6 @@ namespace MasteryExtended.Patches
                         new CodeInstruction(OpCodes.Call, marinerProbabilityInfo)
                     )
                 ;
-
 
                 return matcher.InstructionEnumeration();
             }
@@ -119,6 +119,9 @@ namespace MasteryExtended.Patches
             return false;
         }
 
+        /***********
+         * METHODS *
+         ***********/
         private static void marinerProbability(CrabPot crabPot, Farmer who, string baitTargetFish, List<string> marinerList, Random r, int quantity, int quality)
         {
             if (!who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/BaitSpecialist", out string value) || !bool.Parse(value)) return;
