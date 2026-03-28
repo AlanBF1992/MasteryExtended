@@ -1,4 +1,4 @@
-﻿using MasteryExtended.Menu;
+using MasteryExtended.Menu;
 using MasteryExtended.Skills;
 using MasteryExtended.Skills.Professions;
 using Microsoft.Xna.Framework;
@@ -23,10 +23,10 @@ namespace MasteryExtended.Compatibility.VPP.Menu.Pages
 
             Professions.AddRange(innerSkill.Professions.Where(p => p.LevelRequired == 20));
 
-            // Título
+            // Title
             MenuTitle = Game1.content.LoadString("Strings\\UI:MasteryExtended_MenuTitleProfession", innerSkill.GetName());
 
-            // Calcular tamaños y posiciones de los componentes
+            // Calculate size and position of components
             const int xPadding = 64;
             const int xSpaceBetweenTrees = 32;
 
@@ -61,7 +61,7 @@ namespace MasteryExtended.Compatibility.VPP.Menu.Pages
 
             height += professionHeight + yTopPadding - 64;
 
-            // Hacer espacio para los botones
+            // Make space for buttons
             height += 48;
 
             // Offset so the menu is properly centered
@@ -74,7 +74,7 @@ namespace MasteryExtended.Compatibility.VPP.Menu.Pages
             }
             upperRightCloseButton.bounds.Y -= offset;
 
-            // Agregar botón atrás para ir al menú de profesiones 1
+            // Add back button to return to professions menu
             previousPageButton = new ClickableTextureComponent(new Rectangle(xPositionOnScreen + width / 2 - 84, yPositionOnScreen + height - 112, 168, 80), Game1.mouseCursors_1_6, new Rectangle(0, 123, 42, 21), 4f)
             {
                 visible = true,
@@ -115,20 +115,20 @@ namespace MasteryExtended.Compatibility.VPP.Menu.Pages
             }
         }
 
-        // Agregar cada profesión de forma bonita.
+        // Add each profession with proper formatting
         public override void draw(SpriteBatch b)
         {
             backgroundDraw(b);
-            // Título, adaptar al tipo
+            // Title, adapted to type
             SpriteText.drawStringHorizontallyCenteredAt(b, MenuTitle, xPositionOnScreen + width / 2, yPositionOnScreen + 48, 9999, -1, 9999, 1f, 0.88f, junimoText: false, Color.Black);
 
-            // AHORA SI LOS BOTONES Y WEÁ
+            // Draw button textures and icons
             foreach (ClickableTextureComponent c in pageTextureComponents)
             {
-                // TEXTURA DE BOTÓN
+                // Button texture
                 drawTextureBox(b, Game1.mouseCursors, new Rectangle(403, 373, 9, 9), c.bounds.X, c.bounds.Y, c.bounds.Width, c.bounds.Height, c.region == 0 ? backItemColor : backItemColorHover, 3f, false);
 
-                // Agregar una capa de color a los adquiridos o no adquiribles
+                // Add color tint to unlocked or unavailable professions
                 if (c.myAlternateID != 1)
                 {
                     Color coverColor = innerSkill.Professions.Find(p => p.Id == c.myID)!.IsProfessionUnlocked() ? Color.Green * 0.3f : Color.Black * (c.region == 0 ? 0.75f : 0.6f);
@@ -137,13 +137,13 @@ namespace MasteryExtended.Compatibility.VPP.Menu.Pages
                         3f, false);
                 }
 
-                // Dibuja el icono
+                // Draw the icon
                 const float iconScale = 7f;
                 Utility.drawWithShadow(b, c.texture,
                     c.getVector2() + new Vector2(c.bounds.Width / 2, 48) - new Vector2(16 * iconScale / 2, 0),
                     c.sourceRect, Color.White, 0f, Vector2.Zero, iconScale, shadowIntensity: 0.25f);
 
-                // Dibuja el nombre
+                // Draw the name
                 var nameSize = Game1.dialogueFont.MeasureString(c.name);
 
                 if (nameSize.X < c.bounds.Width)
@@ -207,7 +207,6 @@ namespace MasteryExtended.Compatibility.VPP.Menu.Pages
         {
             hoverText = "";
 
-            // Profesiones
             foreach (ClickableTextureComponent c in pageTextureComponents)
             {
                 c.region = 0;

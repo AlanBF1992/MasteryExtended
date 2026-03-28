@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using MasteryExtended.Compatibility.GMCM;
 using MasteryExtended.Compatibility.WoL.Patches;
 using MasteryExtended.Menu.Pages;
@@ -19,7 +19,7 @@ namespace MasteryExtended.Compatibility.WoL
             WoLPatches(harmony);
             helper.Events.GameLoop.SaveLoaded += fixExperienceCurve;
             helper.Events.GameLoop.UpdateTicked += GMCMConfigWoL;
-            helper.Events.GameLoop.DayStarted += (_, _) => reloadIcons(); //Because fuck my life.
+            helper.Events.GameLoop.DayStarted += (_, _) => reloadIcons(); // Reload icons to ensure WoL icons display correctly
             ModEntry.MaxMasteryLevels += 20;
             foreach (var skill in MasterySkillsPage.skills.Where(s => s.Id >= 0 && s.Id <= 4))
             {
@@ -54,7 +54,7 @@ namespace MasteryExtended.Compatibility.WoL
             if (e.Ticks < 15) return;
             ModEntry.ModHelper.Events.GameLoop.UpdateTicked -= GMCMConfigWoL;
 
-            // get Generic Mod Config Menu's API (if it's installed)
+            // Get Generic Mod Config Menu's API (if it's installed)
             var configMenu = ModEntry.ModHelper.ModRegistry.GetApi<IGMCMApi>("spacechase0.GenericModConfigMenu");
             if (configMenu is null)
                 return;
@@ -93,40 +93,38 @@ namespace MasteryExtended.Compatibility.WoL
             /*************************************
              * Vanilla Skill Experience with WoL *
              *************************************/
-            // Add Partial Mastery Exp when lvl 10 to 19 and other fixes
+            // Add partial Mastery Exp when lvl 10 to 19 and other fixes
             harmony.Patch(
                 original: AccessTools.Method("DaLion.Professions.Framework.Patchers.Prestige.FarmerGainExperiencePatcher:FarmerGainExperiencePrefix"),
                 transpiler: new HarmonyMethod(typeof(GainExperiencePatch), nameof(GainExperiencePatch.FarmerGainExperiencePrefixTranspiler))
             );
 
             /********************
-             * MAESTRÍAS CON WoL
+             * MASTERY WITH WoL *
              ********************/
-
-            // No haga nada al cargar la partida
+            // Do nothing when loading the game
             harmony.Patch(
                 original: AccessTools.Method("DaLion.Professions.Framework.Events.GameLoop.ProfessionSaveLoadedEvent:OnSaveLoadedImpl"),
                 postfix: new HarmonyMethod(typeof(VanillaSkillPatch), nameof(VanillaSkillPatch.OnSaveLoadedImplPostfix))
             );
 
-            /**************************
-             * CAMBIAR DE COMBAT LIMIT
-             **************************/
-
-            // Accede al menú y reactiva el main button
+            /***********************
+             * CHANGE COMBAT LIMIT *
+             ***********************/
+            // Access the menu and reactivate the main button
             harmony.Patch(
                 original: AccessTools.Constructor(typeof(MasteryTrackerMenu), [typeof(int)]),
                 postfix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.ctorPostfix))
             );
 
-            // Dibuja el botón
+            // Draw the button
             harmony.Patch(
                 original: AccessTools.Method(typeof(MasteryTrackerMenu), nameof(MasteryTrackerMenu.draw), [typeof(SpriteBatch)]),
                 prefix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.drawPrefix)),
                 postfix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.drawPostfix))
             );
 
-            // Le da funcionalidad al botón
+            // Adds functionality to the button
             harmony.Patch(
                 original: AccessTools.Method(typeof(MasteryTrackerMenu), nameof(MasteryTrackerMenu.receiveLeftClick)),
                 prefix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.receiveLeftClickPrefix))
@@ -141,67 +139,74 @@ namespace MasteryExtended.Compatibility.WoL
             /***************
              * LVL 15 AL 20
              ***************/
+            // Add the third type of myAlternateID
             harmony.Patch(
                 original: AccessTools.Constructor(typeof(MasteryProfessionsPage), [typeof(Skills.Skill)]),
                 postfix: new HarmonyMethod(typeof(MasteryProfessionsPagePatch), nameof(MasteryProfessionsPagePatch.ctorPostfix))
             );
 
+            // Fix the stars
             harmony.Patch(
                 original: AccessTools.Method(typeof(MasteryProfessionsPage), nameof(MasteryProfessionsPage.draw), [typeof(SpriteBatch)]),
                 postfix: new HarmonyMethod(typeof(MasteryProfessionsPagePatch), nameof(MasteryProfessionsPagePatch.drawPostfix))
             );
 
+            // Add click functionality
             harmony.Patch(
                 original: AccessTools.Method(typeof(MasteryProfessionsPage), nameof(MasteryProfessionsPage.receiveLeftClick)),
                 prefix: new HarmonyMethod(typeof(MasteryProfessionsPagePatch), nameof(MasteryProfessionsPagePatch.receiveLeftClickPrefix))
             );
 
+            // Add hover functionality
             harmony.Patch(
                 original: AccessTools.Method(typeof(MasteryProfessionsPage), nameof(MasteryProfessionsPage.performHoverAction)),
                 postfix: new HarmonyMethod(typeof(MasteryProfessionsPagePatch), nameof(MasteryProfessionsPagePatch.performHoverActionPostfix))
             );
 
+            // Change available skill for Level Up Menu
             harmony.Patch(
                 original: AccessTools.Method("DaLion.Professions.Framework.Patchers.Prestige.LevelUpMenuUpdatePatcher:LevelUpMenuUpdatePrefix"),
                 transpiler: new HarmonyMethod(typeof(LevelUpMenuUpdatePatch), nameof(LevelUpMenuUpdatePatch.LevelUpMenuUpdatePrefixTranspiler))
             );
 
-            //For now SpaceCore skills can only go to level 10
+            // For now, SpaceCore skills can only go to level 10
             harmony.Patch(
                 original: AccessTools.Method("DaLion.Professions.Framework.Patchers.Prestige.Integration.SkillLevelUpMenuUpdatePatcher:SkillLevelUpMenuUpdatePrefix"),
                 prefix: new HarmonyMethod(typeof(DaLionUnpatcher), nameof(DaLionUnpatcher.UnpatcherBoolPrefix))
             );
 
-            //Fix Message
+            // Fix message
             harmony.Patch(
                 original: AccessTools.Method("DaLion.Professions.Framework.Patchers.Prestige.GameLocationPerformActionPatcher:GameLocationPerformActionPrefix"),
                 prefix: new HarmonyMethod(typeof(DaLionUnpatcher), nameof(DaLionUnpatcher.UnpatcherBoolPrefix))
             );
 
-            //Fix MasteryExtended placement?
+            // Fix MasteryExtended placement
             harmony.Patch(
                 original: AccessTools.Method("DaLion.Professions.Framework.Patchers.Prestige.Integration.NewSkillsPagePerformHoverActionPatcher:NewSkillsPagePerformHoverActionPostfix"),
                 prefix: new HarmonyMethod(typeof(DaLionUnpatcher), nameof(DaLionUnpatcher.UnpatcherVoidPrefix))
             );
 
-            //Fix Warning when claiming mastery
+            // Fix warning when claiming mastery
             var masteryBox = AccessTools.TypeByName("DaLion.Professions.Framework.UI.MasteryWarningBox");
             harmony.Patch(
                 original: AccessTools.Constructor(masteryBox, [typeof(GameLocation), typeof(MasteryTrackerMenu)]),
                 transpiler: new HarmonyMethod(typeof(MasteryWarningBoxPatch), nameof(MasteryWarningBoxPatch.ctorTranspiler))
             );
 
+            // Change size and position of the pillars Warning Box
             harmony.Patch(
                 original: AccessTools.Method("DaLion.Professions.Framework.UI.MasteryWarningBox:draw", [typeof(SpriteBatch)]),
                 transpiler: new HarmonyMethod(typeof(MasteryWarningBoxPatch), nameof(MasteryWarningBoxPatch.drawTranspiler))
             );
 
-            //Force Reset Configs to be false
+            // Force reset configs to be false
             harmony.Patch(
                 original: AccessTools.PropertyGetter("DaLion.Professions.Framework.Configs.MasteriesConfig:LockMasteryUntilFullReset"),
                 prefix: new HarmonyMethod(typeof(ConfigPatch), nameof(ConfigPatch.alwaysFalsePrefix))
             );
 
+            // Disable Skill Reset
             harmony.Patch(
                 original: AccessTools.PropertyGetter("DaLion.Professions.Framework.Configs.SkillsConfig:EnableSkillReset"),
                 prefix: new HarmonyMethod(typeof(ConfigPatch), nameof(ConfigPatch.alwaysFalsePrefix))

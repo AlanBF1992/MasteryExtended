@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using MasteryExtended.Compatibility.GMCM;
 using MasteryExtended.Compatibility.VPP.Patches;
 using MasteryExtended.Menu.Pages;
@@ -65,7 +65,7 @@ namespace MasteryExtended.Compatibility.VPP
         {
             if (e.Ticks < 15) return;
             ModEntry.ModHelper.Events.GameLoop.UpdateTicked -= GMCMConfigVPP;
-            // get Generic Mod Config Menu's API (if it's installed)
+            // Get Generic Mod Config Menu's API (if it's installed)
             var configMenu = ModEntry.ModHelper.ModRegistry.GetApi<IGMCMApi>("spacechase0.GenericModConfigMenu");
             if (configMenu is null)
                 return;
@@ -123,6 +123,7 @@ namespace MasteryExtended.Compatibility.VPP
                 original: AccessTools.Method("MasteryExtended.Patches.FarmerPatch:ShouldGainMasteryExp"),
                 transpiler: new HarmonyMethod(typeof(FarmerPatch), nameof(FarmerPatch.ShouldGainMasteryExpTranspiler))
             );
+
             // Add Partial Mastery Exp when lvl 10 to 19
             harmony.Patch(
                 original: AccessTools.Method(typeof(Farmer), nameof(Farmer.gainExperience)),
@@ -165,7 +166,7 @@ namespace MasteryExtended.Compatibility.VPP
                 transpiler: new HarmonyMethod(typeof(ModEntryPatcher), nameof(ModEntryPatcher.OnButtonPressedTranspiler))
             );
 
-            // Don't let VPP handle things. I'm the handler now
+            // Delegate VPP display handling to MasteryExtended
             harmony.Patch(
                 original: AccessTools.Method("VanillaPlusProfessions.DisplayHandler:HandleSkillPage"),
                 transpiler: new HarmonyMethod(typeof(DisplayHandlerPatch), nameof(DisplayHandlerPatch.HandleSkillPageTranspiler))

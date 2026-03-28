@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using MasteryExtended.Menu.Pages;
 using StardewModdingAPI;
 using StardewValley;
@@ -22,8 +22,8 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                 MethodInfo checkRoot20Info = AccessTools.Method(typeof(LevelUpMenuUpdatePatch), nameof(lvl20Root));
 
                 // Lvl 15 (1)
-                //from: ___professionsToChoose.AddRange(skill.TierOneProfessionIds.Where(player.professions.Contains));
-                //to:   lvl15AddRange(___professionsToChoose, skill)
+                // from: ___professionsToChoose.AddRange(skill.TierOneProfessionIds.Where(player.professions.Contains));
+                // to:   lvl15AddRange(___professionsToChoose, skill)
                 matcher
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Ldarg_1),
@@ -42,8 +42,8 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                 ;
 
                 // Lvl 20 (1)
-                //from: int rootId = player.GetCurrentRootProfessionForSkill(skill);
-                //to:   int rootId = lvl20Root(skillId);
+                // from: int rootId = player.GetCurrentRootProfessionForSkill(skill);
+                // to:   int rootId = lvl20Root(skillId);
                 matcher
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Ldloc_0),
@@ -59,8 +59,8 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                 ;
 
                 // Lvl 15 (2)
-                //from: ___professionsToChoose.AddRange(skill.TierOneProfessionIds.Where(player.professions.Contains));
-                //to:   lvl15AddRange(___professionsToChoose, skill)
+                // from: ___professionsToChoose.AddRange(skill.TierOneProfessionIds.Where(player.professions.Contains));
+                // to:   lvl15AddRange(___professionsToChoose, skill)
                 matcher
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Ldarg_1),
@@ -79,8 +79,8 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                 ;
 
                 // Lvl 20 (2)
-                //from: int rootId = player.GetCurrentRootProfessionForSkill(skill);
-                //to:   int rootId = lvl20Root(skill);
+                // from: int rootId = player.GetCurrentRootProfessionForSkill(skill);
+                // to:   int rootId = lvl20Root(skill);
                 matcher
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Ldloc_0),
@@ -98,8 +98,8 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                 object localRoot;
 
                 // Lvl 15 (3)
-                //from: 
-                //to:   rootId = lvl15Root(skill)
+                // from: 
+                // to:   rootId = lvl15Root(skill)
                 matcher
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Ldloc_0), //player
@@ -122,8 +122,8 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                 ;
 
                 // Lvl 20 (3)
-                //from: 
-                //to:   rootId = lvl20Root(skill)
+                // from: 
+                // to:   rootId = lvl20Root(skill)
                 matcher
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Ldloc_0),
@@ -158,7 +158,6 @@ namespace MasteryExtended.Compatibility.WoL.Patches
         /***********
          * Methods *
          ***********/
-
         internal static void lvl15AddRange(List<int> professionsToChoose, int skillId)
         {
             var skill = MasterySkillsPage.skills.Find(s => s.Id == skillId)!;
@@ -167,9 +166,6 @@ namespace MasteryExtended.Compatibility.WoL.Patches
             professionsToChoose.AddRange(unlockedLvl10Profs.Select(p => p.RequiredProfessions!.Id).Distinct());
         }
 
-        /****************************
-         * When only one profession *
-         ****************************/
         internal static int lvl15Root(int skillId)
         {
             var skill = MasterySkillsPage.skills.Find(s => s.Id == skillId)!;

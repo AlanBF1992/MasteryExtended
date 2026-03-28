@@ -23,7 +23,8 @@ namespace MasteryExtended.Patches
                 CodeMatcher matcher = new(instructions);
 
                 // from: whichProfession.ToString() ?? ""
-                // to:   "{skill},{lvl}", pa parsearlo luego y weá
+                // to:   "{skill},{lvl}"
+                // To parse the result later
                 matcher
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Ldarg_0),
@@ -272,8 +273,8 @@ namespace MasteryExtended.Patches
                 width += 0.1f;
             }
 
-            // Dibujar los números (1ro sombra, 2do texto)
-            // Primero el del lado derecho
+            // Draw the numbers (first shadow, then text)
+            // Draw the right side first
             NumberSprite.draw(masteryLevel, b,
                               new Vector2(xOffset + page.xPositionOnScreen + 408 + (int)(584f * width), yOffset + page.yPositionOnScreen + 4),
                               Color.Black * 0.35f, 1f, 0.85f, 1f, 0);
@@ -284,7 +285,7 @@ namespace MasteryExtended.Patches
 
             xOffset += masteryLevel < 10 ? 28 : (masteryLevel < 100 ? 0 : -24);
 
-            // Luego el separador
+            // Draw the separator
             b.Draw(Game1.mouseCursors,
                 new Vector2(xOffset + page.xPositionOnScreen + 352 + (int)(584f * width), yOffset + page.yPositionOnScreen + 4),
                 new Rectangle(544, 136, 8, 8),
@@ -295,7 +296,7 @@ namespace MasteryExtended.Patches
                 (masteryLevel >= ModEntry.MaxMasteryLevels ? new(70, 210, 90) : (masterySpent == masteryLevel ? Color.OrangeRed : Color.SandyBrown)) * 1f,
                 0f, new Vector2(4f, 4f), 4f * 1f, SpriteEffects.None, 0.85f);
 
-            // Luego el del lado izquierdo
+            // Draw the left side
             NumberSprite.draw(masterySpent, b, new Vector2(xOffset + page.xPositionOnScreen + 329 + (int)(584f * width), yOffset + page.yPositionOnScreen + 4), Color.Black * 0.35f, 1f, 0.85f, 1f, 0);
             NumberSprite.draw(masterySpent, b, new Vector2(xOffset + page.xPositionOnScreen + 333 + (int)(584f * width), yOffset + page.yPositionOnScreen),
                 (masterySpent >= ModEntry.MaxMasteryLevels ? new(70, 210, 90) : (masterySpent == masteryLevel ? Color.OrangeRed : Color.SandyBrown)) * ((masteryLevel == 0) ? 0.75f : 1f), 1f, 0.87f, 1f, 0);

@@ -94,7 +94,6 @@ namespace MasteryExtended.Patches
             }
         }
 
-        // Can put SpecificBait even with Mariner
         internal static bool performObjectDropInActionPrefix(CrabPot __instance, Item dropInItem, bool probe, Farmer who, ref bool __result)
         {
             if (!who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/BaitSpecialist", out string value) || !bool.Parse(value)) return true;

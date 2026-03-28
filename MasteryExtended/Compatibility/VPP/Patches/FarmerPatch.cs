@@ -36,7 +36,6 @@ namespace MasteryExtended.Compatibility.VPP.Patches
                 // ldarg_0 = this (Farmer)
                 // ldarg_1 = which (int)
                 // ldarg_2 = howMuch (int)
-
                 matcher
                     .Advance(1)
                     .SetOpcodeAndAdvance(OpCodes.Ldarg_1)
@@ -45,7 +44,7 @@ namespace MasteryExtended.Compatibility.VPP.Patches
                     )
                     .CreateLabel(out Label baseExpLbl)
                     .Insert(
-                        //if
+                        // If
                         new CodeInstruction(OpCodes.Call, currentLevelInfo),
                         new CodeInstruction(OpCodes.Ldc_I4_S, 10),
                         new CodeInstruction(OpCodes.Blt_S, baseExpLbl),
@@ -53,12 +52,12 @@ namespace MasteryExtended.Compatibility.VPP.Patches
                         new CodeInstruction(OpCodes.Call, currentLevelInfo),
                         new CodeInstruction(OpCodes.Ldc_I4_S, 20),
                         new CodeInstruction(OpCodes.Bge_S, baseExpLbl),
-                        //código
+                        // Code
                         new CodeInstruction(OpCodes.Ldarg_0),
                         new CodeInstruction(OpCodes.Ldarg_1),
                         new CodeInstruction(OpCodes.Ldarg_2),
                         new CodeInstruction(OpCodes.Call, expShareInfo),
-                        //get me the fuck out
+                        // Early return
                         new CodeInstruction(OpCodes.Ret)
                     )
                 ;
@@ -147,7 +146,6 @@ namespace MasteryExtended.Compatibility.VPP.Patches
             }
         }
 
-        // Actually from this mod. Makes it so the full Mastery Exp is gained at lvl 20
         internal static IEnumerable<CodeInstruction> ShouldGainMasteryExpTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             try
@@ -156,8 +154,8 @@ namespace MasteryExtended.Compatibility.VPP.Patches
 
                 for (int i = 0; i < 5; i++)
                 {
-                    //from:  >= 10
-                    //to:    >= MasteryCaveChanges()
+                    // from:  >= 10
+                    // to:    >= MasteryCaveChanges()
                     matcher
                         .MatchEndForward(
                             new CodeMatch(OpCodes.Ldarg_0),

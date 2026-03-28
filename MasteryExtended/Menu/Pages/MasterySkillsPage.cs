@@ -148,7 +148,7 @@ namespace MasteryExtended.Menu.Pages
             // Menu title
             SpriteText.drawStringHorizontallyCenteredAt(b, MenuTitle, xPositionOnScreen + width / 2, yPositionOnScreen + 48, 9999, -1, 9999, 1f, 0.88f, junimoText: false, Color.Black);
 
-            //Buttons
+            // Buttons
             if (previousPageButton != null)
             {
                 const float sScale = 1f;
@@ -165,26 +165,26 @@ namespace MasteryExtended.Menu.Pages
                 Vector2 sSize = sScale * Game1.dialogueFont.MeasureString(sNext);
                 Utility.drawTextWithColoredShadow(b, sNext, Game1.dialogueFont, nextPageButton.getVector2() + new Vector2((float)(nextPageButton.bounds.Width / 2) - sSize.X / 2f, 32f - sSize.Y / 2f + (float)((nextPageButton.sourceRect.X == 84) ? 8 : 0)), Color.Black * 1f, Color.Black * 0.2f, sScale * 1f, 0.9f);
             }
-            // The rest
+
             foreach (ClickableTextureComponent c in pageTextureComponents)
             {
                 drawTextureBox(b, Game1.mouseCursors, new Rectangle(403, 373, 9, 9), c.bounds.X, c.bounds.Y, c.bounds.Width, c.bounds.Height, c.region == 0 ? backItemColor : backItemColorHover, 3f, false);
 
-                // Cubrirlo si no debiese ser visible
+                // Cover it if it shouldn't be visible
                 if (c.myAlternateID == 0)
                 {
                     drawTextureBox(b, Game1.mouseCursors, new Rectangle(403, 373, 9, 9), c.bounds.X, c.bounds.Y, c.bounds.Width, c.bounds.Height, Color.Black * (c.region == 0 ? 0.75f : 0.6f), 3f, false);
                 }
-                // Si está completo, hacerlo amarillo
+                // If completed, make it yellow
                 if (skills.Find(s => s.Id == c.myID)!.unlockedProfessionsCount() >= skills.Find(s => s.Id == c.myID)!.Professions.Count)
                 {
                     drawTextureBox(b, Game1.mouseCursors, new Rectangle(403, 373, 9, 9), c.bounds.X, c.bounds.Y, c.bounds.Width, c.bounds.Height, Color.Green * 0.3f, 3f, false);
                 }
 
-                // Dibuja el icono
+                // Draw the icon
                 int iconScale = 16 / Math.Max(c.sourceRect.Height, c.sourceRect.Width);
                 Utility.drawWithShadow(b, c.texture, c.getVector2() + new Vector2(12f, 6f), c.sourceRect, Color.White, 0f, Vector2.Zero, 3f * iconScale, shadowIntensity: 0.25f);
-                // Dibuja el nombre
+                // Draw the name
                 Utility.drawTextWithColoredShadow(b, c.name, Game1.dialogueFont,
                     c.getVector2() + new Vector2(72f, c.bounds.Height / 2) - new Vector2(0, (int)Math.Ceiling(Game1.dialogueFont.MeasureString(c.name).Y / 2) - 3),
                     Color.Black, Color.Black * 0.15f);

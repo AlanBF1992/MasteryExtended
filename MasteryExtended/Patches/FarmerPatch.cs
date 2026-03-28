@@ -14,7 +14,6 @@ namespace MasteryExtended.Patches
          * PATCHES *
          ***********/
 
-        /// <summary>Ya que el juego base nunca espera que luck sea mayor a 0, lo eliminamos, por si acaso</summary>
         internal static IEnumerable<CodeInstruction> LevelTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             try
@@ -48,7 +47,6 @@ namespace MasteryExtended.Patches
             }
         }
 
-        /// <summary>Permite ganar maestría en la habilidad que tenga nivel mayor a 10.</summary>
         internal static IEnumerable<CodeInstruction> gainExperienceTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             try
@@ -105,16 +103,6 @@ namespace MasteryExtended.Patches
             }
         }
 
-        internal static int newMasteryAmount(int howMuch, int which)
-        {
-            if (which is <= 0 or >= 5 && !ModEntry.Config.BooksQuantity.Equals("2") && GameStateQuery.CheckConditions($"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookUnlockMastery 1"))
-            {
-                howMuch *= 2;
-            }
-            return (int)(howMuch * (1 + ExtraMasteryExperienceMultiplier(which)));
-        }
-
-        /// <summary>Arregla el título para si contar la suerte, en caso de que se agregue el mod, aunque permitiendo solo hasta lvl 30</summary>
         internal static IEnumerable<CodeInstruction> getTitleTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             try
@@ -152,7 +140,6 @@ namespace MasteryExtended.Patches
         /***********
          * METHODS *
          ***********/
-
         internal static int FarmerLevel(Farmer farmer, bool luck = false, bool restrict = false)
         {
             if (restrict)
@@ -185,9 +172,17 @@ namespace MasteryExtended.Patches
             };
         }
 
+        internal static int newMasteryAmount(int howMuch, int which)
+        {
+            if (which is <= 0 or >= 5 && !ModEntry.Config.BooksQuantity.Equals("2") && GameStateQuery.CheckConditions($"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookUnlockMastery 1"))
+            {
+                howMuch *= 2;
+            }
+            return (int)(howMuch * (1 + ExtraMasteryExperienceMultiplier(which)));
+        }
+
         internal static float ExtraMasteryExperienceMultiplier(int which, bool includeComplete = true)
         {
-            // Ugly AF, fix later?
             float extraMultiplier = 0;
             string modID = ModEntry.ModManifest.UniqueID;
 

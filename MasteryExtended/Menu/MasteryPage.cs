@@ -32,7 +32,7 @@ namespace MasteryExtended.Menu
 
         public override void performHoverAction(int x, int y)
         {
-            // Botón atrás
+            // Back button
             if (previousPageButton?.containsPoint(x, y) == true)
             {
                 previousPageButton.sourceRect.X = 42;
@@ -42,7 +42,7 @@ namespace MasteryExtended.Menu
                 previousPageButton.sourceRect.X = 0;
             }
 
-            // Botón adelante
+            // Next button
             if (nextPageButton?.containsPoint(x, y) == true)
             {
                 nextPageButton.sourceRect.X = 42;
@@ -57,14 +57,14 @@ namespace MasteryExtended.Menu
 
         public void backgroundDraw(SpriteBatch b)
         {
-            // Full Background, si se elige en opciones
+            // Full background if chosen in options
             if (!Game1.options.showClearBackgrounds)
             {
                 b.Draw(Game1.fadeToBlackRect, Game1.graphics.GraphicsDevice.Viewport.Bounds, Color.Black * 0.6f);
             }
-            // Fondo del menu
+            // Menu background
             drawTextureBox(b, Game1.mouseCursors_1_6, new Rectangle(1, 85, 21, 21), xPositionOnScreen, yPositionOnScreen, width, height, Color.White, 4f);
-            // Bordes bonitos
+            // Nice borders
             b.Draw(Game1.mouseCursors_1_6, Position + new Vector2(6f, 7f) * 4f, new Rectangle(0, 144, 23, 23), Color.White, 0f, Vector2.Zero, 4f, SpriteEffects.None, 0.88f);
             b.Draw(Game1.mouseCursors_1_6, Position + new Vector2(24f, height - 24), new Rectangle(0, 144, 23, 23), Color.White, -(float)Math.PI / 2f, Vector2.Zero, 4f, SpriteEffects.None, 0.88f);
             b.Draw(Game1.mouseCursors_1_6, Position + new Vector2(width - 24, 28f), new Rectangle(0, 144, 23, 23), Color.White, -4.712389f, Vector2.Zero, 4f, SpriteEffects.None, 0.88f);
@@ -109,7 +109,7 @@ namespace MasteryExtended.Menu
                 y = Utility.getSafeArea().Bottom - textHeight;
             }
 
-            //Box Shadow
+            // Box shadow
             if (drawBoxShadow)
             {
                 IClickableMenu.drawTextureBox(b,
@@ -118,13 +118,13 @@ namespace MasteryExtended.Menu
                     x - 8, y + 8,
                     textWidth, textHeight, boxShadowColor.Value * 0.5f * alpha, boxScale, false);
             }
-            //Box
+            // Box
             IClickableMenu.drawTextureBox(b,
                 boxTexture,
                 boxSourceRect.Value,
                 x, y,
                 textWidth, textHeight, boxColor.Value * alpha, boxScale, false);
-            //Title
+            // Title
             if (boldTitleText != null)
             {
                 // Title Box
@@ -156,14 +156,14 @@ namespace MasteryExtended.Menu
                 y += (int)Game1.dialogueFont.MeasureString(boldTitleText).Y + 16;
             }
 
-            //Text Shadow
+            // Text shadow
             if (drawTextShadow)
             {
                 b.DrawString(font, text, new Vector2(x + 16, y + 16 + 4) + new Vector2(2f, 2f), textShadowColor.Value * alpha);
                 b.DrawString(font, text, new Vector2(x + 16, y + 16 + 4) + new Vector2(0f, 2f), textShadowColor.Value * alpha);
                 b.DrawString(font, text, new Vector2(x + 16, y + 16 + 4) + new Vector2(2f, 0f), textShadowColor.Value * alpha);
             }
-            //Text
+            // Text
             b.DrawString(font, text, new Vector2(x + 16, y + 16 + 4), textColor.Value * 0.9f * alpha);
         }
 

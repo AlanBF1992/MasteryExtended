@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using MasteryExtended.Menu.Pages;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -12,7 +12,7 @@ namespace MasteryExtended.Compatibility.WoL.Patches
     {
         internal readonly static MethodInfo profMethod = AccessTools.Method("DaLion.Professions.Framework.VanillaProfession:FromValue", [typeof(int)]);
 
-        // Constructor, prestiged son myAlternateId = 3
+        // Prestiged are myAlternateId = 3
         internal static void ctorPostfix(MasteryProfessionsPage __instance)
         {
             foreach (var c in __instance.pageTextureComponents.Where(c => Game1.player.professions.Contains(c.myID + 100)))
@@ -21,7 +21,6 @@ namespace MasteryExtended.Compatibility.WoL.Patches
             }
         }
 
-        //Adds the stars
         internal static void drawPostfix(MasteryProfessionsPage __instance, SpriteBatch b)
         {
             if (__instance.innerSkill.getLevel() <= 10) return;
@@ -80,7 +79,6 @@ namespace MasteryExtended.Compatibility.WoL.Patches
         {
             if (__instance.innerSkill.Id is < 0 or > 4) return;
 
-            //This is slow as fuck, change it later
             foreach (ClickableTextureComponent c in __instance.pageTextureComponents.Where(c => c.bounds.Contains(x, y)))
             {
                 Game1.SetFreeCursorDrag();

@@ -1,4 +1,4 @@
-﻿using StardewValley;
+using StardewValley;
 
 namespace MasteryExtended.Compatibility.WoL.Patches
 {
@@ -7,8 +7,8 @@ namespace MasteryExtended.Compatibility.WoL.Patches
         internal static void OnSaveLoadedImplPostfix()
         {
             Game1.player.newLevels.Clear();
-            //En teoría debería revisar las skills y ver cuál se está intentando agregar
-            //En la realidad, ninguna debería intentar agregarse, así que fuck them
+            // In theory I should check skills and see which one is being added
+            // In reality no external skills should attempt self-registration
         }
     }
 }

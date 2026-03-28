@@ -26,7 +26,6 @@ namespace MasteryExtended.Patches
             return false;
         }
 
-        /// <summary>Permite que el nivel de maestría sea mayor a 5.</summary>
         internal static void getCurrentMasteryLevelPostfix(ref int __result)
         {
             try
@@ -51,7 +50,6 @@ namespace MasteryExtended.Patches
             }
         }
 
-        /// <summary>Hace más pequeña la barra de maestría en el menú de habilidades y muestra maestrías mayores.</summary>
         internal static IEnumerable<CodeInstruction> drawBarTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             try
@@ -82,7 +80,6 @@ namespace MasteryExtended.Patches
             }
         }
 
-        /// <summary>Modifica el tamaño del menu pedestal y hace visible el botón</summary>
         internal static void ctorPostfix(MasteryTrackerMenu __instance, int whichSkill = -1)
         {
             int levelsNotSpent = MasteryTrackerMenu.getCurrentMasteryLevel() - (int)Game1.stats.Get("masteryLevelsSpent");
@@ -94,7 +91,7 @@ namespace MasteryExtended.Patches
                 __instance.yPositionOnScreen = (int)Utility.getTopLeftPositionForCenteringOnScreen(800, __instance.height).Y;
                 __instance.upperRightCloseButton.bounds.Y = __instance.yPositionOnScreen - 8;
 
-                // Crear el botón
+                // Create the button
                 if (Game1.player.stats.Get(StatKeys.Mastery(-1)) == 0)
                 {
                     __instance.mainButton = new ClickableTextureComponent(new Rectangle(__instance.xPositionOnScreen + __instance.width / 2 - 168 / 2, __instance.yPositionOnScreen + __instance.height - 112, 168, 80), Game1.mouseCursors_1_6, new Rectangle(0, 123, 42, 21), 4f)
@@ -133,7 +130,7 @@ namespace MasteryExtended.Patches
             {
                 if (__instance.mainButton != null && !(bool)__instance.GetInstanceField("canClaim")!)
                 {
-                    //Parche sobre el botón
+                    // Overlay on the button
                     b.Draw(Game1.staminaRect, new Rectangle(__instance.mainButton.bounds.X, __instance.mainButton.bounds.Y, __instance.mainButton.bounds.Width, __instance.mainButton.bounds.Height + 5), new Color(137, 137, 137));
                     __instance.mainButton?.draw(b, Color.White * 0.5f, 0.88f);
                     string s = Game1.content.LoadString("Strings\\1_6_Strings:Claim");
@@ -176,7 +173,7 @@ namespace MasteryExtended.Patches
 
                 if (__instance.mainButton != null && !canClaim)
                 {
-                    //Parche sobre el botón
+                    // Overlay on the button
                     b.Draw(Game1.staminaRect, new Rectangle(__instance.mainButton.bounds.X, __instance.mainButton.bounds.Y, __instance.mainButton.bounds.Width, __instance.mainButton.bounds.Height + 5), new Color(137, 137, 137));
                     __instance.mainButton?.draw(b, Color.White * 0.5f, 0.88f);
                     string s = Game1.content.LoadString("Strings\\UI:MasteryExtended_InvestButton");
@@ -197,9 +194,6 @@ namespace MasteryExtended.Patches
             __instance.drawMouse(b);
         }
 
-        /// <summary>
-        /// Modified so it doesn't try to claim reward
-        /// </summary>
         internal static bool receiveLeftClickPrefix(MasteryTrackerMenu __instance, int x, int y, bool playSound = true)
         {
             bool canClaim = (bool)__instance.GetInstanceField("canClaim")!;
@@ -214,7 +208,7 @@ namespace MasteryExtended.Patches
             if (!canClaim) return true;
             if ((float)__instance.GetInstanceField("destroyTimer")! <= 0f)
             {
-                // Botón de cerrado, porque no puedo llamar a la base.
+                // Close button, implementation from base class
                 if (__instance.upperRightCloseButton != null && __instance.readyToClose() && __instance.upperRightCloseButton.containsPoint(x, y))
                 {
                     if (playSound)
@@ -224,13 +218,13 @@ namespace MasteryExtended.Patches
                     __instance.exitThisMenu();
                 }
 
-                // Botón de maestrías
+                // Mastery button
                 if (__instance.mainButton?.containsPoint(x, y) == true && (float)__instance.GetInstanceField("pressedButtonTimer")! <= 0f)
                 {
                     Game1.playSound("cowboy_monsterhit");
                     DelayedAction.playSoundAfterDelay("cowboy_monsterhit", 100);
                     __instance.SetInstanceField("pressedButtonTimer", 100f);
-                    // The function call is in the update, or else it doesn't push the button
+                    // The function call is in the update, to allow the push animation
                 }
             }
 

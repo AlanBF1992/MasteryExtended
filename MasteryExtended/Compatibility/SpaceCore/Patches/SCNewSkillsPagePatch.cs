@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using MasteryExtended.Menu.Pages;
 using MasteryExtended.Patches;
 using MasteryExtended.Skills;
@@ -23,7 +23,8 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
 
                 // VANILLA SKILLS
                 // from: string.Concat(whichProfession)
-                // to:   "{skill},{lvl}", pa parsearlo luego y weá
+                // to:   "{skill},{lvl}"
+                // To parse the result later
                 matcher
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Ldloc_S),
@@ -66,7 +67,8 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
                 ;
 
                 // from: NewSkillsPage.CustomSkillPrefix + profession.Id
-                // to:   "{skill},{lvl}", pa parsearlo luego y weá
+                // to:   "{skill},{lvl}"
+                // To parse the result later
                 matcher
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Ldstr),

@@ -19,7 +19,7 @@ namespace MasteryExtended.Compatibility.SpaceCore
             /************************************
              * Farmer Experience & Mastery Gain *
              ************************************/
-            // Cambia como se gana experiencia en SpaceCore
+            // Changes how experience is gained in SpaceCore
             harmony.Patch(
                 original: AccessTools.Method("SpaceCore.Skills:AddExperience"),
                 transpiler: new HarmonyMethod(typeof(SCSkillsPatch), nameof(SCSkillsPatch.AddExperienceTranspiler))
@@ -28,7 +28,7 @@ namespace MasteryExtended.Compatibility.SpaceCore
             /******************
              * Register Skill *
              ******************/
-            // Agrega el skill directo desde SpaceCore
+            // Adds the skill directly from SpaceCore
             harmony.Patch(
                 original: AccessTools.Method("SpaceCore.Skills:RegisterSkill"),
                 postfix: new HarmonyMethod(typeof(SCSkillsPatch), nameof(SCSkillsPatch.RegisterSkillPostfix))
@@ -37,20 +37,20 @@ namespace MasteryExtended.Compatibility.SpaceCore
             /*************
              * SkillPage *
              *************/
-            // Cambia el formato de los skillBars, para no que no dibuje nada
+            // Changes the skillBars format to prevent drawing
             Type skillsPage = AccessTools.TypeByName("SpaceCore.Interface.NewSkillsPage");
             harmony.Patch(
                 original: AccessTools.Constructor(skillsPage, [typeof(int), typeof(int), typeof(int), typeof(int)]),
                 transpiler: new HarmonyMethod(typeof(SCNewSkillsPagePatch), nameof(SCNewSkillsPagePatch.ctorTranspiler))
             );
 
-            // Cambia el ancho mostrado por la barra de maestría, modifica los números y agrega el nuevo dibujo de las profesiones
+            // Changes the Mastery Bar width, modifies numbers, and adds new profession drawing
             harmony.Patch(
                 original: AccessTools.Method("SpaceCore.Interface.NewSkillsPage:draw", [typeof(SpriteBatch)]),
                 transpiler: new HarmonyMethod(typeof(SCNewSkillsPagePatch), nameof(SCNewSkillsPagePatch.drawTranspiler))
             );
 
-            // Se asegura que se vean las profesiones al hacer Hover
+            // Makes sure professions are shown when hovering
             harmony.Patch(
                 original: AccessTools.Method("SpaceCore.Interface.NewSkillsPage:performHoverAction"),
                 transpiler: new HarmonyMethod(typeof(SCNewSkillsPagePatch), nameof(SCNewSkillsPagePatch.performHoverActionTranspiler))

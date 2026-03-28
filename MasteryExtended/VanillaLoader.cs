@@ -1,4 +1,4 @@
-using HarmonyLib;
+﻿using HarmonyLib;
 using MasteryExtended.Compatibility.BGM;
 using MasteryExtended.Compatibility.GMCM;
 using MasteryExtended.Patches;
@@ -58,31 +58,31 @@ namespace MasteryExtended
             /************************************
              * Farmer Experience & Mastery Gain *
              ************************************/
-            // Cambia la forma en la que se calcula el nivel en Vanilla
+            // Changes how the level is calculated in Vanilla, since it expects the Luck to always be 0
             harmony.Patch(
                 original: AccessTools.Method(typeof(Farmer), "get_Level"),
                 transpiler: new HarmonyMethod(typeof(FarmerPatch), nameof(FarmerPatch.LevelTranspiler))
             );
 
-            // Cambia la forma en la que se entrega la info para el título
+            // Changes how title information is provided with or without the Luck skill
             harmony.Patch(
                 original: AccessTools.Method(typeof(Farmer), nameof(Farmer.getTitle)),
                 transpiler: new HarmonyMethod(typeof(FarmerPatch), nameof(FarmerPatch.getTitleTranspiler))
             );
 
-            // Aumenta el máximo nivel de Mastery
+            // Increases the maximum Mastery level
             harmony.Patch(
                 original: AccessTools.Method(typeof(MasteryTrackerMenu), nameof(MasteryTrackerMenu.getCurrentMasteryLevel)),
                 postfix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.getCurrentMasteryLevelPostfix))
             );
 
-            // Devuelve la experiencia necesaria para un nuevo nivel de maestría
+            // Returns the experience needed for a new Mastery level
             harmony.Patch(
                 original: AccessTools.Method(typeof(MasteryTrackerMenu), nameof(MasteryTrackerMenu.getMasteryExpNeededForLevel)),
                 prefix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.getMasteryExpNeededForLevelPrefix))
             );
 
-            // Permite ganar Mastery desde que se llega al máximo de la primera profesión
+            // Allows gaining Mastery after a profession reaches level 10
             harmony.Patch(
                 original: AccessTools.Method(typeof(Farmer), nameof(Farmer.gainExperience)),
                 transpiler: new HarmonyMethod(typeof(FarmerPatch), nameof(FarmerPatch.gainExperienceTranspiler))
@@ -93,13 +93,13 @@ namespace MasteryExtended
             /*************************
              * Mastery Bar & Numbers *
              *************************/
-            // Cambia el ancho mostrado por la barra de maestría y modifica los números
+            // Changes the Mastery Bar width and modifies the numbers
             harmony.Patch(
                 original: AccessTools.Method(typeof(SkillsPage), nameof(SkillsPage.draw), [typeof(SpriteBatch)]),
                 transpiler: new HarmonyMethod(typeof(SkillsPagePatch), nameof(SkillsPagePatch.drawTranspiler))
             );
 
-            // Cambia el límite de los niveles de maestría.
+            // Changes the Mastery level limit
             harmony.Patch(
                 original: AccessTools.Method(typeof(MasteryTrackerMenu), nameof(MasteryTrackerMenu.drawBar)),
                 transpiler: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.drawBarTranspiler))
@@ -110,7 +110,7 @@ namespace MasteryExtended
             /****************
              * Mastery Cave *
              ****************/
-            // Al hacer clic en la puerta, te permite acceder antes y te dice como
+            // Allows alternative access to the Mastery Cave and changes the door message
             harmony.Patch(
                 original: AccessTools.Method(typeof(GameLocation), nameof(GameLocation.performAction), [typeof(string[]), typeof(Farmer), typeof(xTile.Dimensions.Location)]),
                 transpiler: new HarmonyMethod(typeof(GameLocationPatch), nameof(GameLocationPatch.performActionTranspiler))
@@ -127,37 +127,37 @@ namespace MasteryExtended
             /**********************************
              * Mastery Cave Pedestal & Pillars
              **********************************/
-            // Modifica el menú del pedestal. Lo hace más alto y crea un botón
+            // Modifies the pedestal menu. Makes it taller and adds a button
             harmony.Patch(
                 original: AccessTools.Constructor(typeof(MasteryTrackerMenu), [typeof(int)]),
                 postfix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.ctorPostfix))
             );
 
-            // Dibuja el botón
+            // Draw the button
             harmony.Patch(
                 original: AccessTools.Method(typeof(MasteryTrackerMenu), nameof(MasteryTrackerMenu.draw), [typeof(SpriteBatch)]),
                 postfix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.drawPostfix))
             );
 
-            // Le da funcionalidad al botón
+            // Adds functionality to the button
             harmony.Patch(
                 original: AccessTools.Method(typeof(MasteryTrackerMenu), nameof(MasteryTrackerMenu.receiveLeftClick)),
                 prefix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.receiveLeftClickPrefix))
             );
 
-            // Permite que el botón tenga "animación".
+            // Allows the button to have "animation"
             harmony.Patch(
                 original: AccessTools.Method(typeof(MasteryTrackerMenu), nameof(MasteryTrackerMenu.update)),
                 prefix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.updatePrefix))
             );
 
-            // Permite que el botón muestre el porqué no se puede aclamar
+            // Allows the button to show why it cannot be claimed
             harmony.Patch(
                 original: AccessTools.Method(typeof(MasteryTrackerMenu), nameof(MasteryTrackerMenu.performHoverAction)),
                 postfix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.performHoverActionPostfix))
             );
 
-            // Bloquea el "arreglo" a la falta de profesión de nivel 10
+            // Blocks the workaround for missing level 10 profession
             harmony.Patch(
                 original: AccessTools.Method(typeof(LevelUpMenu), nameof(LevelUpMenu.AddMissedProfessionChoices)),
                 prefix: new HarmonyMethod(typeof(LevelUpMenuPatch), nameof(LevelUpMenuPatch.AddMissedProfessionChoicesPrefix))
@@ -165,11 +165,13 @@ namespace MasteryExtended
             #endregion
 
             #region Show Acquired Professions
+            // Changes the skillBars format to prevent drawing
             harmony.Patch(
                 original: AccessTools.Constructor(typeof(SkillsPage), [typeof(int), typeof(int), typeof(int), typeof(int)]),
                 transpiler: new HarmonyMethod(typeof(SkillsPagePatch), nameof(SkillsPagePatch.ctorTranspiler))
             );
 
+            // Makes sure professions are shown when hovering
             harmony.Patch(
                 original: AccessTools.Method(typeof(SkillsPage), nameof(SkillsPage.performHoverAction)),
                 transpiler: new HarmonyMethod(typeof(SkillsPagePatch), nameof(SkillsPagePatch.performHoverActionTranspiler))
@@ -194,6 +196,7 @@ namespace MasteryExtended
                 original: AccessTools.Method(typeof(MeleeWeapon), nameof(MeleeWeapon.getAreaOfEffect)),
                 postfix: new HarmonyMethod(typeof(MeleeWeaponPatch), nameof(MeleeWeaponPatch.getAreaOfEffectPostfix))
             );
+
             // Change the way the area is calculated so it works correctly
             if (!ModEntry.ModHelper.ModRegistry.IsLoaded("DaLion.Enchantments"))
             {
@@ -206,21 +209,25 @@ namespace MasteryExtended
             /*******************
              * Bait Specialist *
              *******************/
-            // Normal fish
+            // Add extra tries for normal fishes
             harmony.Patch(
                 original: AccessTools.Method(typeof(GameLocation), nameof(GameLocation.GetFishFromLocationData), [typeof(string), typeof(Vector2), typeof(int), typeof(Farmer), typeof(bool), typeof(bool), typeof(GameLocation), typeof(ItemQueryContext)]),
                 transpiler: new HarmonyMethod(typeof(GameLocationPatch), nameof(GameLocationPatch.GetFishFromLocationDataTranspiler))
             );
-            // Cave fish
+
+            // Add extra percentage for Cave fishes
             harmony.Patch(
                 original: AccessTools.Method(typeof(MineShaft), nameof(MineShaft.getFish)),
                 transpiler: new HarmonyMethod(typeof(MineShaftPatch), nameof(MineShaftPatch.getFishTranspiler))
             );
-            // Crab Pots
+
+            // Add extra percentage for Crab Pots
             harmony.Patch(
                 original: AccessTools.Method(typeof(CrabPot), nameof(CrabPot.DayUpdate)),
                 transpiler: new HarmonyMethod(typeof(CrabPotPatch), nameof(CrabPotPatch.DayUpdateTranspiler))
             );
+
+            // Allow Specific Bait to work even with the Mariner profession
             harmony.Patch(
                 original: AccessTools.Method(typeof(CrabPot), nameof(CrabPot.performObjectDropInAction)),
                 prefix: new HarmonyMethod(typeof(CrabPotPatch), nameof(CrabPotPatch.performObjectDropInActionPrefix))
@@ -229,6 +236,7 @@ namespace MasteryExtended
             /*********
              * Mason * 
              *********/
+            // Extra stone, clay, marble or granite on every rock.
             harmony.Patch(
                 original: AccessTools.Method(typeof(MineShaft), nameof(MineShaft.checkStoneForItems)),
                 transpiler: new HarmonyMethod(typeof(MineShaftPatch), nameof(MineShaftPatch.checkStoneForItemsTranspiler))
@@ -237,29 +245,35 @@ namespace MasteryExtended
             /**************
              * Woodlander * 
              **************/
+            // Add ModData to the tree when fertilizing it
             harmony.Patch(
                 original: AccessTools.Method(typeof(Object), nameof(Object.placementAction)),
                 transpiler: new HarmonyMethod(typeof(ObjectPatch), nameof(ObjectPatch.placementActionTranspiler))
             );
+
+            // Grow to stage 5 if fertilized
             harmony.Patch(
                 original: AccessTools.Method(typeof(Tree), nameof(Tree.dayUpdate)),
                 transpiler: new HarmonyMethod(typeof(TreePatch), nameof(TreePatch.dayUpdateTranspiler))
             );
+
+            // Allows tree to grow closer if fertilized
             harmony.Patch(
                 original: AccessTools.Method(typeof(Tree), nameof(Tree.IsGrowthBlockedByNearbyTree)),
                 prefix: new HarmonyMethod(typeof(TreePatch), nameof(TreePatch.IsGrowthBlockedByNearbyTreePrefix))
             );
+
+            // Fertilized trees drop extra wood
             harmony.Patch(
                 original: AccessTools.Method(typeof(Tree), nameof(Tree.tickUpdate)),
                 transpiler: new HarmonyMethod(typeof(TreePatch), nameof(TreePatch.tickUpdateTranspiler))
             );
+
+            // Fertilized trees drop extra wood from the stump
             harmony.Patch(
                 original: AccessTools.Method(typeof(Tree), "performTreeFall"),
                 transpiler: new HarmonyMethod(typeof(TreePatch), nameof(TreePatch.performTreeFallTranspiler))
             );
-
-
-
             #endregion
         }
 
@@ -268,11 +282,11 @@ namespace MasteryExtended
         {
             if (e.Ticks < 10) return;
             ModEntry.ModHelper.Events.GameLoop.UpdateTicked -= GMCMConfigVanilla;
-            // get Generic Mod Config Menu's API (if it's installed)
+            // Get Generic Mod Config Menu's API (if it's installed)
             var configMenu = ModEntry.ModHelper.ModRegistry.GetApi<IGMCMApi>("spacechase0.GenericModConfigMenu");
             if (configMenu is null)
                 return;
-            // register mod
+            // Register mod
             configMenu.Register(
                 mod: ModEntry.ModManifest,
                 reset: () => ModEntry.Config = new ModConfig(),
@@ -421,9 +435,9 @@ namespace MasteryExtended
                 interval: 1
             );
 
-            /*****************************
-             * Mastery Cave Inner Working
-             *****************************/
+            /******************************
+             * Mastery Cave Inner Working *
+             ******************************/
             configMenu.AddSectionTitle(
                 mod: ModEntry.ModManifest,
                 text: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_CavePillarsAndPedestalSettingsTitle")

@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
@@ -77,7 +77,6 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                 CodeMatcher matcher = new(instructions, generator);
 
                 MethodInfo difHeightInfo = AccessTools.Method(typeof(MasteryWarningBoxPatch), nameof(difHeight));
-                //MethodInfo spaceTwoInfo = AccessTools.Method(typeof(MasteryWarningBoxPatch), nameof(spaceTwo));
 
                 // from: this.y - (this.heightForQuestions - this.height)
                 // to:   this.y - (this.heightForQuestions - this.height) + difHeight(this)
