@@ -1,4 +1,4 @@
-using HarmonyLib;
+﻿using HarmonyLib;
 using MasteryExtended.Compatibility.GMCM;
 using MasteryExtended.Compatibility.VPP.Patches;
 using MasteryExtended.Menu.Pages;
@@ -151,9 +151,9 @@ namespace MasteryExtended.Compatibility.VPP
                 prefix: new HarmonyMethod(typeof(MasteryProfessionsPagePatch), nameof(MasteryProfessionsPagePatch.updatePrefix))
             );
 
-            /***********************
+            /**********
              * OTHERS *
-             ***********************/
+             **********/
             // Stop the hover
             harmony.Patch(
                 original: AccessTools.Method("VanillaPlusProfessions.DisplayHandler:OnRenderedActiveMenu"),

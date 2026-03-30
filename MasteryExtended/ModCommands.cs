@@ -1,4 +1,4 @@
-using MasteryExtended.Menu.Pages;
+﻿using MasteryExtended.Menu.Pages;
 using MasteryExtended.Skills;
 using StardewModdingAPI;
 using StardewValley;
@@ -47,6 +47,7 @@ namespace MasteryExtended
 
             foreach (Skill s in MasterySkillsPage.skills)
             {
+                if (s.Professions is null) continue;
                 int maxBaseProfLvl = s.Professions.Max(p => p.LevelRequired) / 5;
                 spentLevelsInProfessions += Math.Max(s.unlockedProfessionsCount() - Math.Min((int)Math.Floor(s.getLevel() / 5f), maxBaseProfLvl), 0);
             }
@@ -69,6 +70,7 @@ namespace MasteryExtended
 
             foreach (Skill s in MasterySkillsPage.skills)
             {
+                if (s.Professions is null) continue;
                 int maxBaseProfLvl = s.Professions.Max(p => p.LevelRequired) / 5;
                 spentLevelsInProfessions += Math.Max(s.unlockedProfessionsCount() - Math.Min((int)Math.Floor(s.getLevel() / 5f), maxBaseProfLvl), 0);
             }

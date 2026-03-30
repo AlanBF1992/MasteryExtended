@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using StardewValley.Menus;
@@ -43,7 +43,7 @@ namespace MasteryExtended.Skills.Professions
         }
 
         // SpaceCore Professions
-        public Profession(int id, Func<string> name, Func<string> description, int levelRequired, Profession? requiredProfession, Func<Texture2D> textureSource, Rectangle? textureBounds = null)
+        public Profession(int id, Func<string> name, Func<string> description, int levelRequired, Profession? requiredProfession, Func<Texture2D>? textureSource, Rectangle? textureBounds = null)
         {
             Id = id;
             GetName = name;
@@ -51,16 +51,23 @@ namespace MasteryExtended.Skills.Professions
             LevelRequired = levelRequired;
 
             RequiredProfessions = requiredProfession;
-            TextureSource = textureSource;
-            if (textureBounds != null)
+            if (textureSource is null)
+            {
+                TextureBounds = new Rectangle(320, 496, 16, 16);
+            }
+            else
+            {
+                TextureSource = textureSource;
+            }
+            if (textureBounds is not null)
             {
                 TextureBounds = textureBounds.Value;
             }
         }
 
-        /**************
-         * Methods
-         **************/
+        /***********
+         * Methods *
+         ***********/
 
         public void AddProfessionToPlayer()
         {

@@ -1,4 +1,4 @@
-using HarmonyLib;
+﻿using HarmonyLib;
 using MasteryExtended.Compatibility.SpaceCore;
 using MasteryExtended.Compatibility.VPP;
 using MasteryExtended.Compatibility.WoL;
@@ -76,7 +76,8 @@ namespace MasteryExtended
                 LogMonitor.Log("Vanilla Plus Profession Compat Patches Loaded", LogLevel.Info);
             }
 
-            // Console commands
+            // Queries and commands
+            ModQueries.addGameStateQueries();
             ModCommands.addConsoleCommands(helper);
 
             // Events

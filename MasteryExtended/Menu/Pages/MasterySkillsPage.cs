@@ -1,4 +1,4 @@
-using MasteryExtended.Skills;
+﻿using MasteryExtended.Skills;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
@@ -29,7 +29,7 @@ namespace MasteryExtended.Menu.Pages
 
             foreach (Skill s in shownSkills.GetRange((actualPage - 1) * 5, skillsToShow))
             {
-                pageTextureComponents.Add(new ClickableTextureComponent(Rectangle.Empty, s.TextureSource, s.TextureBounds, 4f, drawShadow: true)
+                pageTextureComponents.Add(new ClickableTextureComponent(Rectangle.Empty, s.TextureSource(), s.TextureBounds, 4f, drawShadow: true)
                 {
                     name = s.GetName(),
                     hoverText = Game1.content.LoadString("Strings\\UI:MasteryExtended_HoverSkill", s.GetName()),

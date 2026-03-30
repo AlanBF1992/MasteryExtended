@@ -1,4 +1,4 @@
-using HarmonyLib;
+﻿using HarmonyLib;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
@@ -27,8 +27,8 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                 FieldInfo widthFieldInfo = AccessTools.Field(typeof(IClickableMenu), nameof(IClickableMenu.width));
                 CodeInstruction setWidthFieldInstruction = new(OpCodes.Stfld, widthFieldInfo);
 
-                // from: I18n.Prestige_Mastery_Lock()
-                // to:   newWarning()
+                // From: I18n.Prestige_Mastery_Lock()
+                // To:   newWarning()
                 matcher
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Call, masteryOldWarningInfo)
@@ -37,8 +37,8 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                     .Operand = masteryNewWarningInfo
                 ;
 
-                // from: 1200
-                // to:   newWidth()
+                // From: 1200
+                // To:   newWidth()
 
                 matcher
                     .MatchStartForward(
@@ -50,8 +50,8 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                 matcher.Opcode = OpCodes.Call;
                 matcher.Operand = newWidthInfo;
 
-                // delete everything after: location.afterQuestion = this.AfterQuestionBehavior;
-                // and before:              this.exitFunction = () => State.WarningBox = null;
+                // Delete everything after: location.afterQuestion = this.AfterQuestionBehavior;
+                // And before:              this.exitFunction = () => State.WarningBox = null;
                 matcher
                     .MatchStartForward(new CodeMatch(OpCodes.Newobj))
                     .ThrowIfNotMatch("WoL ctorTranspiler: IL Code 3 not found")
@@ -81,8 +81,8 @@ namespace MasteryExtended.Compatibility.WoL.Patches
 
                 MethodInfo difHeightInfo = AccessTools.Method(typeof(MasteryWarningBoxPatch), nameof(difHeight));
 
-                // from: this.y - (this.heightForQuestions - this.height)
-                // to:   this.y - (this.heightForQuestions - this.height) + difHeight(this)
+                // From: this.y - (this.heightForQuestions - this.height)
+                // To:   this.y - (this.heightForQuestions - this.height) + difHeight(this)
                 matcher
                     .MatchEndForward(
                         new CodeMatch(OpCodes.Sub),
@@ -96,8 +96,8 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                     )
                 ;
 
-                // from: this.heightForQuestions + 8
-                // to:   this.heightForQuestions + 8 - difHeight() + 8
+                // From: this.heightForQuestions + 8
+                // To:   this.heightForQuestions + 8 - difHeight() + 8
                 matcher
                     .MatchEndForward(
                         new CodeMatch(OpCodes.Ldc_I4_8),
@@ -113,8 +113,8 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                     )
                 ;
 
-                // from: this.y - (this.heightForQuestions - this.height) (another one)
-                // to:   this.y - (this.heightForQuestions - this.height) + difHeight()
+                // From: this.y - (this.heightForQuestions - this.height) (another one)
+                // To:   this.y - (this.heightForQuestions - this.height) + difHeight()
                 matcher
                     .MatchEndForward(
                         new CodeMatch(OpCodes.Sub),

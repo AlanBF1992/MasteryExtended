@@ -7,24 +7,25 @@ namespace MasteryExtended.Skills
 {
     public partial class Skill
     {
-        public Func<string> GetName = () => "";
+        public Func<string> GetName { get; set; } = () => "";
 
         public int Id { get; set; }
         public List<Profession> Professions { get; set; } = [];
-        public Texture2D TextureSource { get; set; } = Game1.content.Load<Texture2D>("Maps\\springobjects");
+        public Func<Texture2D> TextureSource { get; set; } = () => Game1.content.Load<Texture2D>("Maps\\springobjects");
         public Rectangle TextureBounds { get; set; } = new Rectangle(0, 0, 16, 16);
 
         public Func<int> getLevel { get; set; } = null!;
         public Func<bool> isVisible { get; set; } = null!;
         public Action<int> addNewLevel { get; set; } = null!;
         public List<int> ProfessionChooserLevels { get; set; } = null!;
+
         /*****************
         * Public methods *
         ******************/
         public Skill() { }
 
         // Vanilla Skills
-        public Skill(int id, Texture2D? textureSource, Rectangle? textureBounds, List<Profession>? professions)
+        public Skill(int id, Func<Texture2D>? textureSource, Rectangle? textureBounds, List<Profession>? professions)
         {
             Id = id;
             GetName = id switch
@@ -48,11 +49,19 @@ namespace MasteryExtended.Skills
         }
 
         // SpaceCore Skills
-        public Skill(Func<string> name, int id, Texture2D? textureSource, List<Profession>? professions, Func<int> getLvl, Action<int> addLvl, Func<bool> showSk, List<int>? professionChooserLevels)
+        public Skill(Func<string> name, int id, Func<Texture2D>? textureSource, List<Profession>? professions, Func<int> getLvl, Action<int> addLvl, Func<bool> showSk, List<int>? professionChooserLevels)
         {
             Id = id;
             GetName = name;
-            if (textureSource != null) TextureSource = textureSource;
+            if (textureSource != null)
+            {
+                TextureSource = textureSource;
+            }
+            else
+            {
+                TextureSource = () => Game1.mouseCursors;
+                TextureBounds = new Rectangle(320, 496, 16, 16);
+            }
             if (professions != null) Professions = professions;
             getLevel = getLvl;
             addNewLevel = addLvl;

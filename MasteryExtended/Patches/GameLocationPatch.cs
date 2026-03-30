@@ -5,6 +5,7 @@ using StardewValley;
 using StardewValley.Menus;
 using System.Reflection;
 using System.Reflection.Emit;
+using xTile.Dimensions;
 
 namespace MasteryExtended.Patches
 {
@@ -27,20 +28,20 @@ namespace MasteryExtended.Patches
                 MethodInfo fullSkillsCompletedInfo = AccessTools.Method(typeof(GameLocationPatch), nameof(fullSkillsCompleted));
                 MethodInfo fullSkillsRequiredInfo = AccessTools.Method(typeof(GameLocationPatch), nameof(fullSkillsRequired));
 
-                //from: Game1.drawObjectDialogue(Game1.content.LoadString("Strings\\1_6_Strings:MasteryCave", num2));
-                //to:   Game1.drawObjectDialogue(masteryCaveString());
+                // From: Game1.drawObjectDialogue(Game1.content.LoadString("Strings\\1_6_Strings:MasteryCave", num2));
+                // To:   Game1.drawObjectDialogue(masteryCaveString());
                 matcher
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Ldstr, "doorClose")
                     )
-                    .ThrowIfNotMatch("Vanilla performAction: Label Out code not found")
+                    .ThrowIfNotMatch("GameLocationPatch.performActionTranspiler: IL code 1 not found")
                     .CreateLabel(out Label getInsideCave)
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Ldsfld),
                         new CodeMatch(OpCodes.Ldstr, "Strings\\1_6_Strings:MasteryCave"),
                         new CodeMatch(OpCodes.Ldloc_S)
                     )
-                    .ThrowIfNotMatch("Vanilla performAction: Label String code not found")
+                    .ThrowIfNotMatch("GameLocationPatch.performActionTranspiler: IL code 2 not found")
                 ;
 
                 Label stringLabel = matcher.Labels[0];
@@ -53,8 +54,8 @@ namespace MasteryExtended.Patches
                     .AddLabels([stringLabel])
                 ;
 
-                //from: if(int2 >= 5)
-                //to:   if(currentMasteryLevel() >= masteryRequired() || fullSkillsCompleted() >= fullSkillsRequired())
+                // From: if(int2 >= 5)
+                // To:   if(currentMasteryLevel() >= masteryRequired() || fullSkillsCompleted() >= fullSkillsRequired())
                 matcher
                     .Start()
                     .MatchStartForward(
@@ -62,7 +63,7 @@ namespace MasteryExtended.Patches
                         new CodeMatch(OpCodes.Ldc_I4_5),
                         new CodeMatch(OpCodes.Blt_S)
                     )
-                    .ThrowIfNotMatch("Vanilla performAction: GetInMasteryCave IL code not found")
+                    .ThrowIfNotMatch("GameLocationPatch.performActionTranspiler: IL code 3 not found")
                     .InsertAndAdvance(
                         new CodeInstruction(OpCodes.Call, currentMasteryInfo),
                         new CodeInstruction(OpCodes.Call, masteryConfigInfo),
@@ -84,14 +85,13 @@ namespace MasteryExtended.Patches
             }
         }
 
-        // Mostrar bien cuál pilar se puede obtener.
         internal static void MakeMapModificationsPostfix(GameLocation __instance)
         {
             try
             {
                 if (__instance.Name != "MasteryCave") return;
 
-                int professionsRequired = ModEntry.Config.PillarsVsProfessions != "0" ? 2 : ModEntry.Config.RequiredProfessionForPillars;
+                int professionsRequired = ModEntry.Config.PillarsVsProfessions != PillarsVsProfessionsOption.Professions ? 2 : ModEntry.Config.RequiredProfessionForPillars;
 
                 for (int which = 0; which < 5; which++)
                 {
@@ -112,15 +112,141 @@ namespace MasteryExtended.Patches
             }
         }
 
-        // Profession Forget After Recount Used Mastery Levels
-        internal static void answerDialogueActionPostFix(string questionAndAnswer)
+        internal static bool performActionPrefix(GameLocation __instance, string[] action, Farmer who, Location tileLocation, ref bool __result)
         {
-            if (!questionAndAnswer.StartsWith("professionForget_")) return;
+            if (__instance.ShouldIgnoreAction(action, who, tileLocation)
+                || !ArgUtility.TryGet(action, 0, out var actionType, out var _, allowBlank: true)
+                || !who.IsLocalPlayer
+                || !actionType.Equals("DogStatue"))
+            {
+                return true;
+            }
 
-            ModCommands.recountUsedMasteryLevels();
+            List<Response> mainDialogueOptions =
+            [
+                new Response("Powers", Game1.content.LoadString("Strings\\Locations:MasteryExtended_DogStatueMenuQuestionMainOptionPower")),
+                new Response("Reset",  Game1.content.LoadString("Strings\\Locations:MasteryExtended_DogStatueMenuQuestionMainOptionReset")),
+                new Response("Cancel", Game1.content.LoadString("Strings\\Locations:Sewer_DogStatueCancel")),
+            ];
+
+            string displayed_text = Game1.content.LoadString("Strings\\Locations:Sewer_DogStatue");
+            displayed_text = displayed_text[..displayed_text.IndexOf('^')] + "^";
+            displayed_text += Game1.content.LoadString("Strings\\Locations:MasteryExtended_DogStatueMenuQuestionMainDialogue");
+            __instance.createQuestionDialogue(displayed_text, mainDialogueOptions.ToArray(), "dogStatue");
+            __result = true;
+            return false;
         }
 
-        // Extra Fishing tries with Specific Bait
+        internal static void answerDialogueActionPostFix(GameLocation __instance, string questionAndAnswer)
+        {
+            Farmer who = Game1.player;
+
+            switch (questionAndAnswer)
+            {
+                case "dogStatue_Reset":
+                    if (Enumerable.Range(0, 5).Any(GameLocation.canRespec))
+                    {
+                        __instance.createQuestionDialogue(Game1.content.LoadString("Strings\\Locations:Sewer_DogStatue"), __instance.createYesNoResponses(), "dogStatue");
+                        break;
+                    }
+                    string text1 = Game1.content.LoadString("Strings\\Locations:Sewer_DogStatue");
+                    text1 = text1[..text1.LastIndexOf('^')];
+                    Game1.drawObjectDialogue(text1);
+                    break;
+
+                case "dogStatue_Powers":
+                case string s when s.StartsWith("dogStatue_PowersAdd_") && s.EndsWith("No"):
+
+                    bool enoughMasteryPoints = MasteryTrackerMenu.getCurrentMasteryLevel() > (int)Game1.stats.Get("masteryLevelsSpent");
+                    List<Response> powerOptions = [];
+
+                    if (enoughMasteryPoints)
+                    {
+                        var skillPowers = new (int skillId, string powerId, string label, Func<Farmer, bool> hasPower)[]
+                        {
+                            (0, "Reaper", Game1.content.LoadString("Strings\\UI:MasteryExtended_ReaperName"), MeleeWeaponPatch.isFarmerReaper),
+                            (3, "Mason", Game1.content.LoadString("Strings\\UI:MasteryExtended_MasonName"), MineShaftPatch.isFarmerMason),
+                            (2, "Woodlander", Game1.content.LoadString("Strings\\UI:MasteryExtended_WoodlanderName"), TreePatch.isFarmerWoodlander),
+                            (1, "Baitbinder", Game1.content.LoadString("Strings\\UI:MasteryExtended_BaitbinderName"), CrabPotPatch.isFarmerBaitbinder),
+                            (4, "Runesmith", Game1.content.LoadString("Strings\\UI:MasteryExtended_RunesmithName"), MeleeWeaponPatch.isFarmerRunesmith)
+                        };
+
+                        foreach (var (skill, id, label, hasPower) in skillPowers)
+                        {
+                            if (who.GetUnmodifiedSkillLevel(skill) >= 10 && !hasPower(who))
+                            {
+                                powerOptions.Add(new Response(id, label));
+                            }
+                        }
+
+                        if (who.Level >= 20 && !FarmerPatch.isFarmerAttractive(who))
+                        {
+                            powerOptions.Add(new Response("Attractive", Game1.content.LoadString("Strings\\UI:MasteryExtended_AttractiveName")));
+                        }
+                    }
+
+                    if (powerOptions.Count == 0)
+                    {
+                        string text2 = Game1.content.LoadString("Strings\\Locations:Sewer_DogStatue");
+                        text2 = text2[..text2.IndexOf('^')] + "^";
+                        if (enoughMasteryPoints)
+                        {
+                            text2 += Game1.content.LoadString("Strings\\Locations:MasteryExtended_DogStatueMenuGotAllPowers");
+                        }
+                        else
+                        {
+                            text2 += Game1.content.LoadString("Strings\\Locations:MasteryExtended_DogStatueMenuNeedMoreMasteryOrLevels");
+                        }
+                        Game1.drawObjectDialogue(text2);
+                        break;
+                    }
+
+                    powerOptions.Add(new Response("Cancel", Game1.content.LoadString("Strings\\Locations:Sewer_DogStatueCancel")));
+
+                    string text3 = Game1.content.LoadString("Strings\\Locations:Sewer_DogStatue");
+                    text3 = text3[..text3.IndexOf('^')] + "^";
+                    text3 += Game1.content.LoadString("Strings\\Locations:MasteryExtended_DogStatueMenuQuestionWhatPowerDialogue");
+
+                    __instance.createQuestionDialogue(text3, powerOptions.ToArray(), "dogStatue_PowersInfo");
+                    break;
+
+                // Show the information about the power
+                case string s when s.StartsWith("dogStatue_PowersInfo_"):
+                    string powerId = s["dogStatue_PowersInfo_".Length..];
+
+                    if (powerId == "Cancel") break;
+
+                    PowerInfo power = PowerInfo.PowerList.First(x => x.Id.EndsWith(powerId));
+                    string powerName = Game1.content.LoadString(power.DisplayNamePath);
+                    string powerDesc = Game1.content.LoadString(power.PowerDescriptionPath, power.GetSubstitutions());
+
+                    string text4 = "-" + powerName + "-^";
+                    text4 += powerDesc + "^";
+                    text4 += Game1.content.LoadString("Strings\\Locations:MasteryExtended_DogStatueMenuQuestionUnlockDialogue");
+
+                    __instance.createQuestionDialogue(text4, __instance.createYesNoResponses(), $"dogStatue_PowersAdd_{powerId}");
+                    break;
+
+                // Add the power
+                case string s when s.StartsWith("dogStatue_PowersAdd_") && s.EndsWith("Yes"):
+                    Game1.stats.Increment("masteryLevelsSpent");
+
+                    string powerId2 = s.Replace("dogStatue_PowersAdd_", "").Replace("_Yes", "");
+
+                    who.modData.Add($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/{powerId2}", "true");
+
+                    Game1.drawObjectDialogue(Game1.content.LoadString("Strings\\Locations:Sewer_DogStatueFinished"));
+
+                    DelayedAction.playSoundAfterDelay("dog_bark", 300);
+                    DelayedAction.playSoundAfterDelay("dog_bark", 900);
+                    break;
+
+                case string s when s.StartsWith("professionForget_"):
+                    ModCommands.recountUsedMasteryLevels();
+                    break;
+            }
+        }
+
         internal static IEnumerable<CodeInstruction> GetFishFromLocationDataTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             try
@@ -129,12 +255,13 @@ namespace MasteryExtended.Patches
 
                 MethodInfo fishingTriesInfo = AccessTools.Method(typeof(GameLocationPatch), nameof(fishingTries));
 
-                // from: for (int i = 0; i < 2; i++)
-                // to:   for (int i = 0; i < fishingTries(); i++)
+                // From: for (int i = 0; i < 2; i++)
+                // To:   for (int i = 0; i < fishingTries(); i++)
                 matcher
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Ldc_I4_2)
                     )
+                    .ThrowIfNotMatch("GameLocationPatch.GetFishFromLocationDataTranspiler: IL code 1 not found")
                     .InsertAndAdvance(
                         new CodeInstruction(OpCodes.Ldarg_3)
                     )
@@ -143,12 +270,13 @@ namespace MasteryExtended.Patches
                     )
                 ;
 
-                // from: if (baitTargetFish == null || !(fish.QualifiedItemId != baitTargetFish) || targetedBaitTries >= 2)
-                // to:   if (baitTargetFish == null || !(fish.QualifiedItemId != baitTargetFish) || targetedBaitTries >= fishingTries())
+                // From: if (baitTargetFish == null || !(fish.QualifiedItemId != baitTargetFish) || targetedBaitTries >= 2)
+                // To:   if (baitTargetFish == null || !(fish.QualifiedItemId != baitTargetFish) || targetedBaitTries >= fishingTries())
                 matcher
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Ldc_I4_2)
                     )
+                    .ThrowIfNotMatch("GameLocationPatch.GetFishFromLocationDataTranspiler: IL code 2 not found")
                     .InsertAndAdvance(
                         new CodeInstruction(OpCodes.Ldarg_3)
                     )
@@ -171,7 +299,7 @@ namespace MasteryExtended.Patches
          ***********/
         internal static int masteryRequired()
         {
-            return (ModEntry.Config.SkillsVsMasteryPoints.Equals("1")) ? 999 : ModEntry.Config.MasteryRequiredForCave;
+            return (ModEntry.Config.SkillsVsMasteryPoints == SkillsVsMasteryPointsOption.Skill) ? 999 : ModEntry.Config.MasteryRequiredForCave;
         }
 
         internal static void masteryCaveString()
@@ -185,23 +313,23 @@ namespace MasteryExtended.Patches
 
             switch (ModEntry.Config.SkillsVsMasteryPoints)
             {
-                case "0":
+                case SkillsVsMasteryPointsOption.SkillOrMastery:
                     Game1.drawObjectDialogue([
                         Game1.content.LoadString("Strings\\1_6_Strings:MasteryCave", skillCheck).Replace(".","").Replace("/5", $"/{ModEntry.Config.SkillsRequiredForMasteryRoom}"),
                         Game1.content.LoadString("Strings\\UI:MasteryExtended_TrascendMortalKnowledge") + $" ({masteryLevel}/{masteryRequired()})"
                     ]);
                     break;
-                case "1":
+                case SkillsVsMasteryPointsOption.Skill:
                     Game1.drawObjectDialogue(
                         Game1.content.LoadString("Strings\\1_6_Strings:MasteryCave", skillCheck).Replace(".", "").Replace("/5", $"/{ModEntry.Config.SkillsRequiredForMasteryRoom}")
                     );
                     break;
-                case "2":
+                case SkillsVsMasteryPointsOption.Mastery:
                     Game1.drawObjectDialogue(
                         Game1.content.LoadString("Strings\\UI:MasteryExtended_TrascendMortalKnowledgeOnly") + $" ({masteryLevel}/{masteryRequired()})"
                     );
                     break;
-                case "3":
+                case SkillsVsMasteryPointsOption.SkillAndMastery:
                     Game1.drawObjectDialogue([
                         Game1.content.LoadString("Strings\\1_6_Strings:MasteryCave", skillCheck).Replace(".","").Replace("/5", $"/{ModEntry.Config.SkillsRequiredForMasteryRoom}"),
                         Game1.content.LoadString("Strings\\UI:MasteryExtended_TrascendMortalKnowledgeTogether") + $" ({masteryLevel}/{masteryRequired()})"
@@ -231,8 +359,8 @@ namespace MasteryExtended.Patches
 
         internal static int fishingTries(Farmer who)
         {
-            if (!who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/BaitSpecialist", out string value)) return 2;
-            return bool.Parse(value) ? 5 : 2;
+            if (!CrabPotPatch.isFarmerBaitbinder(who)) return 2;
+            return 5;
         }
     }
 }

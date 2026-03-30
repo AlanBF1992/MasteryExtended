@@ -29,8 +29,8 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
 
                 MethodInfo newMasteryAmountInfo = AccessTools.Method(typeof(FarmerPatch), nameof(FarmerPatch.newMasteryAmount));
 
-                //from: if (prevLevel >= 10 && level >= 25)
-                //to:   if (prevLevel >= 10)
+                // From: if (prevLevel >= 10 && level >= 25)
+                // To:   if (prevLevel >= 10)
                 matcher
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Ldloc_1),
@@ -77,13 +77,13 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
                                        (Func<string>)(() => i.First.GetDescription()),
                                        i.Level,
                                        required,
-                                       (Func<Texture2D>)(() => i.First.Icon));
+                                       i.First.Icon is null ? null: (Func<Texture2D>)(() => i.First.Icon));
                 Profession second = new(i.Second.GetVanillaId(),
                                         (Func<string>)(() => i.Second.GetName()),
                                         (Func<string>)(() => i.Second.GetDescription()),
                                         i.Level,
                                         required,
-                                        (Func<Texture2D>)(() => i.Second.Icon));
+                                        i.Second.Icon is null ? null : (Func<Texture2D>)(() => i.Second.Icon));
 
                 myProfessions.Add(first);
                 myProfessions.Add(second);
@@ -91,7 +91,7 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
 
             Skill newSkill = new(() => skill.GetName(),
                               MasterySkillsPage.skills.Count,
-                              (Texture2D?)skill.Icon,
+                              skill.Icon is null? null : () => skill.Icon,
                               myProfessions,
                               () => (int)getSkillLvl.Invoke(null, [Game1.player, skill.Id])!,
                               (lvl) => newLevels.Add(new KeyValuePair<string, int>(skill.Id, lvl)),

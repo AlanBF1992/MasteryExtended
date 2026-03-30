@@ -1,5 +1,27 @@
-namespace MasteryExtended
+﻿namespace MasteryExtended
 {
+    public enum BooksQuantityOption
+    {
+        Full = 0,
+        Lite = 1,
+        None = 2
+    }
+
+    public enum SkillsVsMasteryPointsOption
+    {
+        SkillOrMastery  = 0,
+        Skill           = 1,
+        Mastery         = 2,
+        SkillAndMastery = 3
+    }
+
+    public enum PillarsVsProfessionsOption
+    {
+        Professions = 0,
+        Pillars     = 1,
+        None        = 2
+    }
+
     /// <summary>The mod configuration class from the player.</summary>
     public sealed class ModConfig
     {
@@ -8,7 +30,7 @@ namespace MasteryExtended
         // If you can open the Mastery Cave with Mastery Levels.
         public bool MasteryCaveAlternateOpening { get; set; } = true;
         // How to unlock the Mastery Room
-        public string SkillsVsMasteryPoints { get; set; } = "0";
+        public SkillsVsMasteryPointsOption SkillsVsMasteryPoints { get; set; } = SkillsVsMasteryPointsOption.SkillOrMastery;
         // Include custom Skills?
         public bool IncludeCustomSkills { get; set; } = true;
         // Mastery required to access the Mastery Room.
@@ -22,7 +44,7 @@ namespace MasteryExtended
         // See title of Profession on Menu Hover.
         public bool ProfessionNameOnMenuHover { get; set; } = false;
         // Order of the unlocking.
-        public string PillarsVsProfessions { get; set; } = "0";
+        public PillarsVsProfessionsOption PillarsVsProfessions { get; set; } = PillarsVsProfessionsOption.Professions;
         // Require n professions for the pillars, with 2<=n<=6.
         public int RequiredProfessionForPillars { get; set; } = 3;
         // Require n pillars for the pedestal, with 1<=n<=5.
@@ -34,7 +56,7 @@ namespace MasteryExtended
         // VPP: Level 15 Professions required to get an extra combo.
         public int Lvl15ProfessionsRequired { get; set; } = 4;
         // Book Quantity Config
-        public string BooksQuantity { get; set; } = "0";
+        public BooksQuantityOption BooksQuantity { get; set; } = BooksQuantityOption.Full;
         // Book Price
         public int BookPrice { get; set; } = 25000;
 

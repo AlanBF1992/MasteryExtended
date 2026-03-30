@@ -23,8 +23,8 @@ namespace MasteryExtended.Compatibility.VPP.Patches
 
                 CodeMatcher matcher = new(instructions, generator);
 
-                // from: if (c.containsPoint(Game1.getMouseX(true), Game1.getMouseY(true) + (skillScrollOffset * 56)) && c.hoverText.Length > 0 && !c.name.Equals("-1"))
-                // to:   if (false)
+                // From: if (c.containsPoint(Game1.getMouseX(true), Game1.getMouseY(true) + (skillScrollOffset * 56)) && c.hoverText.Length > 0 && !c.name.Equals("-1"))
+                // To:   if (false)
                 matcher
                     .MatchStartForward(new CodeMatch(OpCodes.Ldstr, "-1"))
                     .ThrowIfNotMatch("DisplayHandlerPatch.OnRenderedActiveMenuTranspiler: IL code 1 not found")
@@ -37,8 +37,8 @@ namespace MasteryExtended.Compatibility.VPP.Patches
                     )
                 ;
 
-                // from: if (hoverText.Length > 0)
-                // to:   if (hoverText.Length > 0 && !hoverText.Equals("MasteryExtended"))
+                // From: if (hoverText.Length > 0)
+                // To:   if (hoverText.Length > 0 && !hoverText.Equals("MasteryExtended"))
                 matcher
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Ldloc_S),

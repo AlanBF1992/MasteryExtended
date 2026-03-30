@@ -1,4 +1,4 @@
-using HarmonyLib;
+﻿using HarmonyLib;
 using MasteryExtended.Menu.Pages;
 using MasteryExtended.Patches;
 using MasteryExtended.Skills;
@@ -25,8 +25,8 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
                 CodeMatcher matcher = new(instructions);
 
                 // VANILLA SKILLS
-                // from: string.Concat(whichProfession)
-                // to:   "{skill},{lvl}"
+                // From: string.Concat(whichProfession)
+                // To:   "{skill},{lvl}"
                 // To parse the result later
                 matcher
                     .MatchStartForward(
@@ -45,8 +45,8 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
                     )
                 ;
 
-                // from: professionBlurb
-                // to:   "MasteryExtended"
+                // From: professionBlurb
+                // To:   "MasteryExtended"
                 matcher
                     .MatchEndForward(
                         new CodeMatch(OpCodes.Ldnull),
@@ -57,8 +57,8 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
                 ;
 
                 // CUSTOM SKILLS
-                // from: if (drawRed && (professionLevel + 1) % 5 == 0 && profession != null)
-                // to:   if (drawRed && (professionLevel + 1) % 5 == 0)
+                // From: if (drawRed && (professionLevel + 1) % 5 == 0 && profession != null)
+                // To:   if (drawRed && (professionLevel + 1) % 5 == 0)
                 matcher.
                     MatchStartForward(
                         new CodeMatch(OpCodes.Ldloc_S),
@@ -69,8 +69,8 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
                     .RemoveInstructions(2)
                 ;
 
-                // from: NewSkillsPage.CustomSkillPrefix + profession.Id
-                // to:   "{skill},{lvl}"
+                // From: NewSkillsPage.CustomSkillPrefix + profession.Id
+                // To:   "{skill},{lvl}"
                 // To parse the result later
                 matcher
                     .MatchStartForward(
@@ -90,8 +90,8 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
                     )
                 ;
 
-                // from: professionBlurb
-                // to:   "MasteryExtended"
+                // From: professionBlurb
+                // To:   "MasteryExtended"
                 matcher
                     .MatchEndForward(
                         new CodeMatch(OpCodes.Ldnull),
@@ -122,7 +122,7 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
                 MethodInfo stringCompareInfo = AccessTools.Method(typeof(SkillsPagePatch), nameof(SkillsPagePatch.stringCompare));
                 MethodInfo drawAllProfessionsInfo = AccessTools.Method(typeof(SkillsPagePatch), nameof(SkillsPagePatch.drawAllProfessions));
 
-                // add: width = width * widthMultiplier()
+                // Add: width = width * widthMultiplier()
                 matcher.
                     MatchStartForward(
                         new CodeMatch(OpCodes.Ldc_R4, 0.1f)
@@ -138,8 +138,8 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
                         new CodeInstruction(OpCodes.Ldarg_1)
                     );
 
-                // from: masteryLevel >= 5
-                // to:   masteryLevel >= ModEntry.MaxMasteryLevels
+                // From: masteryLevel >= 5
+                // To:   masteryLevel >= ModEntry.MaxMasteryLevels
                 matcher.
                     MatchStartForward(
                         new CodeMatch(OpCodes.Ldc_I4_5)
@@ -148,8 +148,8 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
                     .Set(OpCodes.Call, MaxMasteryLevelsInfo)
                 ;
 
-                // delete: NumberSprite (2 times)
-                // add:    drawNumbers(this, b)
+                // Delete: NumberSprite (2 times)
+                // Add:    drawNumbers(this, b)
                 matcher
                     .MatchEndForward(
                         new CodeMatch(OpCodes.Ldloc_S),
@@ -165,8 +165,8 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
                     )
                 ;
 
-                // from: if (this.hoverText.Length > 0)
-                // to:   if (this.hoverText.Length > 0 && !this.hoverText.Equals("MasteryExtended"))
+                // From: if (this.hoverText.Length > 0)
+                // To:   if (this.hoverText.Length > 0 && !this.hoverText.Equals("MasteryExtended"))
                 matcher
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Ldarg_0),
@@ -196,8 +196,7 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
                     )
                 ;
 
-                // from: code repeated for some reason
-                // to:   oblivion
+                // This code is repeated for some reason
                 matcher
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Ldarg_0),
@@ -213,7 +212,7 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
 
                 matcher.RemoveInstructions(46);
 
-                // add: draw all professions in the side
+                // Add: drawAllProfessions(this, b)
                 matcher
                     .End()
                     .AddLabels(repeatedCodeLbl)
@@ -240,8 +239,8 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
             {
                 CodeMatcher matcher = new(instructions);
 
-                // from: this.hoverTitle = blabla
-                // to:   this.hoverTitle = skillBar.name
+                // From: this.hoverTitle = blabla
+                // To:   this.hoverTitle = skillBar.name
                 matcher
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Ldarg_0),
@@ -255,8 +254,8 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
                     .RemoveInstructions(12)
                 ;
 
-                // from: this.professionImage = blabla
-                // to:   this.professionImage = -1
+                // From: this.professionImage = blabla
+                // To:   this.professionImage = -1
                 matcher
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Ldarg_0),
@@ -273,8 +272,8 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
                     )
                 ;
 
-                // from: skillBar.scale = 0f;
-                // to:   skillBar.scale = 4.2f;
+                // From: skillBar.scale = 0f;
+                // To:   skillBar.scale = 4.2f;
                 matcher
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Ldloc_1),
@@ -298,7 +297,7 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
         /***********
          * METHODS *
          ***********/
-        private static string joinCustomSkillLvl(object skill, int lvl)
+        internal static string joinCustomSkillLvl(object skill, int lvl)
         {
             var metodoSC = AccessTools.Method("SpaceCore.Skills+Skill:GetName");
             string name = (string)metodoSC.Invoke(skill, null)!;

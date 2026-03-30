@@ -136,9 +136,9 @@ namespace MasteryExtended.Compatibility.WoL
                 postfix: new HarmonyMethod(typeof(MasteryTrackerMenuPatch), nameof(MasteryTrackerMenuPatch.performHoverActionPostfix))
             );
 
-            /***************
-             * LVL 15 AL 20
-             ***************/
+            /****************
+             * LVL 15 AL 20 *
+             ****************/
             // Add the third type of myAlternateID
             harmony.Patch(
                 original: AccessTools.Constructor(typeof(MasteryProfessionsPage), [typeof(Skills.Skill)]),

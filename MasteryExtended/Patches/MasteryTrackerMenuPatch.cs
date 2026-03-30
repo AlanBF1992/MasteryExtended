@@ -61,16 +61,20 @@ namespace MasteryExtended.Patches
 
                 MethodInfo MaxMasteryLevelsInfo = AccessTools.PropertyGetter(typeof(ModEntry), nameof(ModEntry.MaxMasteryLevels));
 
-                // from: 5
-                // to:   ModEntry.MaxMasteryLevels
+                // From: 5
+                // To:   ModEntry.MaxMasteryLevels
                 matcher
                     .MatchStartForward(new CodeMatch(OpCodes.Ldc_I4_5))
+                    .ThrowIfNotMatch("MasteryTrackerMenuPatch.drawBarTranspiler: IL code 1 not found")
                     .Set(OpCodes.Call, MaxMasteryLevelsInfo)
                     .MatchStartForward(new CodeMatch(OpCodes.Ldc_I4_5))
+                    .ThrowIfNotMatch("MasteryTrackerMenuPatch.drawBarTranspiler: IL code 2 not found")
                     .Set(OpCodes.Call, MaxMasteryLevelsInfo)
                     .MatchStartForward(new CodeMatch(OpCodes.Ldc_I4_5))
+                    .ThrowIfNotMatch("MasteryTrackerMenuPatch.drawBarTranspiler: IL code 3 not found")
                     .Set(OpCodes.Call, MaxMasteryLevelsInfo)
                     .MatchStartForward(new CodeMatch(OpCodes.Ldc_I4_5))
+                    .ThrowIfNotMatch("MasteryTrackerMenuPatch.drawBarTranspiler: IL code 4 not found")
                     .Set(OpCodes.Call, MaxMasteryLevelsInfo)
                 ;
 
@@ -113,13 +117,13 @@ namespace MasteryExtended.Patches
                     __instance.snapCursorToCurrentSnappedComponent();
                 }
 
-                bool canClaim = ModEntry.Config.PillarsVsProfessions != "1" || (int)Game1.player.stats.Get("mastery_total_pillars") >= ModEntry.Config.RequiredPilarsToThePedestal;
+                bool canClaim = ModEntry.Config.PillarsVsProfessions != PillarsVsProfessionsOption.Pillars || (int)Game1.player.stats.Get("mastery_total_pillars") >= ModEntry.Config.RequiredPilarsToThePedestal;
 
                 __instance.SetInstanceField("canClaim", canClaim);
             }
             else
             {
-                int professionsRequired = ModEntry.Config.PillarsVsProfessions != "0" ? 2 : ModEntry.Config.RequiredProfessionForPillars;
+                int professionsRequired = ModEntry.Config.PillarsVsProfessions != PillarsVsProfessionsOption.Professions ? 2 : ModEntry.Config.RequiredProfessionForPillars;
                 int numUnlockedProfessions = MasterySkillsPage.skills.Find(s => s.Id == whichSkill)!.unlockedProfessionsCount(0, 10);
                 bool canClaim = levelsNotSpent > 0 && numUnlockedProfessions >= professionsRequired;
 
@@ -172,7 +176,7 @@ namespace MasteryExtended.Patches
                 }
 
                 // Can invest
-                bool canClaim = ModEntry.Config.PillarsVsProfessions != "1" || (int)Game1.player.stats.Get("mastery_total_pillars") >= ModEntry.Config.RequiredPilarsToThePedestal;
+                bool canClaim = ModEntry.Config.PillarsVsProfessions != PillarsVsProfessionsOption.Pillars || (int)Game1.player.stats.Get("mastery_total_pillars") >= ModEntry.Config.RequiredPilarsToThePedestal;
 
                 if (__instance.mainButton != null && !canClaim)
                 {
@@ -276,7 +280,7 @@ namespace MasteryExtended.Patches
 
                 if (which != -1)
                 {
-                    int professionsRequired = ModEntry.Config.PillarsVsProfessions != "0" ? 2 : ModEntry.Config.RequiredProfessionForPillars;
+                    int professionsRequired = ModEntry.Config.PillarsVsProfessions != PillarsVsProfessionsOption.Professions ? 2 : ModEntry.Config.RequiredProfessionForPillars;
                     bool enoughProfessions = MasterySkillsPage.skills.Find(s => s.Id == which)!.unlockedProfessionsCount(0, 10) >= professionsRequired;
 
                     __instance.mainButton.name +=
@@ -287,8 +291,6 @@ namespace MasteryExtended.Patches
                 }
                 else
                 {
-                    __instance.mainButton.name += "We require more minerals";
-
                     __instance.mainButton.name +=
                         (!freeLevel ? Game1.content.LoadString("Strings\\UI:MasteryExtended_NeedMoreLevels") : "") +
                         (!freeLevel ? $"\n{Game1.content.LoadString("Strings\\UI:MasteryExtended_CantSpend")}" : "");

@@ -25,6 +25,7 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Callvirt)
                     )
+                    .ThrowIfNotMatch("ProfessionPatch.RemoveProfessionFromPlayerTranspiler: IL code not found")
                     .Insert(
                         new CodeInstruction(OpCodes.Dup),
                         new CodeInstruction(OpCodes.Call, removePrestigedinfo)

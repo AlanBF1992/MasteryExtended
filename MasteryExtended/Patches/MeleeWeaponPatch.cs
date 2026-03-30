@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
+using StardewValley.Enchantments;
 using StardewValley.Extensions;
 using StardewValley.Tools;
 using System.Reflection;
@@ -29,6 +30,7 @@ namespace MasteryExtended.Patches
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Call, getListOfTileLocationsForBordersOfNonTileRectangleInfo)
                     )
+                    .ThrowIfNotMatch("MeleeWeaponPatch.DoDamageTranspiler: IL code not found")
                     .InsertAndAdvance(
                         new CodeInstruction(OpCodes.Ldarg_0)
                     )
@@ -47,16 +49,15 @@ namespace MasteryExtended.Patches
         internal static void getAreaOfEffectPostfix(MeleeWeapon __instance, int x, int y, int facingDirection, ref Vector2 tileLocation1, ref Vector2 tileLocation2, Rectangle wielderBoundingBox, int indexInCurrentAnimation, ref Rectangle __result)
         {
             if (!__instance.isScythe()
-                || !__instance.lastUser.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Reaper", out string value)
-                || !bool.Parse(value))
+                || !isFarmerReaper(__instance.lastUser))
             {
                 return;
             }
 
             Rectangle areaOfEffect = Rectangle.Empty;
 
-            const int width = 192;
-            const int height = 192;
+            const int width = 128;
+            const int height = 128;
 
             switch (facingDirection)
             {
@@ -186,19 +187,124 @@ namespace MasteryExtended.Patches
             __result = areaOfEffect;
         }
 
+        internal static bool attemptAddRandomInnateEnchantmentPrefix(Item item, Random r, bool force, List<BaseEnchantment> enchantsToReroll, ref Item __result)
+        {
+            if (item is not MeleeWeapon weapon
+                || !isFarmerRunesmith(weapon.lastUser)) return true;
+            r ??= Game1.random;
+
+            if (force || r.NextBool())
+            {
+                while (true)
+                {
+                    int weaponLevel = Math.Min(weapon.getItemLevel(), 15);
+                    bool needsAtLeastOneBasic = true;
+                    bool needsAtLeastOneMain = true;
+
+                    while (needsAtLeastOneBasic)
+                    {
+                        if (r.NextDouble() < 0.125)
+                        {
+                            weapon.AddEnchantment(new DefenseEnchantment
+                            {
+                                Level = Math.Max(1, Math.Min(2, r.Next(weaponLevel + 1) / 2 + 1))
+                            });
+                            needsAtLeastOneBasic = false;
+                        }
+                        if (r.NextDouble() < 0.125)
+                        {
+                            weapon.AddEnchantment(new LightweightEnchantment
+                            {
+                                Level = r.Next(1, 6)
+                            });
+                            needsAtLeastOneBasic = false;
+                        }
+                        if (r.NextDouble() < 0.125)
+                        {
+                            weapon.AddEnchantment(new SlimeGathererEnchantment());
+                            needsAtLeastOneBasic = false;
+                        }
+                    }
+                    while (needsAtLeastOneMain)
+                    {
+                        if (r.NextDouble() < 0.2)
+                        {
+                            weapon.AddEnchantment(new AttackEnchantment
+                            {
+                                Level = Math.Max(1, Math.Min(5, r.Next(weaponLevel + 1) / 2 + 1))
+                            });
+                            needsAtLeastOneMain = false;
+                        }
+                        if (r.NextDouble() < 0.2)
+                        {
+                            weapon.AddEnchantment(new CritEnchantment
+                            {
+                                Level = Math.Max(1, Math.Min(3, r.Next(weaponLevel) / 3))
+                            });
+                            needsAtLeastOneMain = false;
+                        }
+                        if (r.NextDouble() < 0.2)
+                        {
+                            weapon.AddEnchantment(new WeaponSpeedEnchantment
+                            {
+                                Level = Math.Max(1, Math.Min(Math.Max(1, 4 - weapon.speed.Value), r.Next(weaponLevel)))
+                            });
+                            needsAtLeastOneMain = false;
+                        }
+                        if (r.NextDouble() < 0.2)
+                        {
+                            weapon.AddEnchantment(new SlimeSlayerEnchantment());
+                            needsAtLeastOneMain = false;
+                        }
+                        if (r.NextDouble() < 0.2)
+                        {
+                            weapon.AddEnchantment(new CritPowerEnchantment
+                            {
+                                Level = Math.Max(1, Math.Min(3, r.Next(weaponLevel) / 3))
+                            });
+                            needsAtLeastOneMain = false;
+                        }
+                    }
+
+                    if (enchantsToReroll == null) break;
+
+                    bool foundMatch = enchantsToReroll.Any(e => weapon.enchantments.Any(w_e => w_e.GetType() == e.GetType()));
+
+                    if (!foundMatch) break;
+
+                    weapon.enchantments.RemoveWhere(enchantment => enchantment.IsSecondaryEnchantment() && enchantment is not GalaxySoulEnchantment);
+                }
+            }
+            __result = item;
+
+            return false;
+        }
+
         /***********
          * METHODS *
          ***********/
-        private static List<Vector2> pickListOfTiles(Rectangle area, Tool tool)
+        internal static List<Vector2> pickListOfTiles(Rectangle area, Tool tool)
         {
-            if (!tool.isScythe()
-                || !tool.lastUser.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Reaper", out string value)
-                || !bool.Parse(value))
+            if (!tool.isScythe() || !isFarmerReaper(tool.lastUser))
             {
                 return Utility.getListOfTileLocationsForBordersOfNonTileRectangle(area);
             }
 
             return Utilities.getListOfTileLocationsForTileRectangle(area);
+        }
+
+        internal static bool isFarmerReaper(Farmer who)
+        {
+            who ??= Game1.player;
+            return who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Reaper", out string value)
+                && bool.Parse(value);
+        }
+
+        internal static bool isFarmerRunesmith(Farmer who)
+        {
+            who ??= Game1.player;
+            return who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Runesmith", out string value)
+                && bool.Parse(value);
         }
     }
 }

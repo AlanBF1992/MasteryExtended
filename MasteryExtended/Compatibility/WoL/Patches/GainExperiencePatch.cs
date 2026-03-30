@@ -26,8 +26,8 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                 MethodInfo currentLevelInfo = AccessTools.Method("DaLion.Professions.Framework.VanillaSkill:get_CurrentLevel");
                 MethodInfo canGainPrestigeInfo = AccessTools.Method("DaLion.Professions.Framework.VanillaSkill:CanGainPrestigeLevels");
 
-                // from: if (((skill.CurrentLevel == 10 && !skill.CanGainPrestigeLevels()) || skill.CurrentLevel == 20) && Skill.List.All(s => s.CurrentLevel >= 10))
-                // to:   if (((skill.CurrentLevel == 10 && !skill.CanGainPrestigeLevels()) || skill.CurrentLevel == 20))
+                // From: if (((skill.CurrentLevel == 10 && !skill.CanGainPrestigeLevels()) || skill.CurrentLevel == 20) && Skill.List.All(s => s.CurrentLevel >= 10))
+                // To:   if (((skill.CurrentLevel == 10 && !skill.CanGainPrestigeLevels()) || skill.CurrentLevel == 20))
                 matcher
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Call),
@@ -42,8 +42,8 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                     .Set(OpCodes.Brfalse_S, alwaysTrue)
                 ;
 
-                // from: Game1.stats.Increment("MasteryExp", howMuch);
-                // to:   Game1.stats.Increment("MasteryExp", howMuchWhich(howMuch, which));
+                // From: Game1.stats.Increment("MasteryExp", howMuch);
+                // To:   Game1.stats.Increment("MasteryExp", howMuchWhich(howMuch, which));
                 matcher
                     .MatchEndForward(
                         new CodeMatch(OpCodes.Ldstr),
@@ -57,7 +57,7 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                     )
                 ;
 
-                // add:   if (currentSkillLevel >= 10 && canGainPrestigeLevels) expShare(skill, howMuch)
+                // Add:   if (currentSkillLevel >= 10 && canGainPrestigeLevels) expShare(skill, howMuch)
                 matcher
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Ldloc_0),
@@ -105,12 +105,12 @@ namespace MasteryExtended.Compatibility.WoL.Patches
         /***********
          * METHODS *
          ***********/
-        private static int howMuchWhich(int howMuch, int which)
+        internal static int howMuchWhich(int howMuch, int which)
         {
             return Math.Max(1, which == 0 ? (FarmerPatch.newMasteryAmount(howMuch, which) / 2) : FarmerPatch.newMasteryAmount(howMuch, which));
         }
 
-        private static void expShare(object skill, int howMuch)
+        internal static void expShare(object skill, int howMuch)
         {
             var currentSkillLevel = (int)skill.InvokeFunction("get_CurrentLevel", [])!;
             var which = (int)skill.InvokeFunction("get_Id", [])!;

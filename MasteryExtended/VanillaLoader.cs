@@ -18,6 +18,7 @@ using StardewValley.Menus;
 using StardewValley.Objects;
 using StardewValley.TerrainFeatures;
 using StardewValley.Tools;
+using xTile.Dimensions;
 using Object = StardewValley.Object;
 
 namespace MasteryExtended
@@ -33,7 +34,9 @@ namespace MasteryExtended
 
             helper.Events.Content.AssetRequested += UpdateTentKit;
             helper.Events.Content.AssetRequested += UIStringsAssetRequested;
-            helper.Events.Content.AssetRequested += BookPowersAssetRequested;
+            helper.Events.Content.AssetRequested += TilesheetsAssetRequested;
+            helper.Events.Content.AssetRequested += PowersAssetRequested;
+            helper.Events.Content.AssetRequested += BooksAssetRequested;
 
             helper.Events.GameLoop.UpdateTicked += GMCMConfigVanilla;
             helper.Events.GameLoop.SaveLoaded += CalculatePillarsUnlocked;
@@ -124,9 +127,9 @@ namespace MasteryExtended
             #endregion
 
             #region Mastery Cave Pedestal and Pillars
-            /**********************************
-             * Mastery Cave Pedestal & Pillars
-             **********************************/
+            /***********************************
+             * Mastery Cave Pedestal & Pillars *
+             ***********************************/
             // Modifies the pedestal menu. Makes it taller and adds a button
             harmony.Patch(
                 original: AccessTools.Constructor(typeof(MasteryTrackerMenu), [typeof(int)]),
@@ -179,10 +182,16 @@ namespace MasteryExtended
             #endregion
 
             #region Others
-            /***************
-             * Dog Statue
-             ***************/
-            // Profession Forget Event
+            /**************
+             * Dog Statue *
+             **************/
+            // Change Statue of Uncertainty to handle hidden powers
+            harmony.Patch(
+                original: AccessTools.Method(typeof(GameLocation), nameof(GameLocation.performAction), [typeof(string[]), typeof(Farmer), typeof(Location)]),
+                prefix: new HarmonyMethod(typeof(GameLocationPatch), nameof(GameLocationPatch.performActionPrefix))
+            );
+
+            // Profession Forget After Recount Used Mastery Levels
             harmony.Patch(
                 original: AccessTools.Method(typeof(GameLocation), nameof(GameLocation.answerDialogueAction)),
                 postfix: new HarmonyMethod(typeof(GameLocationPatch), nameof(GameLocationPatch.answerDialogueActionPostFix))
@@ -206,9 +215,9 @@ namespace MasteryExtended
                 );
             }
 
-            /*******************
-             * Bait Specialist *
-             *******************/
+            /**************
+             * Baitbinder *
+             **************/
             // Add extra tries for normal fishes
             harmony.Patch(
                 original: AccessTools.Method(typeof(GameLocation), nameof(GameLocation.GetFishFromLocationData), [typeof(string), typeof(Vector2), typeof(int), typeof(Farmer), typeof(bool), typeof(bool), typeof(GameLocation), typeof(ItemQueryContext)]),
@@ -274,6 +283,36 @@ namespace MasteryExtended
                 original: AccessTools.Method(typeof(Tree), "performTreeFall"),
                 transpiler: new HarmonyMethod(typeof(TreePatch), nameof(TreePatch.performTreeFallTranspiler))
             );
+
+            /*************
+             * Runesmith * 
+             *************/
+            // Any weapon can get innate enchantments
+            harmony.Patch(
+                original: AccessTools.Method(typeof(Tool), nameof(Tool.CanForge)),
+                transpiler: new HarmonyMethod(typeof(ToolPatch), nameof(ToolPatch.CanForgeTranspiler))
+            );
+
+            // Innate enchantments are independent
+            harmony.Patch(
+                original: AccessTools.Method(typeof(MeleeWeapon), nameof(MeleeWeapon.attemptAddRandomInnateEnchantment)),
+                prefix: new HarmonyMethod(typeof(MeleeWeaponPatch), nameof(MeleeWeaponPatch.attemptAddRandomInnateEnchantmentPrefix))
+            );
+
+            // Halves shards forging cost
+            harmony.Patch(
+                original: AccessTools.Method(typeof(ForgeMenu), nameof(ForgeMenu.GetForgeCost)),
+                postfix: new HarmonyMethod(typeof(ForgeMenuPatch), nameof(ForgeMenuPatch.GetForgeCostPostfix))
+            );
+
+            /**************
+             * Attractive * 
+             **************/
+            // +128 Magnetism
+            harmony.Patch(
+                original: AccessTools.Method(typeof(Farmer), nameof(Farmer.GetAppliedMagneticRadius)),
+                postfix: new HarmonyMethod(typeof(FarmerPatch), nameof(FarmerPatch.GetAppliedMagneticRadiusPostfix))
+            );
             #endregion
         }
 
@@ -313,20 +352,27 @@ namespace MasteryExtended
                 interval: 5000
             );
 
-            // Which way the Pillars unlock
+            // Books for extra Mastery Exp gain
             configMenu.AddTextOption(
                 mod: ModEntry.ModManifest,
-                getValue: () => ModEntry.Config.BooksQuantity,
+                getValue: () => ModEntry.Config.BooksQuantity.ToString("D"),
                 setValue: value =>
                 {
-                    ModEntry.Config.BooksQuantity = value;
+                    if (Enum.TryParse(value, true, out BooksQuantityOption option))
+                    {
+                        ModEntry.Config.BooksQuantity = option;
+                    }
+                    else
+                    {
+                        ModEntry.Config.BooksQuantity = (BooksQuantityOption)int.Parse(value);
+                    }
                     ModEntry.ModHelper.GameContent.InvalidateCache("Data\\Objects");
                     ModEntry.ModHelper.GameContent.InvalidateCache("Data\\Shops");
                     ModEntry.ModHelper.GameContent.InvalidateCache("Data\\Powers");
                 },
                 name: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_BookMasteryName"),
                 tooltip: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_BookMasteryTooltip", Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_BookMasteryName0")),
-                allowedValues: ["0", "1", "2"],
+                allowedValues: [.. Enum.GetValues<BooksQuantityOption>().Cast<int>().Select(x => x.ToString())],
                 formatAllowedValue: (value) =>
                 {
                     return value switch
@@ -387,11 +433,21 @@ namespace MasteryExtended
             // Which way the Cave unlocks
             configMenu.AddTextOption(
                 mod: ModEntry.ModManifest,
-                getValue: () => ModEntry.Config.SkillsVsMasteryPoints,
-                setValue: value => ModEntry.Config.SkillsVsMasteryPoints = value,
+                getValue: () => ModEntry.Config.SkillsVsMasteryPoints.ToString("D"),
+                setValue: value =>
+                {
+                    if (Enum.TryParse(value, true, out SkillsVsMasteryPointsOption option))
+                    {
+                        ModEntry.Config.SkillsVsMasteryPoints = option;
+                    }
+                    else
+                    {
+                        ModEntry.Config.SkillsVsMasteryPoints = (SkillsVsMasteryPointsOption)int.Parse(value);
+                    }
+                },
                 name: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_HowToAccessCaveName"),
                 tooltip: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_HowToAccessCaveTooltip", Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_HowToAccessCave0")),
-                allowedValues: ["0", "1", "2", "3"],
+                allowedValues: [.. Enum.GetValues<SkillsVsMasteryPointsOption>().Cast<int>().Select(x => x.ToString())],
                 formatAllowedValue: (value) =>
                 {
                     return value switch
@@ -446,8 +502,18 @@ namespace MasteryExtended
             // Which way the Pillars unlock
             configMenu.AddTextOption(
                 mod: ModEntry.ModManifest,
-                getValue: () => ModEntry.Config.PillarsVsProfessions,
-                setValue: value => ModEntry.Config.PillarsVsProfessions = value,
+                getValue: () => ModEntry.Config.PillarsVsProfessions.ToString("D"),
+                setValue: value =>
+                {
+                    if (Enum.TryParse(value, true, out PillarsVsProfessionsOption option))
+                    {
+                        ModEntry.Config.PillarsVsProfessions = option;
+                    }
+                    else
+                    {
+                        ModEntry.Config.PillarsVsProfessions = (PillarsVsProfessionsOption)int.Parse(value);
+                    }
+                },
                 name: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_UnlockOrderCaveName"),
                 tooltip: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_UnlockOrderCaveTooltip", Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_UnlockOrderCave0")),
                 allowedValues: ["0", "1", "2"],
@@ -514,8 +580,7 @@ namespace MasteryExtended
             if (e.NameWithoutLocale.IsEquivalentTo("Data/CraftingRecipes"))
             {
                 if (Game1.player is not Farmer who
-                    || !who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Woodlander", out string value)
-                    || !bool.Parse(value))
+                    || !TreePatch.isFarmerWoodlander(who))
                 {
                     return;
                 }
@@ -601,59 +666,6 @@ namespace MasteryExtended
                     editor.Data.Add("MasteryExtended_GMCM_PercentMasteryExperienceSharedName", ModEntry.ModHelper.Translation.Get("gmcm-percent-mastery-experience-shared-name"));
                     editor.Data.Add("MasteryExtended_GMCM_PercentMasteryExperienceSharedTooltip", ModEntry.ModHelper.Translation.Get("gmcm-percent-mastery-experience-shared-tooltip"));
 
-                    editor.Data.Add("MasteryExtended_GMCM_VPPCompatSettingsTitle", ModEntry.ModHelper.Translation.Get("gmcm-vpp-compat-settings-title"));
-                    editor.Data.Add("MasteryExtended_GMCM_VPPLvl10ForLvl15Name", ModEntry.ModHelper.Translation.Get("gmcm-vpp-lvl10-for-lvl15-name"));
-                    editor.Data.Add("MasteryExtended_GMCM_VPPLvl10ForLvl15Tooltip", ModEntry.ModHelper.Translation.Get("gmcm-vpp-lvl10-for-lvl15-tooltip"));
-                    editor.Data.Add("MasteryExtended_GMCM_VPPLvl15ForLvl20Name", ModEntry.ModHelper.Translation.Get("gmcm-vpp-lvl15-for-lvl20-name"));
-                    editor.Data.Add("MasteryExtended_GMCM_VPPLvl15ForLvl20Tooltip", ModEntry.ModHelper.Translation.Get("gmcm-vpp-lvl15-for-lvl20-tooltip"));
-
-                    editor.Data.Add("MasteryExtended_BookSkillFarmingMasteryBookName", ModEntry.ModHelper.Translation.Get("book-skill-farming-mastery-name"));
-                    editor.Data.Add("MasteryExtended_BookSkillFarmingMasteryBookDescription", ModEntry.ModHelper.Translation.Get("book-skill-farming-mastery-description"));
-                    editor.Data.Add("MasteryExtended_BookSkillFishingMasteryBookName", ModEntry.ModHelper.Translation.Get("book-skill-fishing-mastery-name"));
-                    editor.Data.Add("MasteryExtended_BookSkillFishingMasteryBookDescription", ModEntry.ModHelper.Translation.Get("book-skill-fishing-mastery-description"));
-                    editor.Data.Add("MasteryExtended_BookSkillForagingMasteryBookName", ModEntry.ModHelper.Translation.Get("book-skill-foraging-mastery-name"));
-                    editor.Data.Add("MasteryExtended_BookSkillForagingMasteryBookDescription", ModEntry.ModHelper.Translation.Get("book-skill-foraging-mastery-description"));
-                    editor.Data.Add("MasteryExtended_BookSkillMiningMasteryBookName", ModEntry.ModHelper.Translation.Get("book-skill-mining-mastery-name"));
-                    editor.Data.Add("MasteryExtended_BookSkillMiningMasteryBookDescription", ModEntry.ModHelper.Translation.Get("book-skill-mining-mastery-description"));
-                    editor.Data.Add("MasteryExtended_BookSkillCombatMasteryBookName", ModEntry.ModHelper.Translation.Get("book-skill-combat-mastery-name"));
-                    editor.Data.Add("MasteryExtended_BookSkillCombatMasteryBookDescription", ModEntry.ModHelper.Translation.Get("book-skill-combat-mastery-description"));
-
-                    editor.Data.Add("MasteryExtended_BookCoopmasterMasteryBookName", ModEntry.ModHelper.Translation.Get("book-coopmaster-mastery-name"));
-                    editor.Data.Add("MasteryExtended_BookShepherdMasteryBookName", ModEntry.ModHelper.Translation.Get("book-shepherd-mastery-name"));
-                    editor.Data.Add("MasteryExtended_BookArtisanMasteryBookName", ModEntry.ModHelper.Translation.Get("book-artisan-mastery-name"));
-                    editor.Data.Add("MasteryExtended_BookAgriculturistMasteryBookName", ModEntry.ModHelper.Translation.Get("book-agriculturist-mastery-name"));
-                    editor.Data.Add("MasteryExtended_BookProfessionFarmingMasteryBookDescription", ModEntry.ModHelper.Translation.Get("book-profession-farming-mastery-description"));
-
-                    editor.Data.Add("MasteryExtended_BookAnglerMasteryBookName", ModEntry.ModHelper.Translation.Get("book-angler-mastery-name"));
-                    editor.Data.Add("MasteryExtended_BookPirateMasteryBookName", ModEntry.ModHelper.Translation.Get("book-pirate-mastery-name"));
-                    editor.Data.Add("MasteryExtended_BookMarinerMasteryBookName", ModEntry.ModHelper.Translation.Get("book-mariner-mastery-name"));
-                    editor.Data.Add("MasteryExtended_BookLuremasterMasteryBookName", ModEntry.ModHelper.Translation.Get("book-luremaster-mastery-name"));
-                    editor.Data.Add("MasteryExtended_BookProfessionFishingMasteryBookDescription", ModEntry.ModHelper.Translation.Get("book-profession-fishing-mastery-description"));
-
-                    editor.Data.Add("MasteryExtended_BookLumberjackMasteryBookName", ModEntry.ModHelper.Translation.Get("book-lumberjack-mastery-name"));
-                    editor.Data.Add("MasteryExtended_BookTapperMasteryBookName", ModEntry.ModHelper.Translation.Get("book-tapper-mastery-name"));
-                    editor.Data.Add("MasteryExtended_BookBotanistMasteryBookName", ModEntry.ModHelper.Translation.Get("book-botanist-mastery-name"));
-                    editor.Data.Add("MasteryExtended_BookTrackerMasteryBookName", ModEntry.ModHelper.Translation.Get("book-tracker-mastery-name"));
-                    editor.Data.Add("MasteryExtended_BookProfessionForagingMasteryBookDescription", ModEntry.ModHelper.Translation.Get("book-profession-foraging-mastery-description"));
-
-                    editor.Data.Add("MasteryExtended_BookBlacksmithMasteryBookName", ModEntry.ModHelper.Translation.Get("book-blacksmith-mastery-name"));
-                    editor.Data.Add("MasteryExtended_BookProspectorMasteryBookName", ModEntry.ModHelper.Translation.Get("book-prospector-mastery-name"));
-                    editor.Data.Add("MasteryExtended_BookExcavatorMasteryBookName", ModEntry.ModHelper.Translation.Get("book-excavator-mastery-name"));
-                    editor.Data.Add("MasteryExtended_BookGemologistMasteryBookName", ModEntry.ModHelper.Translation.Get("book-gemologist-mastery-name"));
-                    editor.Data.Add("MasteryExtended_BookProfessionMiningMasteryBookDescription", ModEntry.ModHelper.Translation.Get("book-profession-mining-mastery-description"));
-
-                    editor.Data.Add("MasteryExtended_BookBruteMasteryBookName", ModEntry.ModHelper.Translation.Get("book-brute-mastery-name"));
-                    editor.Data.Add("MasteryExtended_BookDefenderMasteryBookName", ModEntry.ModHelper.Translation.Get("book-defender-mastery-name"));
-                    editor.Data.Add("MasteryExtended_BookAcrobatMasteryBookName", ModEntry.ModHelper.Translation.Get("book-acrobat-mastery-name"));
-                    editor.Data.Add("MasteryExtended_BookDesperadoMasteryBookName", ModEntry.ModHelper.Translation.Get("book-desperado-mastery-name"));
-                    editor.Data.Add("MasteryExtended_BookProfessionCombatMasteryBookDescription", ModEntry.ModHelper.Translation.Get("book-profession-combat-mastery-description"));
-
-                    editor.Data.Add("MasteryExtended_BookUnlockMasteryBookName", ModEntry.ModHelper.Translation.Get("book-unlock-mastery-name"));
-                    editor.Data.Add("MasteryExtended_BookUnlockMasteryBookDescription", ModEntry.ModHelper.Translation.Get("book-unlock-mastery-description"));
-
-                    editor.Data.Add("MasteryExtended_BookCompleteMasteryBookName", ModEntry.ModHelper.Translation.Get("book-complete-mastery-name"));
-                    editor.Data.Add("MasteryExtended_BookCompleteMasteryBookDescription", ModEntry.ModHelper.Translation.Get("book-complete-mastery-description"));
-
                     editor.Data.Add("MasteryExtended_GMCM_BookMasteryName", ModEntry.ModHelper.Translation.Get("gmcm-book-mastery-name"));
                     editor.Data.Add("MasteryExtended_GMCM_BookMasteryTooltip", ModEntry.ModHelper.Translation.Get("gmcm-book-mastery-tooltip"));
                     editor.Data.Add("MasteryExtended_GMCM_BookMasteryName0", ModEntry.ModHelper.Translation.Get("gmcm-book-mastery-0"));
@@ -664,33 +676,151 @@ namespace MasteryExtended
                     editor.Data.Add("MasteryExtended_GMCM_BookMasteryPriceName", ModEntry.ModHelper.Translation.Get("gmcm-book-mastery-price-name"));
                     editor.Data.Add("MasteryExtended_GMCM_BookMasteryPriceTooltip", ModEntry.ModHelper.Translation.Get("gmcm-book-mastery-price-tooltip"));
 
-                    editor.Data.Add("MasteryExtended_PowerSkillFarmingMasteryBookDescription", ModEntry.ModHelper.Translation.Get("power-skill-farming-mastery-description"));
-                    editor.Data.Add("MasteryExtended_PowerSkillFishingMasteryBookDescription", ModEntry.ModHelper.Translation.Get("power-skill-fishing-mastery-description"));
-                    editor.Data.Add("MasteryExtended_PowerSkillForagingMasteryBookDescription", ModEntry.ModHelper.Translation.Get("power-skill-foraging-mastery-description"));
-                    editor.Data.Add("MasteryExtended_PowerSkillMiningMasteryBookDescription", ModEntry.ModHelper.Translation.Get("power-skill-mining-mastery-description"));
-                    editor.Data.Add("MasteryExtended_PowerSkillCombatMasteryBookDescription", ModEntry.ModHelper.Translation.Get("power-skill-combat-mastery-description"));
+                    editor.Data.Add("MasteryExtended_GMCM_VPPCompatSettingsTitle", ModEntry.ModHelper.Translation.Get("gmcm-vpp-compat-settings-title"));
+                    editor.Data.Add("MasteryExtended_GMCM_VPPLvl10ForLvl15Name", ModEntry.ModHelper.Translation.Get("gmcm-vpp-lvl10-for-lvl15-name"));
+                    editor.Data.Add("MasteryExtended_GMCM_VPPLvl10ForLvl15Tooltip", ModEntry.ModHelper.Translation.Get("gmcm-vpp-lvl10-for-lvl15-tooltip"));
+                    editor.Data.Add("MasteryExtended_GMCM_VPPLvl15ForLvl20Name", ModEntry.ModHelper.Translation.Get("gmcm-vpp-lvl15-for-lvl20-name"));
+                    editor.Data.Add("MasteryExtended_GMCM_VPPLvl15ForLvl20Tooltip", ModEntry.ModHelper.Translation.Get("gmcm-vpp-lvl15-for-lvl20-tooltip"));
+
+                    editor.Data.Add("MasteryExtended_BookMastery_SkillFarming_BookName", ModEntry.ModHelper.Translation.Get("book-skill-farming-mastery-name"));
+                    editor.Data.Add("MasteryExtended_BookMastery_SkillFarming_BookDescription", ModEntry.ModHelper.Translation.Get("book-skill-farming-mastery-description"));
+                    editor.Data.Add("MasteryExtended_BookMastery_SkillFishing_BookName", ModEntry.ModHelper.Translation.Get("book-skill-fishing-mastery-name"));
+                    editor.Data.Add("MasteryExtended_BookMastery_SkillFishing_BookDescription", ModEntry.ModHelper.Translation.Get("book-skill-fishing-mastery-description"));
+                    editor.Data.Add("MasteryExtended_BookMastery_SkillForaging_BookName", ModEntry.ModHelper.Translation.Get("book-skill-foraging-mastery-name"));
+                    editor.Data.Add("MasteryExtended_BookMastery_SkillForaging_BookDescription", ModEntry.ModHelper.Translation.Get("book-skill-foraging-mastery-description"));
+                    editor.Data.Add("MasteryExtended_BookMastery_SkillMining_BookName", ModEntry.ModHelper.Translation.Get("book-skill-mining-mastery-name"));
+                    editor.Data.Add("MasteryExtended_BookMastery_SkillMining_BookDescription", ModEntry.ModHelper.Translation.Get("book-skill-mining-mastery-description"));
+                    editor.Data.Add("MasteryExtended_BookMastery_SkillCombat_BookName", ModEntry.ModHelper.Translation.Get("book-skill-combat-mastery-name"));
+                    editor.Data.Add("MasteryExtended_BookMastery_SkillCombat_BookDescription", ModEntry.ModHelper.Translation.Get("book-skill-combat-mastery-description"));
+
+                    editor.Data.Add("MasteryExtended_BookMastery_ProfessionCoopmaster_BookName", ModEntry.ModHelper.Translation.Get("book-coopmaster-mastery-name"));
+                    editor.Data.Add("MasteryExtended_BookMastery_ProfessionShepherd_BookName", ModEntry.ModHelper.Translation.Get("book-shepherd-mastery-name"));
+                    editor.Data.Add("MasteryExtended_BookMastery_ProfessionArtisan_BookName", ModEntry.ModHelper.Translation.Get("book-artisan-mastery-name"));
+                    editor.Data.Add("MasteryExtended_BookMastery_ProfessionAgriculturist_BookName", ModEntry.ModHelper.Translation.Get("book-agriculturist-mastery-name"));
+                    editor.Data.Add("MasteryExtended_BookMastery_ProfessionFarming_BookDescription", ModEntry.ModHelper.Translation.Get("book-profession-farming-mastery-description"));
+
+                    editor.Data.Add("MasteryExtended_BookMastery_ProfessionAngler_BookName", ModEntry.ModHelper.Translation.Get("book-angler-mastery-name"));
+                    editor.Data.Add("MasteryExtended_BookMastery_ProfessionPirate_BookName", ModEntry.ModHelper.Translation.Get("book-pirate-mastery-name"));
+                    editor.Data.Add("MasteryExtended_BookMastery_ProfessionMariner_BookName", ModEntry.ModHelper.Translation.Get("book-mariner-mastery-name"));
+                    editor.Data.Add("MasteryExtended_BookMastery_ProfessionLuremaster_BookName", ModEntry.ModHelper.Translation.Get("book-luremaster-mastery-name"));
+                    editor.Data.Add("MasteryExtended_BookMastery_ProfessionFishing_BookDescription", ModEntry.ModHelper.Translation.Get("book-profession-fishing-mastery-description"));
+
+                    editor.Data.Add("MasteryExtended_BookMastery_ProfessionLumberjack_BookName", ModEntry.ModHelper.Translation.Get("book-lumberjack-mastery-name"));
+                    editor.Data.Add("MasteryExtended_BookMastery_ProfessionTapper_BookName", ModEntry.ModHelper.Translation.Get("book-tapper-mastery-name"));
+                    editor.Data.Add("MasteryExtended_BookMastery_ProfessionBotanist_BookName", ModEntry.ModHelper.Translation.Get("book-botanist-mastery-name"));
+                    editor.Data.Add("MasteryExtended_BookMastery_ProfessionTracker_BookName", ModEntry.ModHelper.Translation.Get("book-tracker-mastery-name"));
+                    editor.Data.Add("MasteryExtended_BookMastery_ProfessionForaging_BookDescription", ModEntry.ModHelper.Translation.Get("book-profession-foraging-mastery-description"));
+
+                    editor.Data.Add("MasteryExtended_BookMastery_ProfessionBlacksmith_BookName", ModEntry.ModHelper.Translation.Get("book-blacksmith-mastery-name"));
+                    editor.Data.Add("MasteryExtended_BookMastery_ProfessionProspector_BookName", ModEntry.ModHelper.Translation.Get("book-prospector-mastery-name"));
+                    editor.Data.Add("MasteryExtended_BookMastery_ProfessionExcavator_BookName", ModEntry.ModHelper.Translation.Get("book-excavator-mastery-name"));
+                    editor.Data.Add("MasteryExtended_BookMastery_ProfessionGemologist_BookName", ModEntry.ModHelper.Translation.Get("book-gemologist-mastery-name"));
+                    editor.Data.Add("MasteryExtended_BookMastery_ProfessionMining_BookDescription", ModEntry.ModHelper.Translation.Get("book-profession-mining-mastery-description"));
+
+                    editor.Data.Add("MasteryExtended_BookMastery_ProfessionBrute_BookName", ModEntry.ModHelper.Translation.Get("book-brute-mastery-name"));
+                    editor.Data.Add("MasteryExtended_BookMastery_ProfessionDefender_BookName", ModEntry.ModHelper.Translation.Get("book-defender-mastery-name"));
+                    editor.Data.Add("MasteryExtended_BookMastery_ProfessionAcrobat_BookName", ModEntry.ModHelper.Translation.Get("book-acrobat-mastery-name"));
+                    editor.Data.Add("MasteryExtended_BookMastery_ProfessionDesperado_BookName", ModEntry.ModHelper.Translation.Get("book-desperado-mastery-name"));
+                    editor.Data.Add("MasteryExtended_BookMastery_ProfessionCombat_BookDescription", ModEntry.ModHelper.Translation.Get("book-profession-combat-mastery-description"));
+
+                    editor.Data.Add("MasteryExtended_BookMastery_Unlock_BookName", ModEntry.ModHelper.Translation.Get("book-unlock-mastery-name"));
+                    editor.Data.Add("MasteryExtended_BookMastery_Unlock_BookDescription", ModEntry.ModHelper.Translation.Get("book-unlock-mastery-description"));
+
+                    editor.Data.Add("MasteryExtended_BookMastery_Complete_BookName", ModEntry.ModHelper.Translation.Get("book-complete-mastery-name"));
+                    editor.Data.Add("MasteryExtended_BookMastery_Complete_BookDescription", ModEntry.ModHelper.Translation.Get("book-complete-mastery-description"));
+
+                    editor.Data.Add("MasteryExtended_BookPower_FarmingMastery_BookDescription", ModEntry.ModHelper.Translation.Get("power-skill-farming-mastery-description"));
+                    editor.Data.Add("MasteryExtended_BookPower_FishingMastery_BookDescription", ModEntry.ModHelper.Translation.Get("power-skill-fishing-mastery-description"));
+                    editor.Data.Add("MasteryExtended_BookPower_ForagingMastery_BookDescription", ModEntry.ModHelper.Translation.Get("power-skill-foraging-mastery-description"));
+                    editor.Data.Add("MasteryExtended_BookPower_MiningMastery_BookDescription", ModEntry.ModHelper.Translation.Get("power-skill-mining-mastery-description"));
+                    editor.Data.Add("MasteryExtended_BookPower_CombatMastery_BookDescription", ModEntry.ModHelper.Translation.Get("power-skill-combat-mastery-description"));
+
+                    editor.Data.Add("MasteryExtended_ReaperName", ModEntry.ModHelper.Translation.Get("power-dog-reaper-name"));
+                    editor.Data.Add("MasteryExtended_ReaperDescription", ModEntry.ModHelper.Translation.Get("power-dog-reaper-description"));
+                    editor.Data.Add("MasteryExtended_MasonName", ModEntry.ModHelper.Translation.Get("power-dog-mason-name"));
+                    editor.Data.Add("MasteryExtended_MasonDescription", ModEntry.ModHelper.Translation.Get("power-dog-mason-description"));
+                    editor.Data.Add("MasteryExtended_WoodlanderName", ModEntry.ModHelper.Translation.Get("power-dog-woodlander-name"));
+                    editor.Data.Add("MasteryExtended_WoodlanderDescription", ModEntry.ModHelper.Translation.Get("power-dog-woodlander-description"));
+                    editor.Data.Add("MasteryExtended_BaitbinderName", ModEntry.ModHelper.Translation.Get("power-dog-baitbinder-name"));
+                    editor.Data.Add("MasteryExtended_BaitbinderDescription", ModEntry.ModHelper.Translation.Get("power-dog-baitbinder-description"));
+                    editor.Data.Add("MasteryExtended_RunesmithName", ModEntry.ModHelper.Translation.Get("power-dog-runesmith-name"));
+                    editor.Data.Add("MasteryExtended_RunesmithDescription", ModEntry.ModHelper.Translation.Get("power-dog-runesmith-description"));
+                    editor.Data.Add("MasteryExtended_AttractiveName", ModEntry.ModHelper.Translation.Get("power-dog-attractive-name"));
+                    editor.Data.Add("MasteryExtended_AttractiveDescription", ModEntry.ModHelper.Translation.Get("power-dog-attractive-description"));
+                });
+            }
+            else if (e.NameWithoutLocale.IsEquivalentTo(PathUtilities.NormalizeAssetName("Strings/Locations")))
+            {
+                e.Edit(asset =>
+                {
+                    var editor = asset.AsDictionary<string, string>();
+
+                    editor.Data.Add("MasteryExtended_DogStatueMenuQuestionMainDialogue", ModEntry.ModHelper.Translation.Get("dog-statue-menu-question-main-dialogue"));
+                    editor.Data.Add("MasteryExtended_DogStatueMenuQuestionMainOptionPower", ModEntry.ModHelper.Translation.Get("dog-statue-menu-question-main-option-power"));
+                    editor.Data.Add("MasteryExtended_DogStatueMenuQuestionMainOptionReset", ModEntry.ModHelper.Translation.Get("dog-statue-menu-question-main-option-reset"));
+                    editor.Data.Add("MasteryExtended_DogStatueMenuGotAllPowers", ModEntry.ModHelper.Translation.Get("dog-statue-menu-got-all-powers"));
+                    editor.Data.Add("MasteryExtended_DogStatueMenuNeedMoreMasteryOrLevels", ModEntry.ModHelper.Translation.Get("dog-statue-menu-need-more-mastery-or-levels"));
+                    editor.Data.Add("MasteryExtended_DogStatueMenuQuestionWhatPowerDialogue", ModEntry.ModHelper.Translation.Get("dog-statue-menu-question-what-power-dialogue"));
+                    editor.Data.Add("MasteryExtended_DogStatueMenuQuestionUnlockDialogue", ModEntry.ModHelper.Translation.Get("dog-statue-menu-question-unlock-dialogue"));
                 });
             }
         }
 
-        private static void BookPowersAssetRequested(object? sender, AssetRequestedEventArgs e)
+        // Tilesheets
+        private static void TilesheetsAssetRequested(object? sender, AssetRequestedEventArgs e)
         {
-            BookPowerInfo[] books = [];
-
-            if (e.NameWithoutLocale.IsEquivalentTo($"Tilesheets/{ModEntry.ModManifest.UniqueID}/MasteryBooks"))
+            if (e.NameWithoutLocale.IsEquivalentTo($"Tilesheets/{ModEntry.ModManifest.UniqueID}/DogPowers"))
+            {
+                e.LoadFromModFile<Texture2D>("assets/DogPowers.png", AssetLoadPriority.Exclusive);
+            }
+            else if (e.NameWithoutLocale.IsEquivalentTo($"Tilesheets/{ModEntry.ModManifest.UniqueID}/MasteryBooks"))
             {
                 e.LoadFromModFile<Texture2D>("assets/Books.png", AssetLoadPriority.Exclusive);
             }
-            else if (e.NameWithoutLocale.IsEquivalentTo("Data/Objects"))
+        }
+
+        // Powers
+        private static void PowersAssetRequested(object? sender, AssetRequestedEventArgs e)
+        {
+            if (e.NameWithoutLocale.IsEquivalentTo("Data/Powers"))
             {
-                if (ModEntry.Config.BooksQuantity.Equals("0"))
+                e.Edit(rawInfo =>
                 {
-                    books = BookPowerListComplete();
-                }
-                else if (ModEntry.Config.BooksQuantity.Equals("1"))
-                {
-                    books = BookPowerListShort();
-                }
+                    var data = rawInfo.AsDictionary<string, PowersData>().Data;
+
+                    foreach (PowerInfo powerInfo in PowerInfo.PowerList)
+                    {
+                        PowersData toAdd = new()
+                        {
+                            DisplayName = Game1.content.LoadString(powerInfo.DisplayNamePath),
+                            Description = Game1.content.LoadString(powerInfo.PowerDescriptionPath, powerInfo.GetSubstitutions()),
+                            TexturePath = powerInfo.TexturePath,
+                            TexturePosition = new Point(powerInfo.SpriteIndex % 6 * 16, powerInfo.SpriteIndex / 6 * 16),
+                            UnlockedCondition = powerInfo.PowerUnlockCondition
+                        };
+
+                        data.TryAdd(powerInfo.Id, toAdd);
+                    }
+                });
+            }
+        }
+
+        // Books Object and Bookseller
+        private static void BooksAssetRequested(object? sender, AssetRequestedEventArgs e)
+        {
+            IReadOnlyList<BookInfo> books = ModEntry.Config.BooksQuantity switch
+            {
+                BooksQuantityOption.Full => BookInfo.BookPowerListComplete,
+                BooksQuantityOption.Lite => BookInfo.BookPowerListShort,
+                _ => []
+            };
+
+            if (books.Count == 0) return;
+
+            if (e.NameWithoutLocale.IsEquivalentTo("Data/Objects"))
+            {
+                string texture = $"Tilesheets/{ModEntry.ModManifest.UniqueID}/MasteryBooks";
+                int price = ModEntry.Config.BookPrice;
 
                 e.Edit(rawInfo =>
                 {
@@ -701,14 +831,14 @@ namespace MasteryExtended
                         ObjectData toAdd = new()
                         {
                             Name = book.Id,
-                            DisplayName = book.DisplayName,
-                            Description = book.Description,
-                            Type = "asdf", // Really? asdf?
-                            Category = StardewValley.Object.booksCategory,
-                            Price = 25000,
-                            Texture = $"Tilesheets/{ModEntry.ModManifest.UniqueID}/MasteryBooks",
+                            DisplayName = Game1.content.LoadString(book.DisplayNamePath),
+                            Description = Game1.content.LoadString(book.BookDescriptionPath),
+                            Type = "asdf", // The type for books is "asdf" according to the code
+                            Category = Object.booksCategory,
+                            Price = price,
+                            Texture = texture,
                             SpriteIndex = book.SpriteIndex,
-                            ContextTags = book.ContextTags
+                            ContextTags = book.ContextTags.ToList()
                         };
 
                         data.TryAdd(book.Id, toAdd);
@@ -717,14 +847,7 @@ namespace MasteryExtended
             }
             else if (e.NameWithoutLocale.IsEquivalentTo("Data/Shops"))
             {
-                if (ModEntry.Config.BooksQuantity.Equals("0"))
-                {
-                    books = BookPowerListComplete();
-                }
-                else if (ModEntry.Config.BooksQuantity.Equals("1"))
-                {
-                    books = BookPowerListShort();
-                }
+                int price = ModEntry.Config.BookPrice;
 
                 e.Edit(rawInfo =>
                 {
@@ -736,337 +859,14 @@ namespace MasteryExtended
                         {
                             Id = book.Id,
                             ItemId = book.Id,
-                            Price = ModEntry.Config.BookPrice,
+                            Price = price,
                             AvailableStock = 1,
-                            Condition = book.Condition
+                            Condition = book.ShopCondition
                         };
                         data["Bookseller"].Items.Add(toAdd);
                     }
                 });
             }
-            else if (e.NameWithoutLocale.IsEquivalentTo("Data/Powers"))
-            {
-                int[] calculatedExtra = [50, 50, 50, 50, 50, 50, 50];
-                string[] unlockCondition = ["", "", "", "", "", "", ""];
-                string[] powerStrings =
-                [
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_PowerSkillFarmingMasteryBookDescription"),
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_PowerSkillFishingMasteryBookDescription"),
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_PowerSkillForagingMasteryBookDescription"),
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_PowerSkillMiningMasteryBookDescription"),
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_PowerSkillCombatMasteryBookDescription"),
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookUnlockMasteryBookDescription"),
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookCompleteMasteryBookDescription")
-                ];
-
-                if (ModEntry.Config.BooksQuantity.Equals("0"))
-                {
-                    books = BookPowerListShort();
-                    var allBooks = BookPowerListComplete();
-
-
-                    for (int i = 0; i < 5; i++)
-                    {
-                        unlockCondition[i] = "ANY";
-
-                        for (int j = 0; j < 4; j++)
-                        {
-                            unlockCondition[i] += $" \"PLAYER_STAT Current {allBooks[4 * i + j].Id} 1\"";
-                        }
-                        calculatedExtra[i] = (int)(FarmerPatch.ExtraMasteryExperienceMultiplier(i, false) * 100);
-                    }
-                    unlockCondition[5] = $"PLAYER_STAT Current {books[5].Id} 1";
-                    unlockCondition[6] = $"PLAYER_STAT Current {books[6].Id} 1";
-                }
-                else if (ModEntry.Config.BooksQuantity.Equals("1"))
-                {
-                    books = BookPowerListShort();
-
-                    for (int i = 0; i < 7; i++)
-                    {
-                        unlockCondition[i] = $"PLAYER_STAT Current {books[i].Id} 1";
-                    }
-                }
-
-                e.Edit(rawInfo =>
-                {
-                    var data = rawInfo.AsDictionary<string, PowersData>().Data;
-
-                    for (int i = 0; i < books.Length; i++)
-                    {
-                        BookPowerInfo book = books[i];
-                        PowersData toAdd = new()
-                        {
-                            DisplayName = book.DisplayName,
-                            Description = string.Format(powerStrings[i], calculatedExtra[i]),
-                            TexturePath = $"Tilesheets/{ModEntry.ModManifest.UniqueID}/MasteryBooks",
-                            TexturePosition = new Point(book.SpriteIndex % 6 * 16, book.SpriteIndex / 6 * 16),
-                            UnlockedCondition = unlockCondition[i]
-                        };
-
-                        data.TryAdd(book.Id, toAdd);
-                    }
-                });
-            }
-        }
-
-        private static BookPowerInfo[] BookPowerListShort()
-        {
-            string uniqueID = ModEntry.ModManifest.UniqueID;
-            return [
-                (
-                    $"{uniqueID}_BookFarmingMastery",
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookSkillFarmingMasteryBookName"),
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookSkillFarmingMasteryBookDescription"),
-                    24,
-                    $"PLAYER_BASE_FARMING_LEVEL Current 10, PLAYER_STAT Current {uniqueID}_BookFarmingMastery 0 0",
-                    ["book_item", "color_gold"]
-                ),
-                (
-                    $"{uniqueID}_BookFishingMastery",
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookSkillFishingMasteryBookName"),
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookSkillFishingMasteryBookDescription"),
-                    25,
-                    $"PLAYER_BASE_FISHING_LEVEL Current 10, PLAYER_STAT Current {uniqueID}_BookFishingMastery 0 0",
-                    ["book_item", "color_blue"]
-                ),
-                (
-                    $"{uniqueID}_BookForagingMastery",
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookSkillForagingMasteryBookName"),
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookSkillForagingMasteryBookDescription"),
-                    26,
-                    $"PLAYER_BASE_FORAGING_LEVEL Current 10, PLAYER_STAT Current {uniqueID}_BookForagingMastery 0 0",
-                    ["book_item", "color_green"]
-                ),
-                (
-                    $"{uniqueID}_BookMiningMastery",
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookSkillMiningMasteryBookName"),
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookSkillMiningMasteryBookDescription"),
-                    27,
-                    $"PLAYER_BASE_MINING_LEVEL Current 10, PLAYER_STAT Current {uniqueID}_BookMiningMastery 0 0",
-                    ["book_item", "color_brown"]
-                ),
-                (
-                    $"{uniqueID}_BookCombatMastery",
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookSkillCombatMasteryBookName"),
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookSkillCombatMasteryBookDescription"),
-                    28,
-                    $"PLAYER_BASE_COMBAT_LEVEL Current 10, PLAYER_STAT Current {uniqueID}_BookCombatMastery 0 0",
-                    ["book_item", "color_red"]
-                ),
-                (
-                    $"{uniqueID}_BookUnlockMastery",
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookUnlockMasteryBookName"),
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookUnlockMasteryBookDescription"),
-                    11,
-                    $"PLAYER_VISITED_LOCATION Current MasteryCave, PLAYER_STAT Current {uniqueID}_BookUnlockMastery 0 0",
-                    ["book_item", "color_iridium"]
-                ),
-                (
-                    $"{uniqueID}_BookCompleteMastery",
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookCompleteMasteryBookName"),
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookCompleteMasteryBookDescription"),
-                    5,
-                    $"PLAYER_VISITED_LOCATION Current MasteryCave, PLAYER_STAT Current {uniqueID}_BookUnlockMastery 1, PLAYER_STAT Current {uniqueID}_BookCompleteMastery 0 0",
-                    ["book_item", "color_iridium"]
-                ),
-            ];
-        }
-
-        private static BookPowerInfo[] BookPowerListComplete()
-        {
-            string uniqueID = ModEntry.ModManifest.UniqueID;
-            return [
-                (
-                    $"{uniqueID}_BookCoopmasterMastery",
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookCoopmasterMasteryBookName"),
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionFarmingMasteryBookDescription"),
-                    0,
-                    $"PLAYER_HAS_PROFESSION Current 2, PLAYER_STAT Current {uniqueID}_BookCoopmasterMastery 0 0",
-                    ["book_item", "color_gold"]
-                ),
-                (
-                    $"{uniqueID}_BookShepherdMastery",
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookShepherdMasteryBookName"),
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionFarmingMasteryBookDescription"),
-                    6,
-                    $"PLAYER_HAS_PROFESSION Current 3, PLAYER_STAT Current {uniqueID}_BookShepherdMastery 0 0",
-                    ["book_item", "color_gold"]
-                ),
-                (
-                    $"{uniqueID}_BookArtisanMastery",
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookArtisanMasteryBookName"),
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionFarmingMasteryBookDescription"),
-                    12,
-                    $"PLAYER_HAS_PROFESSION Current 4, PLAYER_STAT Current {uniqueID}_BookArtisanMastery 0 0",
-                    ["book_item", "color_gold"]
-                ),
-                (
-                    $"{uniqueID}_BookAgriculturistMastery",
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookAgriculturistMasteryBookName"),
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionFarmingMasteryBookDescription"),
-                    18,
-                    $"PLAYER_HAS_PROFESSION Current 5, PLAYER_STAT Current {uniqueID}_BookAgriculturistMastery 0 0",
-                    ["book_item", "color_gold"]
-                ),
-                (
-                    $"{uniqueID}_BookAnglerMastery",
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookAnglerMasteryBookName"),
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionFishingMasteryBookDescription"),
-                    1,
-                    $"PLAYER_HAS_PROFESSION Current 8, PLAYER_STAT Current {uniqueID}_BookAnglerMastery 0 0",
-                    ["book_item", "color_blue"]
-                ),
-                (
-                    $"{uniqueID}_BookPirateMastery",
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookPirateMasteryBookName"),
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionFishingMasteryBookDescription"),
-                    7,
-                    $"PLAYER_HAS_PROFESSION Current 9, PLAYER_STAT Current {uniqueID}_BookPirateMastery 0 0",
-                    ["book_item", "color_blue"]
-                ),
-                (
-                    $"{uniqueID}_BookMarinerMastery",
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookMarinerMasteryBookName"),
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionFishingMasteryBookDescription"),
-                    13,
-                    $"PLAYER_HAS_PROFESSION Current 10, PLAYER_STAT Current {uniqueID}_BookMarinerMastery 0 0",
-                    ["book_item", "color_blue"]
-                ),
-                (
-                    $"{uniqueID}_BookLuremasterMastery",
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookLuremasterMasteryBookName"),
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionFishingMasteryBookDescription"),
-                    19,
-                    $"PLAYER_HAS_PROFESSION Current 11, PLAYER_STAT Current {uniqueID}_BookLuremasterMastery 0 0",
-                    ["book_item", "color_blue"]
-                ),
-                (
-                    $"{uniqueID}_BookLumberjackMastery",
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookLumberjackMasteryBookName"),
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionForagingMasteryBookDescription"),
-                    2,
-                    $"PLAYER_HAS_PROFESSION Current 14, PLAYER_STAT Current {uniqueID}_BookLumberjackMastery 0 0",
-                    ["book_item", "color_green"]
-                ),
-                (
-                    $"{uniqueID}_BookTapperMastery",
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookTapperMasteryBookName"),
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionForagingMasteryBookDescription"),
-                    8,
-                    $"PLAYER_HAS_PROFESSION Current 15, PLAYER_STAT Current {uniqueID}_BookTapperMastery 0 0",
-                    ["book_item", "color_green"]
-                ),
-                (
-                    $"{uniqueID}_BookBotanistMastery",
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookBotanistMasteryBookName"),
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionForagingMasteryBookDescription"),
-                    14,
-                    $"PLAYER_HAS_PROFESSION Current 16, PLAYER_STAT Current {uniqueID}_BookBotanistMastery 0 0",
-                    ["book_item", "color_green"]
-                ),
-                (
-                    $"{uniqueID}_BookTrackerMastery",
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookTrackerMasteryBookName"),
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionForagingMasteryBookDescription"),
-                    20,
-                    $"PLAYER_HAS_PROFESSION Current 17, PLAYER_STAT Current {uniqueID}_BookTrackerMastery 0 0",
-                    ["book_item", "color_green"]
-                ),
-                (
-                    $"{uniqueID}_BookBlacksmithMastery",
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookBlacksmithMasteryBookName"),
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionMiningMasteryBookDescription"),
-                    3,
-                    $"PLAYER_HAS_PROFESSION Current 20, PLAYER_STAT Current {uniqueID}_BookBlacksmithMastery 0 0",
-                    ["book_item", "color_brown"]
-                ),
-                (
-                    $"{uniqueID}_BookProspectorMastery",
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProspectorMasteryBookName"),
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionMiningMasteryBookDescription"),
-                    9,
-                    $"PLAYER_HAS_PROFESSION Current 21, PLAYER_STAT Current {uniqueID}_BookProspectorMastery 0 0",
-                    ["book_item", "color_brown"]
-                ),
-                (
-                    $"{uniqueID}_BookExcavatorMastery",
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookExcavatorMasteryBookName"),
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionMiningMasteryBookDescription"),
-                    15,
-                    $"PLAYER_HAS_PROFESSION Current 22, PLAYER_STAT Current {uniqueID}_BookExcavatorMastery 0 0",
-                    ["book_item", "color_brown"]
-                ),
-                (
-                    $"{uniqueID}_BookGemologistMastery",
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookGemologistMasteryBookName"),
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionMiningMasteryBookDescription"),
-                    21,
-                    $"PLAYER_HAS_PROFESSION Current 23, PLAYER_STAT Current {uniqueID}_BookGemologistMastery 0 0",
-                    ["book_item", "color_brown"]
-                ),
-                (
-                    $"{uniqueID}_BookBruteMastery",
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookBruteMasteryBookName"),
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionCombatMasteryBookDescription"),
-                    4,
-                    $"PLAYER_HAS_PROFESSION Current 26, PLAYER_STAT Current {uniqueID}_BookBruteMastery 0 0",
-                    ["book_item", "color_red"]
-                ),
-                (
-                    $"{uniqueID}_BookDefenderMastery",
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookDefenderMasteryBookName"),
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionCombatMasteryBookDescription"),
-                    10,
-                    $"PLAYER_HAS_PROFESSION Current 27, PLAYER_STAT Current {uniqueID}_BookDefenderMastery 0 0",
-                    ["book_item", "color_red"]
-                ),
-                (
-                    $"{uniqueID}_BookAcrobatMastery",
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookAcrobatMasteryBookName"),
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionCombatMasteryBookDescription"),
-                    16,
-                    $"PLAYER_HAS_PROFESSION Current 28, PLAYER_STAT Current {uniqueID}_BookAcrobatMastery 0 0",
-                    ["book_item", "color_red"]
-                ),
-                (
-                    $"{uniqueID}_BookDesperadoMastery",
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookDesperadoMasteryBookName"),
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookProfessionCombatMasteryBookDescription"),
-                    22,
-                    $"PLAYER_HAS_PROFESSION Current 29, PLAYER_STAT Current {uniqueID}_BookDesperadoMastery 0 0",
-                    ["book_item", "color_red"]
-                ),
-                (
-                    $"{uniqueID}_BookUnlockMastery",
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookUnlockMasteryBookName"),
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookUnlockMasteryBookDescription"),
-                    11,
-                    $"PLAYER_VISITED_LOCATION Current MasteryCave, PLAYER_STAT Current {uniqueID}_BookUnlockMastery 0 0",
-                    ["book_item", "color_iridium"]
-                ),
-                (
-                    $"{uniqueID}_BookCompleteMastery",
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookCompleteMasteryBookName"),
-                    Game1.content.LoadString("Strings\\UI:MasteryExtended_BookCompleteMasteryBookDescription"),
-                    5,
-                    $"PLAYER_VISITED_LOCATION Current MasteryCave, PLAYER_STAT Current {uniqueID}_BookUnlockMastery 1, PLAYER_STAT Current {uniqueID}_BookCompleteMastery 0 0",
-                    ["book_item", "color_iridium"]
-                ),
-            ];
-        }
-    }
-
-    internal record struct BookPowerInfo(string Id, string DisplayName, string Description, int SpriteIndex, string Condition, List<string> ContextTags)
-    {
-        public static implicit operator (string Id, string DisplayName, string Description, int SpriteIndex, string Condition, List<string> ContextTags)(BookPowerInfo value)
-        {
-            return (value.Id, value.DisplayName, value.Description, value.SpriteIndex, value.Condition, value.ContextTags);
-        }
-
-        public static implicit operator BookPowerInfo((string Id, string DisplayName, string Description, int SpriteIndex, string Condition, List<string> ContextTags) value)
-        {
-            return new BookPowerInfo(value.Id, value.DisplayName, value.Description, value.SpriteIndex, value.Condition, value.ContextTags);
         }
     }
 }

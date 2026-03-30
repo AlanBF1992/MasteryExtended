@@ -1,4 +1,4 @@
-using HarmonyLib;
+﻿using HarmonyLib;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.TerrainFeatures;
@@ -14,7 +14,7 @@ namespace MasteryExtended.Patches
         /***********
          * PATCHES *
          ***********/
-        public static IEnumerable<CodeInstruction> placementActionTranspiler(IEnumerable<CodeInstruction> instructions)
+        internal static IEnumerable<CodeInstruction> placementActionTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             try
             {
@@ -26,6 +26,7 @@ namespace MasteryExtended.Patches
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Callvirt, fertilizeInfo)
                     )
+                    .ThrowIfNotMatch("ObjectPatch.placementActionTranspiler: IL code not found")
                     .Advance(1)
                     .Insert(
                         new CodeInstruction(OpCodes.Ldarg_S, 4),
@@ -46,9 +47,9 @@ namespace MasteryExtended.Patches
         /***********
          * METHODS *
          ***********/
-        private static bool addModDataFertilizer(bool result, Farmer? who, Tree tree)
+        internal static bool addModDataFertilizer(bool result, Farmer? who, Tree tree)
         {
-            if(result && who is not null)
+            if (result && who is not null)
             {
                 tree.modData.TryAdd($"{ModEntry.ModManifest.UniqueID}/TreeData/FertilizedBy", who.UniqueMultiplayerID.ToString());
             }

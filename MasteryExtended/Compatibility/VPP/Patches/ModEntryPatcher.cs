@@ -1,4 +1,4 @@
-using HarmonyLib;
+﻿using HarmonyLib;
 using MasteryExtended.Menu.Pages;
 using StardewModdingAPI;
 using System.Reflection;
@@ -25,10 +25,11 @@ namespace MasteryExtended.Compatibility.VPP.Patches
                 MethodInfo indexAndProfessionChangerInfo = AccessTools.Method(typeof(ModEntryPatcher), nameof(indexAndProfessionChanger));
 
                 // Get IndexAndProfessions
-                var IndexAndProfessions = matcher.MatchStartForward(new CodeMatch(OpCodes.Newobj, indexAndProfessionConstructor)).Advance(1).Operand;
+                var IndexAndProfessions = matcher.MatchStartForward(new CodeMatch(OpCodes.Newobj, indexAndProfessionConstructor))
+                                                 .ThrowIfNotMatch("ModEntryPatcher.OnButtonPressedTranspiler: IL code not found")
+                                                 .Advance(1).Operand;
 
-                // from: nothing
-                // to:   indexAndProfessionChanger(IndexAndProfessions)
+                // Add:   indexAndProfessionChanger(IndexAndProfessions)
                 matcher.
                     End()
                     .MatchStartBackwards(new CodeMatch(OpCodes.Ldstr, "-1"))
@@ -44,8 +45,8 @@ namespace MasteryExtended.Compatibility.VPP.Patches
                     )
                 ;
 
-                // from: DisplayHandler.MyCustomSkillBars.Value[IndexAndProfessions[index].Item1].name = IndexAndProfessions[index].Item2;
-                // to:   DisplayHandler.MyCustomSkillBars.Value[IndexAndProfessions[index].Item1].name = joinSkillLvlVPP(IndexAndProfessions[index].Item2);
+                // From: DisplayHandler.MyCustomSkillBars.Value[IndexAndProfessions[index].Item1].name = IndexAndProfessions[index].Item2;
+                // To:   DisplayHandler.MyCustomSkillBars.Value[IndexAndProfessions[index].Item1].name = joinSkillLvlVPP(IndexAndProfessions[index].Item2);
                 matcher
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Stfld, ccName),
@@ -57,8 +58,8 @@ namespace MasteryExtended.Compatibility.VPP.Patches
                         new CodeInstruction(OpCodes.Call, joinSkillLvlVPPInfo)
                     );
 
-                // from: description
-                // to:   "MasteryExtended"
+                // From: description
+                // To:   "MasteryExtended"
                 matcher
                     .Advance(2)
                     .MatchStartForward(new CodeMatch(OpCodes.Stfld))

@@ -25,14 +25,15 @@ namespace MasteryExtended.Patches
                 MethodInfo marinerProbabilityInfo = AccessTools.Method(typeof(CrabPotPatch), nameof(marinerProbability));
 
                 // Without Mariner
-                // from: chanceForCatch *= (double)((chanceForCatch < 0.1) ? 4 : ((chanceForCatch < 0.2) ? 3 : 2));
-                // to:   chanceForCatch *= (double)((chanceForCatch < 0.1) ? 4 * extraProbability(3) : ((chanceForCatch < 0.2) ? 3 * extraProbability(2) : 2 * extraProbability(2)));
+                // From: chanceForCatch *= (double)((chanceForCatch < 0.1) ? 4 : ((chanceForCatch < 0.2) ? 3 : 2));
+                // To:   chanceForCatch *= (double)((chanceForCatch < 0.1) ? 4 * extraProbability(3) : ((chanceForCatch < 0.2) ? 3 * extraProbability(2) : 2 * extraProbability(2)));
                 matcher
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Ldc_I4_2),
                         new CodeMatch(OpCodes.Br_S),
                         new CodeMatch(OpCodes.Ldc_I4_3)
                     )
+                    .ThrowIfNotMatch("CrabPotPatch.DayUpdateTranspiler: IL code 1 not found")
                     .Advance(1)
                     .Insert(
                         new CodeInstruction(OpCodes.Ldloc_1),
@@ -43,6 +44,7 @@ namespace MasteryExtended.Patches
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Ldc_I4_3)
                     )
+                    .ThrowIfNotMatch("CrabPotPatch.DayUpdateTranspiler: IL code 2 not found")
                     .Advance(1)
                     .Insert(
                         new CodeInstruction(OpCodes.Ldloc_1),
@@ -53,6 +55,7 @@ namespace MasteryExtended.Patches
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Ldc_I4_4)
                     )
+                    .ThrowIfNotMatch("CrabPotPatch.DayUpdateTranspiler: IL code 3 not found")
                     .Advance(1)
                     .Insert(
                         new CodeInstruction(OpCodes.Ldloc_1),
@@ -63,13 +66,14 @@ namespace MasteryExtended.Patches
                 ;
 
                 // With Mariner
-                // add:
+                // Add: marinerProbability(this, who, baitTargetFish, marinerList, r, quantity, quality)
                 matcher
                     .MatchEndForward(
                         new CodeMatch(OpCodes.Call),
                         new CodeMatch(OpCodes.Callvirt),
                         new CodeMatch(OpCodes.Ret)
                     )
+                    .ThrowIfNotMatch("CrabPotPatch.DayUpdateTranspiler: IL code 4 not found")
                 ;
 
                 matcher
@@ -96,7 +100,7 @@ namespace MasteryExtended.Patches
 
         internal static bool performObjectDropInActionPrefix(CrabPot __instance, Item dropInItem, bool probe, Farmer who, ref bool __result)
         {
-            if (!who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/BaitSpecialist", out string value) || !bool.Parse(value)) return true;
+            if (!isFarmerBaitbinder(who)) return true;
 
             GameLocation location = __instance.Location;
             if (location == null) return true;
@@ -122,9 +126,9 @@ namespace MasteryExtended.Patches
         /***********
          * METHODS *
          ***********/
-        private static void marinerProbability(CrabPot crabPot, Farmer who, string baitTargetFish, List<string> marinerList, Random r, int quantity, int quality)
+        internal static void marinerProbability(CrabPot crabPot, Farmer who, string baitTargetFish, List<string> marinerList, Random r, int quantity, int quality)
         {
-            if (!who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/BaitSpecialist", out string value) || !bool.Parse(value)) return;
+            if (!isFarmerBaitbinder(who)) return;
 
             if (baitTargetFish != null && marinerList.Contains(baitTargetFish) && r.NextDouble() < 0.75)
             {
@@ -132,10 +136,17 @@ namespace MasteryExtended.Patches
             }
         }
 
-        private static int extraProbability(Farmer who, int extraMult)
+        internal static int extraProbability(Farmer who, int extraMult)
         {
-            if (!who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/BaitSpecialist", out string value)) return 1;
-            return bool.Parse(value) ? extraMult : 1;
+            if (!isFarmerBaitbinder(who)) return 1;
+            return extraMult;
+        }
+
+        internal static bool isFarmerBaitbinder(Farmer who)
+        {
+            //who ??= Game1.player;
+            return who is not null && who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Baitbinder", out string value)
+                && bool.Parse(value);
         }
     }
 }

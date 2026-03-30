@@ -31,7 +31,7 @@ namespace MasteryExtended.Compatibility.VPP.Patches
                         new CodeMatch(OpCodes.Ldarg_0),
                         new CodeMatch(OpCodes.Ldfld)
                     )
-                    .ThrowIfNotMatch("VPP FarmerGainExperiencePrefixTranspiler: IL code 3 not found")
+                    .ThrowIfNotMatch("VPP FarmerPatch.gainExperienceTranspiler: IL code not found")
                 ;
 
                 matcher
@@ -83,7 +83,7 @@ namespace MasteryExtended.Compatibility.VPP.Patches
                             new CodeMatch(OpCodes.Clt)
 
                         )
-                        .ThrowIfNotMatch("Something Really Bad Happened: " + i)
+                        .ThrowIfNotMatch($"FarmerPatch.ShouldGainMasteryExpTranspiler: IL code {i + 1} not found")
                         .Advance(-1)
                         .Operand = 20;
                 }
@@ -100,12 +100,12 @@ namespace MasteryExtended.Compatibility.VPP.Patches
         /***********
          * METHODS *
          ***********/
-        private static int currentLevel(int which)
+        internal static int currentLevel(int which)
         {
             return MasterySkillsPage.skills.Find(s => s.Id == which)!.getLevel();
         }
 
-        private static void expShare(Farmer who, int which, int howMuch)
+        internal static void expShare(Farmer who, int which, int howMuch)
         {
             int p = Math.Clamp(ModEntry.Config.MasteryPercentage, 0, 100);
 

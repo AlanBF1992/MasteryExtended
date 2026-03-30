@@ -1,4 +1,4 @@
-using HarmonyLib;
+﻿using HarmonyLib;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.TerrainFeatures;
@@ -27,6 +27,7 @@ namespace MasteryExtended.Patches
                         new CodeMatch(OpCodes.Ldfld),
                         new CodeMatch(OpCodes.Dup)
                     )
+                    .ThrowIfNotMatch("TreePatch.dayUpdateTranspiler: IL code not found")
                     .Advance(1)
                     .RemoveInstructions(8)
                     .Insert(
@@ -58,6 +59,7 @@ namespace MasteryExtended.Patches
                             new CodeMatch(OpCodes.Mul),
                             new CodeMatch(OpCodes.Conv_I4)
                         )
+                        .ThrowIfNotMatch($"TreePatch.tickUpdateTranspiler: IL code {i + 1} not found")
                         .Insert(
                             new CodeInstruction(OpCodes.Ldarg_0),
                             new CodeInstruction(OpCodes.Call, checkExtraWoodInfo),
@@ -89,6 +91,7 @@ namespace MasteryExtended.Patches
                         new CodeMatch(OpCodes.Mul),
                         new CodeMatch(OpCodes.Conv_I4)
                     )
+                    .ThrowIfNotMatch("TreePatch.performTreeFallTranspiler: IL code not found")
                     .Insert(
                         new CodeInstruction(OpCodes.Ldarg_0),
                         new CodeInstruction(OpCodes.Call, checkExtraWoodInfo),
@@ -105,15 +108,16 @@ namespace MasteryExtended.Patches
             }
         }
 
-        internal static bool IsGrowthBlockedByNearbyTreePrefix(Tree tree, ref bool __result)
+        internal static bool IsGrowthBlockedByNearbyTreePrefix(Tree __instance, ref bool __result)
         {
-            if (IsFertilizedByWoodlander(tree))
+            if (IsFertilizedByWoodlander(__instance))
             {
                 __result = false;
                 return false;
             }
             return true;
         }
+
         /***********
          * METHODS *
          ***********/
@@ -143,7 +147,12 @@ namespace MasteryExtended.Patches
                 && tree.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/TreeData/FertilizedBy", out string stringId)
                 && long.TryParse(stringId, out long id)
                 && Game1.GetPlayer(id) is Farmer who
-                && who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Woodlander", out string value)
+                && isFarmerWoodlander(who);
+        }
+
+        internal static bool isFarmerWoodlander(Farmer who)
+        {
+            return who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Woodlander", out string value)
                 && bool.Parse(value);
         }
     }
