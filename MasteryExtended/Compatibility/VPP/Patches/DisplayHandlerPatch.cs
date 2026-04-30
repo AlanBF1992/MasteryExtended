@@ -33,7 +33,7 @@ namespace MasteryExtended.Compatibility.VPP.Patches
                     .Advance(2)
                     .Insert(
                         new CodeInstruction(OpCodes.Pop),
-                        new CodeInstruction(OpCodes.Ldc_I4_0)
+                        new CodeInstruction(OpCodes.Ldc_I4_1)
                     )
                 ;
 
@@ -68,6 +68,7 @@ namespace MasteryExtended.Compatibility.VPP.Patches
                         new CodeInstruction(OpCodes.Brtrue_S, lbl1)
                     )
                 ;
+
                 return matcher.InstructionEnumeration();
             }
             catch (Exception ex)

@@ -7,7 +7,7 @@ namespace MasteryExtended
     {
         internal static void addGameStateQueries()
         {
-            GameStateQuery.Register($"{ModEntry.ModManifest.UniqueID}_BookQuantity", bookQuantityQuery);
+            GameStateQuery.Register($"{ModEntry.ModManifest.UniqueID}_BookQuantityConfig", bookQuantityQuery);
         }
         private static bool bookQuantityQuery(string[] query, GameStateQueryContext context)
         {

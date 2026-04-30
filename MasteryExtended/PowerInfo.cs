@@ -299,12 +299,12 @@ namespace MasteryExtended
                     "Strings\\UI:MasteryExtended_BookPower_FarmingMastery_BookDescription",
                     $"Tilesheets/{ModEntry.ModManifest.UniqueID}/MasteryBooks",
                     24,
-                    $"ANY \"{ModEntry.ModManifest.UniqueID}_BookQuantity Full, ANY " +
+                    $"ANY \"{ModEntry.ModManifest.UniqueID}_BookQuantityConfig Full, ANY " +
                         $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionCoopmaster_ID 1\\\" " +
                         $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionShepherd_ID 1\\\" " +
                         $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionArtisan_ID 1\\\" " +
                         $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionAgriculturist_ID 1\\\"\" " +
-                        $"\"{ModEntry.ModManifest.UniqueID}_BookQuantity Lite, PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_SkillFarming_ID 1\"",
+                        $"\"{ModEntry.ModManifest.UniqueID}_BookQuantityConfig Lite, PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_SkillFarming_ID 1\"",
                     [() => ModEntry.Config.BooksQuantity == BooksQuantityOption.Full? ((int)(FarmerPatch.ExtraMasteryExperienceMultiplier(0, false) * 100)).ToString(): "50"]
                 ),
                 new PowerInfo(
@@ -313,12 +313,12 @@ namespace MasteryExtended
                     "Strings\\UI:MasteryExtended_BookPower_FishingMastery_BookDescription",
                     $"Tilesheets/{ModEntry.ModManifest.UniqueID}/MasteryBooks",
                     25,
-                    $"ANY \"{ModEntry.ModManifest.UniqueID}_BookQuantity Full, ANY " +
+                    $"ANY \"{ModEntry.ModManifest.UniqueID}_BookQuantityConfig Full, ANY " +
                         $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionAngler_ID 1\\\" " +
                         $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionPirate_ID 1\\\" " +
                         $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionMariner_ID 1\\\" " +
                         $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionLuremaster_ID 1\\\"\" " +
-                        $"\"{ModEntry.ModManifest.UniqueID}_BookQuantity Lite, PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_SkillFishing_ID 1\"",
+                        $"\"{ModEntry.ModManifest.UniqueID}_BookQuantityConfig Lite, PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_SkillFishing_ID 1\"",
                     [() => ModEntry.Config.BooksQuantity == BooksQuantityOption.Full? ((int)(FarmerPatch.ExtraMasteryExperienceMultiplier(1, false) * 100)).ToString(): "50"]
                 ),
                 new PowerInfo(
@@ -327,12 +327,12 @@ namespace MasteryExtended
                     "Strings\\UI:MasteryExtended_BookPower_ForagingMastery_BookDescription",
                     $"Tilesheets/{ModEntry.ModManifest.UniqueID}/MasteryBooks",
                     26,
-                    $"ANY \"{ModEntry.ModManifest.UniqueID}_BookQuantity Full, ANY " +
+                    $"ANY \"{ModEntry.ModManifest.UniqueID}_BookQuantityConfig Full, ANY " +
                         $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionLumberjack_ID 1\\\" " +
                         $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionTapper_ID 1\\\" " +
                         $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionBotanist_ID 1\\\" " +
                         $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionTracker_ID 1\\\"\" " +
-                        $"\"{ModEntry.ModManifest.UniqueID}_BookQuantity Lite, PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_SkillForaging_ID 1\"",
+                        $"\"{ModEntry.ModManifest.UniqueID}_BookQuantityConfig Lite, PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_SkillForaging_ID 1\"",
                     [() => ModEntry.Config.BooksQuantity == BooksQuantityOption.Full? ((int)(FarmerPatch.ExtraMasteryExperienceMultiplier(2, false) * 100)).ToString(): "50"]
                 ),
                 new PowerInfo(
@@ -341,12 +341,12 @@ namespace MasteryExtended
                     "Strings\\UI:MasteryExtended_BookPower_MiningMastery_BookDescription",
                     $"Tilesheets/{ModEntry.ModManifest.UniqueID}/MasteryBooks",
                     27,
-                    $"ANY \"{ModEntry.ModManifest.UniqueID}_BookQuantity Full, ANY " +
+                    $"ANY \"{ModEntry.ModManifest.UniqueID}_BookQuantityConfig Full, ANY " +
                         $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionBlacksmith_ID 1\\\" " +
                         $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionProspector_ID 1\\\" " +
                         $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionExcavator_ID 1\\\" " +
                         $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionGemologist_ID 1\\\"\" " +
-                        $"\"{ModEntry.ModManifest.UniqueID}_BookQuantity Lite, PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_SkillMining_ID 1\"",
+                        $"\"{ModEntry.ModManifest.UniqueID}_BookQuantityConfig Lite, PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_SkillMining_ID 1\"",
                     [() => ModEntry.Config.BooksQuantity == BooksQuantityOption.Full? ((int)(FarmerPatch.ExtraMasteryExperienceMultiplier(3, false) * 100)).ToString(): "50"]
                 ),
                 new PowerInfo(
@@ -355,12 +355,12 @@ namespace MasteryExtended
                     "Strings\\UI:MasteryExtended_BookPower_CombatMastery_BookDescription",
                     $"Tilesheets/{ModEntry.ModManifest.UniqueID}/MasteryBooks",
                     28,
-                    $"ANY \"{ModEntry.ModManifest.UniqueID}_BookQuantity Full, ANY " +
+                    $"ANY \"{ModEntry.ModManifest.UniqueID}_BookQuantityConfig Full, ANY " +
                         $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionBrute_ID 1\\\" " +
                         $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionDefender_ID 1\\\" " +
                         $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionAcrobat_ID 1\\\" " +
                         $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionDesperado_ID 1\\\"\" " +
-                        $"\"{ModEntry.ModManifest.UniqueID}_BookQuantity Lite, PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_SkillCombat_ID 1\"",
+                        $"\"{ModEntry.ModManifest.UniqueID}_BookQuantityConfig Lite, PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_SkillCombat_ID 1\"",
                     [() => ModEntry.Config.BooksQuantity == BooksQuantityOption.Full? ((int)(FarmerPatch.ExtraMasteryExperienceMultiplier(4, false) * 100)).ToString(): "50"]
                 ),
                 new PowerInfo(
@@ -369,7 +369,7 @@ namespace MasteryExtended
                     "Strings\\UI:MasteryExtended_BookMastery_Unlock_BookDescription",
                     $"Tilesheets/{ModEntry.ModManifest.UniqueID}/MasteryBooks",
                     11,
-                    $"!{ModEntry.ModManifest.UniqueID}_BookQuantity None, PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_Unlock_ID 1",
+                    $"!{ModEntry.ModManifest.UniqueID}_BookQuantityConfig None, PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_Unlock_ID 1",
                     [() => "50"]
                 ),
                 new PowerInfo(
@@ -378,7 +378,7 @@ namespace MasteryExtended
                     "Strings\\UI:MasteryExtended_BookMastery_Complete_BookDescription",
                     $"Tilesheets/{ModEntry.ModManifest.UniqueID}/MasteryBooks",
                     5,
-                    $"!{ModEntry.ModManifest.UniqueID}_BookQuantity Lite, PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_Complete_ID 1",
+                    $"!{ModEntry.ModManifest.UniqueID}_BookQuantityConfig Lite, PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_Complete_ID 1",
                     [() => "50"]
                 ),
                 new PowerInfo(
