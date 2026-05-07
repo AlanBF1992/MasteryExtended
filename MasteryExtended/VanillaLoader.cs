@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using MasteryExtended.Compatibility.BGM;
 using MasteryExtended.Compatibility.GMCM;
+using MasteryExtended.Compatibility.SPU;
 using MasteryExtended.Patches;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -8,6 +9,7 @@ using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
 using StardewValley;
+using StardewValley.Characters;
 using StardewValley.Constants;
 using StardewValley.GameData.Objects;
 using StardewValley.GameData.Powers;
@@ -38,6 +40,7 @@ namespace MasteryExtended
             helper.Events.Content.AssetRequested += PowersAssetRequested;
             helper.Events.Content.AssetRequested += BooksAssetRequested;
 
+            helper.Events.GameLoop.GameLaunched += SPUCompat;
             helper.Events.GameLoop.UpdateTicked += GMCMConfigVanilla;
             helper.Events.GameLoop.SaveLoaded += CalculatePillarsUnlocked;
 
@@ -314,6 +317,15 @@ namespace MasteryExtended
                 postfix: new HarmonyMethod(typeof(FarmerPatch), nameof(FarmerPatch.GetAppliedMagneticRadiusPostfix))
             );
             #endregion
+        }
+
+        private static void SPUCompat(object? sender, GameLaunchedEventArgs e)
+        {
+            var spuApi = ModEntry.ModHelper.ModRegistry.GetApi<ISpecialPowerApi>("Spiderbuttons.SpecialPowerUtilities");
+            if (spuApi is not null)
+            {
+                _ = spuApi.RegisterPowerCategory(ModEntry.ModManifest.UniqueID, () => "Mastery Extended", $"Tilesheets/{ModEntry.ModManifest.UniqueID}/PowersCategoryIcon");
+            }
         }
 
         /// <summary>GMCM Compat Vanilla</summary>
@@ -776,6 +788,10 @@ namespace MasteryExtended
             else if (e.NameWithoutLocale.IsEquivalentTo($"Tilesheets/{ModEntry.ModManifest.UniqueID}/MasteryBooks"))
             {
                 e.LoadFromModFile<Texture2D>("assets/Books.png", AssetLoadPriority.Exclusive);
+            }
+            else if (e.NameWithoutLocale.IsEquivalentTo($"Tilesheets/{ModEntry.ModManifest.UniqueID}/PowersCategoryIcon"))
+            {
+                e.LoadFromModFile<Texture2D>("assets/PowersCategory.png", AssetLoadPriority.Exclusive);
             }
         }
 
