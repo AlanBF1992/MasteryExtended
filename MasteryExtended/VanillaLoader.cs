@@ -798,6 +798,8 @@ namespace MasteryExtended
         // Powers
         private static void PowersAssetRequested(object? sender, AssetRequestedEventArgs e)
         {
+            if (ModEntry.Config.BooksQuantity == BooksQuantityOption.None) return;
+
             if (e.NameWithoutLocale.IsEquivalentTo("Data/Powers"))
             {
                 e.Edit(rawInfo =>

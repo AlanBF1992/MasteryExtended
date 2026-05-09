@@ -2,8 +2,6 @@
 
 namespace MasteryExtended
 {
-
-
     internal readonly record struct BookInfo
     {
         public string Id { get; }

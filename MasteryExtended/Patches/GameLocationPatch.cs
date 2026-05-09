@@ -237,6 +237,11 @@ namespace MasteryExtended.Patches
 
                     Game1.drawObjectDialogue(Game1.content.LoadString("Strings\\Locations:Sewer_DogStatueFinished"));
 
+                    if (powerId2.Equals("Woodlander"))
+                    {
+                        ModEntry.ModHelper.GameContent.InvalidateCache("Data\\CraftingRecipes");
+                    }
+
                     DelayedAction.playSoundAfterDelay("dog_bark", 300);
                     DelayedAction.playSoundAfterDelay("dog_bark", 900);
                     break;

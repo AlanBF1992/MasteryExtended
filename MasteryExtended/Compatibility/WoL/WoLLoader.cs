@@ -84,7 +84,7 @@ namespace MasteryExtended.Compatibility.WoL
         /// <summary>Reload vanilla icons so WoL icons are correctly shown</summary>
         internal static void reloadIcons()
         {
-            ModEntry.ModHelper.GameContent.InvalidateCache("LooseSprites/Cursors");
+            ModEntry.ModHelper.GameContent.InvalidateCache("LooseSprites\\Cursors");
         }
 
         /// <summary>All the patches to make WoL work</summary>
