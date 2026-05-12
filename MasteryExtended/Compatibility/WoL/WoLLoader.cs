@@ -217,6 +217,12 @@ namespace MasteryExtended.Compatibility.WoL
                 original: AccessTools.Method(typeof(Profession), nameof(Profession.RemoveProfessionFromPlayer)),
                 transpiler: new HarmonyMethod(typeof(ProfessionPatch), nameof(ProfessionPatch.RemoveProfessionFromPlayerTranspiler))
             );
+
+            // Allows +2 capacity to Barn and Coop simultaneously
+            harmony.Patch(
+                original: AccessTools.Method("DaLion.Professions.Framework.Events.GameLoop.DayStarted.RevalidateBuildingsDayStartedEvent:OnDayStartedImpl"),
+                transpiler: new HarmonyMethod(typeof(RevalidateBuildingsDayStartedEventPatch), nameof(RevalidateBuildingsDayStartedEventPatch.OnDayStartedImplTranspiler))
+            );
         }
     }
 }

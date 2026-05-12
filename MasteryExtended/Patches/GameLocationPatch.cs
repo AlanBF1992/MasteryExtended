@@ -115,7 +115,7 @@ namespace MasteryExtended.Patches
         internal static bool performActionPrefix(GameLocation __instance, string[] action, Farmer who, Location tileLocation, ref bool __result)
         {
             if (__instance.ShouldIgnoreAction(action, who, tileLocation)
-                || !ArgUtility.TryGet(action, 0, out var actionType, out var _, allowBlank: true)
+                || !ArgUtility.TryGet(action, 0, out var actionType, out var _, allowBlank: true, "string actionType")
                 || !who.IsLocalPlayer
                 || !actionType.Equals("DogStatue"))
             {
