@@ -21,6 +21,8 @@ namespace MasteryExtended.Patches
                 CodeMatcher matcher = new(instructions);
                 MethodInfo checkGrowthStageInfo = AccessTools.Method(typeof(TreePatch), nameof(checkGrowthStage));
 
+                // From: growthStage.Value++
+                // To:   checkGrowthStage(this)
                 matcher
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Ldarg_0),
@@ -49,52 +51,31 @@ namespace MasteryExtended.Patches
             try
             {
                 CodeMatcher matcher = new(instructions);
-                MethodInfo checkExtraWoodInfo = AccessTools.Method(typeof(TreePatch), nameof(checkExtraWood));
+                MethodInfo getItemIdInfo = AccessTools.PropertyGetter(typeof(Item), nameof(Item.ItemId));
+                MethodInfo extraHardwoodInfo = AccessTools.Method(typeof(TreePatch), nameof(extraHardwood));
 
-                for (int i = 0; i < 2; i++)
-                {
-                    matcher
-                        .MatchStartForward(
-                            new CodeMatch(OpCodes.Conv_R8),
-                            new CodeMatch(OpCodes.Mul),
-                            new CodeMatch(OpCodes.Conv_I4)
-                        )
-                        .ThrowIfNotMatch($"TreePatch.tickUpdateTranspiler: IL code {i + 1} not found")
-                        .Insert(
-                            new CodeInstruction(OpCodes.Ldarg_0),
-                            new CodeInstruction(OpCodes.Call, checkExtraWoodInfo),
-                            new CodeInstruction(OpCodes.Add)
-                        )
-                    ;
-
-                }
-
-                return matcher.InstructionEnumeration();
-            }
-            catch (Exception ex)
-            {
-                LogMonitor.Log($"Failed in {nameof(dayUpdateTranspiler)}:\n{ex}", LogLevel.Error);
-                return instructions;
-            }
-        }
-
-        internal static IEnumerable<CodeInstruction> performTreeFallTranspiler(IEnumerable<CodeInstruction> instructions)
-        {
-            try
-            {
-                CodeMatcher matcher = new(instructions);
-                MethodInfo checkExtraWoodInfo = AccessTools.Method(typeof(TreePatch), nameof(checkExtraWood));
-
+                // From: if (drop.ItemId == "709")
+                // To:   if (item.ItemId == "709")
                 matcher
                     .MatchStartForward(
-                        new CodeMatch(OpCodes.Conv_R8),
-                        new CodeMatch(OpCodes.Mul),
-                        new CodeMatch(OpCodes.Conv_I4)
+                        new CodeMatch(OpCodes.Ldstr, "709")
                     )
-                    .ThrowIfNotMatch("TreePatch.performTreeFallTranspiler: IL code not found")
+                    .ThrowIfNotMatch("TreePatch.tickUpdateTranspiler: IL code 1 not found")
+                    .Advance(-2)
+                    .SetOperandAndAdvance(19)
+                    .SetOperandAndAdvance(getItemIdInfo)
+                ;
+
+                // From: numHardwood += item.Stack
+                // To:   numHardwood += item.Stack + extraHardwood(this)
+                matcher
+                    .MatchStartForward(
+                        new CodeMatch(OpCodes.Stloc_S)
+                    )
+                    .ThrowIfNotMatch("TreePatch.tickUpdateTranspiler: IL code 2 not found")
                     .Insert(
                         new CodeInstruction(OpCodes.Ldarg_0),
-                        new CodeInstruction(OpCodes.Call, checkExtraWoodInfo),
+                        new CodeInstruction(OpCodes.Call, extraHardwoodInfo),
                         new CodeInstruction(OpCodes.Add)
                     )
                 ;
@@ -103,8 +84,16 @@ namespace MasteryExtended.Patches
             }
             catch (Exception ex)
             {
-                LogMonitor.Log($"Failed in {nameof(dayUpdateTranspiler)}:\n{ex}", LogLevel.Error);
+                LogMonitor.Log($"Failed in {nameof(tickUpdateTranspiler)}:\n{ex}", LogLevel.Error);
                 return instructions;
+            }
+        }
+
+        internal static void extraWoodCalculatorPostfix(Tree __instance, ref int __result)
+        {
+            if (__instance.growthStage.Value >= 5 && IsFertilizedByWoodlander(__instance))
+            {
+                __result++;
             }
         }
 
@@ -121,24 +110,10 @@ namespace MasteryExtended.Patches
         /***********
          * METHODS *
          ***********/
-        internal static void checkGrowthStage(Tree tree)
+        internal static bool isFarmerWoodlander(Farmer who)
         {
-            if (tree.growthStage.Value >= 5 || !IsFertilizedByWoodlander(tree))
-            {
-                tree.growthStage.Value++;
-            }
-            else
-            {
-                tree.growthStage.Value = 5;
-            }
-        }
-        internal static int checkExtraWood(Tree tree)
-        {
-            if (tree.growthStage.Value >= 5 && IsFertilizedByWoodlander(tree))
-            {
-                return 1;
-            }
-            return 0;
+            return who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Woodlander", out string value)
+                && bool.Parse(value);
         }
 
         internal static bool IsFertilizedByWoodlander(Tree tree)
@@ -150,10 +125,24 @@ namespace MasteryExtended.Patches
                 && isFarmerWoodlander(who);
         }
 
-        internal static bool isFarmerWoodlander(Farmer who)
+        internal static void checkGrowthStage(Tree tree)
         {
-            return who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Woodlander", out string value)
-                && bool.Parse(value);
+            if (tree.growthStage.Value >= 5 || !IsFertilizedByWoodlander(tree))
+            {
+                tree.growthStage.Value++;
+            }
+            else
+            {
+                tree.growthStage.Value = 5;
+            }
+        }
+        internal static int extraHardwood(Tree tree)
+        {
+            if (tree.growthStage.Value >= 5 && IsFertilizedByWoodlander(tree))
+            {
+                return 1;
+            }
+            return 0;
         }
     }
 }

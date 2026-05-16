@@ -9,7 +9,6 @@ using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
 using StardewValley;
-using StardewValley.Characters;
 using StardewValley.Constants;
 using StardewValley.GameData.Objects;
 using StardewValley.GameData.Powers;
@@ -118,7 +117,7 @@ namespace MasteryExtended
              ****************/
             // Allows alternative access to the Mastery Cave and changes the door message
             harmony.Patch(
-                original: AccessTools.Method(typeof(GameLocation), nameof(GameLocation.performAction), [typeof(string[]), typeof(Farmer), typeof(xTile.Dimensions.Location)]),
+                original: AccessTools.Method(typeof(GameLocation), nameof(GameLocation.performAction), [typeof(string[]), typeof(Farmer), typeof(Location)]),
                 transpiler: new HarmonyMethod(typeof(GameLocationPatch), nameof(GameLocationPatch.performActionTranspiler))
             );
 
@@ -275,16 +274,16 @@ namespace MasteryExtended
                 prefix: new HarmonyMethod(typeof(TreePatch), nameof(TreePatch.IsGrowthBlockedByNearbyTreePrefix))
             );
 
-            // Fertilized trees drop extra wood
+            // Fertilized trees and stumps drop extra wood
+            harmony.Patch(
+                original: AccessTools.Method(typeof(Tree), "extraWoodCalculator"),
+                postfix: new HarmonyMethod(typeof(TreePatch), nameof(TreePatch.extraWoodCalculatorPostfix))
+            );
+
+            // Fertilized trees drop extra hardwood
             harmony.Patch(
                 original: AccessTools.Method(typeof(Tree), nameof(Tree.tickUpdate)),
                 transpiler: new HarmonyMethod(typeof(TreePatch), nameof(TreePatch.tickUpdateTranspiler))
-            );
-
-            // Fertilized trees drop extra wood from the stump
-            harmony.Patch(
-                original: AccessTools.Method(typeof(Tree), "performTreeFall"),
-                transpiler: new HarmonyMethod(typeof(TreePatch), nameof(TreePatch.performTreeFallTranspiler))
             );
 
             /*************
