@@ -190,7 +190,11 @@ namespace MasteryExtended.Patches
         internal static bool attemptAddRandomInnateEnchantmentPrefix(Item item, Random r, bool force, List<BaseEnchantment> enchantsToReroll, ref Item __result)
         {
             if (item is not MeleeWeapon weapon
-                || !isFarmerRunesmith(weapon.lastUser)) return true;
+                || !isFarmerRunesmith(weapon.lastUser))
+            {
+                return true;
+            }
+
             r ??= Game1.random;
 
             if (force || r.NextBool())

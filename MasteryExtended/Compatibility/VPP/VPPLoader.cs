@@ -171,6 +171,19 @@ namespace MasteryExtended.Compatibility.VPP
                 original: AccessTools.Method("VanillaPlusProfessions.DisplayHandler:HandleSkillPage"),
                 transpiler: new HarmonyMethod(typeof(DisplayHandlerPatch), nameof(DisplayHandlerPatch.HandleSkillPageTranspiler))
             );
+
+
+            // Actually make Grove Tending do what it says
+            // Part 1: Remove the postfix
+            harmony.Patch(
+                original: AccessTools.Method("VanillaPlusProfessions.Talents.Patchers.ForagingPatcher:dayUpdate_Postfix"),
+                prefix: new HarmonyMethod(AccessTools.PropertyGetter(typeof(ForagingPatcherPatch), nameof(ForagingPatcherPatch.UnpatcherPrefix)))
+            );
+            // Part 2: Make it work twice
+            harmony.Patch(
+                original: AccessTools.Method(typeof(MasteryExtended.Patches.TreePatch), nameof(MasteryExtended.Patches.TreePatch.checkGrowthStage)),
+                transpiler: new HarmonyMethod(typeof(TreePatchPatch), nameof(TreePatchPatch.checkGrowthStageTranspiler))
+            );
         }
     }
 }

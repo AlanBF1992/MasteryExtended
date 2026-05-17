@@ -184,7 +184,7 @@ namespace MasteryExtended.Compatibility.WoL
             // Fix MasteryExtended placement
             harmony.Patch(
                 original: AccessTools.Method("DaLion.Professions.Framework.Patchers.Prestige.Integration.NewSkillsPagePerformHoverActionPatcher:NewSkillsPagePerformHoverActionPostfix"),
-                prefix: new HarmonyMethod(typeof(DaLionUnpatcher), nameof(DaLionUnpatcher.UnpatcherVoidPrefix))
+                prefix: new HarmonyMethod(AccessTools.PropertyGetter(typeof(DaLionUnpatcher), nameof(DaLionUnpatcher.UnpatcherVoidPrefix)))
             );
 
             // Fix warning when claiming mastery
