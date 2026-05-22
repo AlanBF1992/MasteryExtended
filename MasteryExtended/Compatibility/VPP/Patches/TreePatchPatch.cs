@@ -20,7 +20,7 @@ namespace MasteryExtended.Compatibility.VPP.Patches
             try
             {
                 CodeMatcher matcher = new(instructions);
-                MethodInfo checkGroveTendingTalentInfo = AccessTools.Method(typeof(ForagingPatcherPatch), nameof(checkGroveTendingTalent));
+                MethodInfo checkGroveTendingTalentInfo = AccessTools.Method(typeof(TreePatchPatch), nameof(checkGroveTendingTalent));
 
                 // From: growthStage.Value++
                 // To:   checkGroveTendingTalent(this)
