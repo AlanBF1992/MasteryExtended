@@ -55,7 +55,12 @@ namespace MasteryExtended.Compatibility.VPP.Patches
                     .ThrowIfNotMatch("DisplayHandlerPatch.OnRenderedActiveMenuTranspiler: IL code 2.1 not found")
                 ;
 
-                while (matcher.Advance(-1).Opcode == OpCodes.Nop) continue;
+
+                do
+                {
+                    matcher.Advance(-1);
+                } while (matcher.Opcode == OpCodes.Nop);
+
 
                 Label lbl1 = (Label)matcher.Operand;
 

@@ -258,7 +258,7 @@ namespace MasteryExtended.Patches
             int currentMasteryLevel = MasteryTrackerMenu.getCurrentMasteryLevel();
             int masterySpent = (int)Game1.stats.Get("masteryLevelsSpent");
 
-            int digitsToShow = currentMasteryLevel.countDigits() + masterySpent.countDigits();
+            int digitsToShow = currentMasteryLevel.DisplayLength + masterySpent.DisplayLength;
 
             return 0.85f - (digitsToShow - 2) * 0.0625f;
         }

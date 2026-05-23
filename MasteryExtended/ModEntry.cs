@@ -104,7 +104,7 @@ namespace MasteryExtended
             {
                 Data = new ModData
                 {
-                    claimedRewards = (int)Game1.player.stats.Get("mastery_total_pillars")
+                    claimedRewards = Utilities.GetClaimedPillars()
                 };
             }
         }

@@ -52,7 +52,7 @@ namespace MasteryExtended
                 spentLevelsInProfessions += Math.Max(s.unlockedProfessionsCount() - Math.Min((int)Math.Floor(s.getLevel() / 5f), maxBaseProfLvl), 0);
             }
 
-            Utilities.SetMasteryPillarsClaimed();
+            Utilities.CalculateClaimedPillars();
 
             int totalSpentLevels = (int)Game1.player.stats.Get("mastery_total_pillars") + spentLevelsInProfessions;
 

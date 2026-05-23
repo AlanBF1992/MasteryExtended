@@ -6,12 +6,12 @@ namespace MasteryExtended
 {
     internal static class Utilities
     {
-        internal static int CountClaimedPillars()
+        internal static int GetClaimedPillars()
         {
             return (int)Game1.player.stats.Get("mastery_total_pillars");
         }
 
-        internal static void SetMasteryPillarsClaimed()
+        internal static void CalculateClaimedPillars()
         {
             uint count = 0;
             for (int i = 0; i < 5; i++)
@@ -20,9 +20,6 @@ namespace MasteryExtended
             }
             Game1.player.stats.Set("mastery_total_pillars", count);
         }
-
-        internal static int countDigits(this int n) =>
-            n == 0 ? 1 : (n > 0 ? 1 : 2) + (int)Math.Log10(Math.Abs((double)n));
 
         internal static List<Vector2> getListOfTileLocationsForTileRectangle(Rectangle area)
         {
