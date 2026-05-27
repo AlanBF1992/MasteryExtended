@@ -43,7 +43,7 @@ namespace MasteryExtended.Compatibility.VPP.Menu.Pages
             Profession pL = Professions[0];
             Profession pR = Professions[1];
 
-            pageTextureComponents.Add(new ClickableTextureComponent(new Rectangle(xPosition, yPosition, professionWidth, professionHeight), pL.TextureSource(), pL.TextureBounds, 1f, drawShadow: true)
+            PageTextureComponents.Add(new ClickableTextureComponent(new Rectangle(xPosition, yPosition, professionWidth, professionHeight), pL.TextureSource(), pL.TextureBounds, 1f, drawShadow: true)
             {
                 name = pL.GetName(),
                 hoverText = pL.GetDescription(),
@@ -51,7 +51,7 @@ namespace MasteryExtended.Compatibility.VPP.Menu.Pages
                 myAlternateID = profession20Check(pL)
             });
 
-            pageTextureComponents.Add(new ClickableTextureComponent(new Rectangle(xPosition + xSpacingRightHalf, yPosition, professionWidth, professionHeight), pR.TextureSource(), pR.TextureBounds, 1f, drawShadow: true)
+            PageTextureComponents.Add(new ClickableTextureComponent(new Rectangle(xPosition + xSpacingRightHalf, yPosition, professionWidth, professionHeight), pR.TextureSource(), pR.TextureBounds, 1f, drawShadow: true)
             {
                 name = pR.GetName(),
                 hoverText = pR.GetDescription(),
@@ -68,14 +68,14 @@ namespace MasteryExtended.Compatibility.VPP.Menu.Pages
             int num = yPositionOnScreen;
             yPositionOnScreen = (int)Utility.getTopLeftPositionForCenteringOnScreen(800, height).Y;
             int offset = num - yPositionOnScreen;
-            foreach (ClickableTextureComponent c in pageTextureComponents)
+            foreach (ClickableTextureComponent c in PageTextureComponents)
             {
                 c.bounds.Y -= offset;
             }
             upperRightCloseButton.bounds.Y -= offset;
 
             // Add back button to return to professions menu
-            previousPageButton = new ClickableTextureComponent(new Rectangle(xPositionOnScreen + width / 2 - 84, yPositionOnScreen + height - 112, 168, 80), Game1.mouseCursors_1_6, new Rectangle(0, 123, 42, 21), 4f)
+            PreviousPageButton = new ClickableTextureComponent(new Rectangle(xPositionOnScreen + width / 2 - 84, yPositionOnScreen + height - 112, 168, 80), Game1.mouseCursors_1_6, new Rectangle(0, 123, 42, 21), 4f)
             {
                 visible = true,
                 myID = 999
@@ -97,19 +97,19 @@ namespace MasteryExtended.Compatibility.VPP.Menu.Pages
                 base.populateClickableComponentList();
 
                 // Only Row
-                pageTextureComponents[0].upNeighborID = upperRightCloseButton.myID;
-                pageTextureComponents[1].upNeighborID = upperRightCloseButton.myID;
+                PageTextureComponents[0].upNeighborID = upperRightCloseButton.myID;
+                PageTextureComponents[1].upNeighborID = upperRightCloseButton.myID;
 
-                pageTextureComponents[0].downNeighborID = previousPageButton!.myID;
-                pageTextureComponents[1].downNeighborID = previousPageButton.myID;
+                PageTextureComponents[0].downNeighborID = PreviousPageButton!.myID;
+                PageTextureComponents[1].downNeighborID = PreviousPageButton.myID;
 
-                pageTextureComponents[0].rightNeighborID = pageTextureComponents[1].myID;
-                pageTextureComponents[1].leftNeighborID = pageTextureComponents[0].myID;
+                PageTextureComponents[0].rightNeighborID = PageTextureComponents[1].myID;
+                PageTextureComponents[1].leftNeighborID = PageTextureComponents[0].myID;
 
                 // Buttons
-                previousPageButton.upNeighborID = pageTextureComponents[0].myID;
+                PreviousPageButton.upNeighborID = PageTextureComponents[0].myID;
 
-                currentlySnappedComponent = previousPageButton;
+                currentlySnappedComponent = PreviousPageButton;
 
                 base.snapCursorToCurrentSnappedComponent();
             }
@@ -123,10 +123,10 @@ namespace MasteryExtended.Compatibility.VPP.Menu.Pages
             SpriteText.drawStringHorizontallyCenteredAt(b, MenuTitle, xPositionOnScreen + width / 2, yPositionOnScreen + 48, 9999, -1, 9999, 1f, 0.88f, junimoText: false, Color.Black);
 
             // Draw button textures and icons
-            foreach (ClickableTextureComponent c in pageTextureComponents)
+            foreach (ClickableTextureComponent c in PageTextureComponents)
             {
                 // Button texture
-                drawTextureBox(b, Game1.mouseCursors, new Rectangle(403, 373, 9, 9), c.bounds.X, c.bounds.Y, c.bounds.Width, c.bounds.Height, c.region == 0 ? backItemColor : backItemColorHover, 3f, false);
+                drawTextureBox(b, Game1.mouseCursors, new Rectangle(403, 373, 9, 9), c.bounds.X, c.bounds.Y, c.bounds.Width, c.bounds.Height, c.region == 0 ? BackItemColor : BackItemColorHover, 3f, false);
 
                 // Add color tint to unlocked or unavailable professions
                 if (c.myAlternateID != 1)
@@ -165,25 +165,25 @@ namespace MasteryExtended.Compatibility.VPP.Menu.Pages
                 }
             }
 
-            if (previousPageButton != null)
+            if (PreviousPageButton != null)
             {
-                previousPageButton.draw(b, Color.White, 0.88f);
+                PreviousPageButton.draw(b, Color.White, 0.88f);
                 string s = Game1.content.LoadString("Strings\\UI:MasteryExtended_BackButton");
                 Utility.drawTextWithColoredShadow(b, s, Game1.dialogueFont,
-                    previousPageButton.getVector2() + new Vector2(
-                        previousPageButton.bounds.Width / 2 - Game1.dialogueFont.MeasureString(s).X / 2f,
-                        29 - (int)Math.Ceiling(Game1.dialogueFont.MeasureString(s).Y / 2) + (float)(previousPageButton.sourceRect.X == 84 ? 8 : 0)),
+                    PreviousPageButton.getVector2() + new Vector2(
+                        PreviousPageButton.bounds.Width / 2 - Game1.dialogueFont.MeasureString(s).X / 2f,
+                        29 - (int)Math.Ceiling(Game1.dialogueFont.MeasureString(s).Y / 2) + (float)(PreviousPageButton.sourceRect.X == 84 ? 8 : 0)),
                     Color.Black * 1f, Color.Black * 0.2f, 1f, 0.9f);
             }
 
-            if (nextPageButton != null)
+            if (NextPageButton != null)
             {
-                nextPageButton.draw(b, Color.White, 0.88f);
+                NextPageButton.draw(b, Color.White, 0.88f);
                 string s = Game1.content.LoadString("Strings\\UI:MasteryExtended_NextButton");
                 Utility.drawTextWithColoredShadow(b, s, Game1.dialogueFont,
-                    nextPageButton.getVector2() + new Vector2(
-                        nextPageButton.bounds.Width / 2 - Game1.dialogueFont.MeasureString(s).X / 2f,
-                        6f + (nextPageButton.sourceRect.X == 84 ? 8 : 0)),
+                    NextPageButton.getVector2() + new Vector2(
+                        NextPageButton.bounds.Width / 2 - Game1.dialogueFont.MeasureString(s).X / 2f,
+                        6f + (NextPageButton.sourceRect.X == 84 ? 8 : 0)),
                     Color.Black * 1f, Color.Black * 0.2f, 1f, 0.9f);
             }
 
@@ -193,7 +193,7 @@ namespace MasteryExtended.Compatibility.VPP.Menu.Pages
                     boxTexture: Game1.mouseCursors_1_6, boxSourceRect: new Rectangle(1, 85, 21, 21), boxShadowColor: Color.Black,
                     textColor: Color.Black, textShadowColor: Color.Black * 0.2f, boxScale: 2f);
             }
-            drawHoverText(b, Game1.parseText(hoverText, Game1.smallFont, 500), Game1.smallFont,
+            drawHoverText(b, Game1.parseText(HoverText, Game1.smallFont, 500), Game1.smallFont,
                 boxTexture: Game1.mouseCursors_1_6,
                 boxSourceRect: new Rectangle(1, 85, 21, 21),
                 boxShadowColor: innerSkill.getLevel() <= 10 ? Color.Black : null,
@@ -205,9 +205,9 @@ namespace MasteryExtended.Compatibility.VPP.Menu.Pages
 
         public override void performHoverAction(int x, int y)
         {
-            hoverText = "";
+            HoverText = "";
 
-            foreach (ClickableTextureComponent c in pageTextureComponents)
+            foreach (ClickableTextureComponent c in PageTextureComponents)
             {
                 c.region = 0;
                 if (c.bounds.Contains(x, y))
@@ -231,7 +231,7 @@ namespace MasteryExtended.Compatibility.VPP.Menu.Pages
 
                         if (requires != "") requires = Game1.content.LoadString("Strings\\UI:MasteryExtended_RequirementsTitle") + "\n" + requires + "\n";
 
-                        hoverText = unlocked + requires + c.hoverText;
+                        HoverText = unlocked + requires + c.hoverText;
                     }
                 }
             }
@@ -245,7 +245,7 @@ namespace MasteryExtended.Compatibility.VPP.Menu.Pages
             int levelsAchieved = MasteryTrackerMenu.getCurrentMasteryLevel();
             int levelsNotSpent = levelsAchieved - (int)Game1.stats.Get("masteryLevelsSpent");
 
-            foreach (ClickableTextureComponent c in pageTextureComponents)
+            foreach (ClickableTextureComponent c in PageTextureComponents)
             {
                 if (c.bounds.Contains(x, y) && c.myAlternateID == 1 && levelsNotSpent > 0)
                 {
@@ -268,34 +268,34 @@ namespace MasteryExtended.Compatibility.VPP.Menu.Pages
                 }
             }
 
-            if (previousPageButton?.bounds.Contains(x, y) == true && previousPageButton.visible)
+            if (PreviousPageButton?.bounds.Contains(x, y) == true && PreviousPageButton.visible)
             {
                 Game1.playSound("cowboy_monsterhit");
-                pressedButtonTimer = 100f;
+                PressedButtonTimer = 100f;
             }
             base.receiveLeftClick(x, y, playSound);
         }
 
         public override void update(GameTime time)
         {
-            if (destroyTimer > 0f)
+            if (DestroyTimer > 0f)
             {
-                destroyTimer -= (int)time.ElapsedGameTime.TotalMilliseconds;
+                DestroyTimer -= (int)time.ElapsedGameTime.TotalMilliseconds;
 
-                if (destroyTimer <= 0f)
+                if (DestroyTimer <= 0f)
                 {
                     Game1.activeClickableMenu = new MasteryProfessions15Page(innerSkill);
                 }
             }
 
-            if (pressedButtonTimer > 0f)
+            if (PressedButtonTimer > 0f)
             {
-                pressedButtonTimer -= (int)time.ElapsedGameTime.TotalMilliseconds;
-                previousPageButton!.sourceRect.X = 84;
+                PressedButtonTimer -= (int)time.ElapsedGameTime.TotalMilliseconds;
+                PreviousPageButton!.sourceRect.X = 84;
 
-                if (pressedButtonTimer <= 0f)
+                if (PressedButtonTimer <= 0f)
                 {
-                    destroyTimer = 100f;
+                    DestroyTimer = 100f;
                 }
             }
             base.update(time);

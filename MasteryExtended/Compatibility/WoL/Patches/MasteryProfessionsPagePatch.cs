@@ -18,7 +18,7 @@ namespace MasteryExtended.Compatibility.WoL.Patches
         internal static void ctorPostfix(MasteryProfessionsPage __instance)
         {
             // Prestiged are myAlternateId = 3
-            foreach (var c in __instance.pageTextureComponents.Where(c => Game1.player.professions.Contains(c.myID + 100)))
+            foreach (var c in __instance.PageTextureComponents.Where(c => Game1.player.professions.Contains(c.myID + 100)))
             {
                 c.myAlternateID = 3;
             }
@@ -26,15 +26,15 @@ namespace MasteryExtended.Compatibility.WoL.Patches
 
         internal static void drawPostfix(MasteryProfessionsPage __instance, SpriteBatch b)
         {
-            if (__instance.innerSkill.getLevel() <= 10) return;
-            if (__instance.innerSkill.Id is < 0 or > 4) return;
+            if (__instance.InnerSkill.getLevel() <= 10) return;
+            if (__instance.InnerSkill.Id is < 0 or > 4) return;
 
-            foreach (ClickableTextureComponent c in __instance.pageTextureComponents.Where(c => c.myAlternateID >= 2))
+            foreach (ClickableTextureComponent c in __instance.PageTextureComponents.Where(c => c.myAlternateID >= 2))
             {
                 b.Draw(Game1.mouseCursors_1_6, new Vector2(c.bounds.Right - 40, c.bounds.Top + 10), new Rectangle(c.myAlternateID == 3 ? 33 : 23, 89, 10, 11), Color.White, 0f, Vector2.Zero, 3f, SpriteEffects.None, 0.88f);
             }
 
-            MasteryProfessionsPage.drawHoverText(b, Game1.parseText(__instance.hoverText, Game1.smallFont, 500), Game1.smallFont,
+            MasteryProfessionsPage.drawHoverText(b, Game1.parseText(__instance.HoverText, Game1.smallFont, 500), Game1.smallFont,
                 boxTexture: Game1.mouseCursors_1_6,
                 boxSourceRect: new Rectangle(1, 85, 21, 21),
                 boxShadowColor: Color.Black,
@@ -45,21 +45,21 @@ namespace MasteryExtended.Compatibility.WoL.Patches
 
         internal static bool receiveLeftClickPrefix(MasteryProfessionsPage __instance, int x, int y)
         {
-            if (__instance.innerSkill.Professions.Count(p => Game1.player.professions.Contains(p.Id + 100)) < 2) return true;
+            if (__instance.InnerSkill.Professions.Count(p => Game1.player.professions.Contains(p.Id + 100)) < 2) return true;
 
             int levelsAchieved = MasteryTrackerMenu.getCurrentMasteryLevel();
             int levelsNotSpent = levelsAchieved - (int)Game1.stats.Get("masteryLevelsSpent");
 
             if (levelsNotSpent <= 0) return true;
 
-            foreach (ClickableTextureComponent c in __instance.pageTextureComponents.Where(c => c.bounds.Contains(x, y) && c.myAlternateID == 2))
+            foreach (ClickableTextureComponent c in __instance.PageTextureComponents.Where(c => c.bounds.Contains(x, y) && c.myAlternateID == 2))
             {
-                var reqProf = __instance.innerSkill.Professions.Find(p => p.Id == c.myID)!.RequiredProfessions;
+                var reqProf = __instance.InnerSkill.Professions.Find(p => p.Id == c.myID)!.RequiredProfessions;
                 bool canPrestige = reqProf == null || Game1.player.professions.Contains(reqProf.Id + 100);
                 if (!canPrestige) continue;
 
                 // Add the profession and spend the mastery
-                var professionToAdd = __instance.innerSkill.Professions.Find(p => p.Id == c.myID)!;
+                var professionToAdd = __instance.InnerSkill.Professions.Find(p => p.Id == c.myID)!;
                 Game1.player.professions.Add(c.myID + 100);
                 Game1.stats.Increment("masteryLevelsSpent");
                 c.myAlternateID++;
@@ -69,7 +69,7 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                 {
                     __instance.performHoverAction(0, 0);
                     Game1.afterDialogues = () => __instance.SetChildMenu(null);
-                    __instance.SetChildMenu(new DialogueBox(Game1.content.LoadString("Strings\\UI:MasteryExtended_AddedProfession", __instance.innerSkill.GetName(), professionToAdd.GetName())));
+                    __instance.SetChildMenu(new DialogueBox(Game1.content.LoadString("Strings\\UI:MasteryExtended_AddedProfession", __instance.InnerSkill.GetName(), professionToAdd.GetName())));
                 }
 
                 return false;
@@ -80,9 +80,9 @@ namespace MasteryExtended.Compatibility.WoL.Patches
 
         internal static void performHoverActionPostfix(MasteryProfessionsPage __instance, int x, int y)
         {
-            if (__instance.innerSkill.Id is < 0 or > 4) return;
+            if (__instance.InnerSkill.Id is < 0 or > 4) return;
 
-            foreach (ClickableTextureComponent c in __instance.pageTextureComponents.Where(c => c.bounds.Contains(x, y)))
+            foreach (ClickableTextureComponent c in __instance.PageTextureComponents.Where(c => c.bounds.Contains(x, y)))
             {
                 Game1.SetFreeCursorDrag();
                 dynamic dalionProf = profMethod.Invoke(null, [c.myID])!;
@@ -92,12 +92,12 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                     case 0:
                     case 1:
                     case 2:
-                        __instance.hoverText += "\n\nPrestiged: " + dalionProf.GetTitle(true) + "\n";
-                        __instance.hoverText += dalionProf.GetDescription(true);
+                        __instance.HoverText += "\n\nPrestiged: " + dalionProf.GetTitle(true) + "\n";
+                        __instance.HoverText += dalionProf.GetDescription(true);
 
                         break;
                     case 3:
-                        __instance.hoverText = dalionProf.GetDescription(false) + "\n\n= Already prestiged =\n" + dalionProf.GetDescription(true);
+                        __instance.HoverText = dalionProf.GetDescription(false) + "\n\n= Already prestiged =\n" + dalionProf.GetDescription(true);
                         break;
                 }
             }

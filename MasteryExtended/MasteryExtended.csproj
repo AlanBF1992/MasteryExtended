@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <EnableHarmony>true</EnableHarmony>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <MSBuildWarningsAsMessages>MSB3277</MSBuildWarningsAsMessages>
     <EnableModZip>False</EnableModZip>
     <GamePath>C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley</GamePath>
