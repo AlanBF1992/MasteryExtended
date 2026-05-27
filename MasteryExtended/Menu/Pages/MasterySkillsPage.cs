@@ -95,14 +95,8 @@ namespace MasteryExtended.Menu.Pages
             }
             upperRightCloseButton.bounds.Y -= offset;
 
-            if (previousPageButton != null)
-            {
-                previousPageButton.bounds.Y -= offset;
-            }
-            if (nextPageButton != null)
-            {
-                nextPageButton.bounds.Y -= offset;
-            }
+            previousPageButton?.bounds.Y -= offset;
+            nextPageButton?.bounds.Y -= offset;
 
             // Gamepad
             snapComponents();

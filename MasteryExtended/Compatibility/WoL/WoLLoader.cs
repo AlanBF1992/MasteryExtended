@@ -30,14 +30,13 @@ namespace MasteryExtended.Compatibility.WoL
         /// <summary>Makes SpaceCore Skills only able to go to lvl 10</summary>
         private static void fixExperienceCurve(object? sender, SaveLoadedEventArgs e)
         {
-            int[] ExperienceCurve = new int[11];
+            int[] ExperienceCurve = new int[10];
 
             for (int i = 0; i < 10; i++)
             {
                 ExperienceCurve[i] = Farmer.getBaseExperienceForLevel(i + 1);
             }
 
-            ExperienceCurve[10] = int.MaxValue;
 
             var skillList = (string[])AccessTools.Method("SpaceCore.Skills:GetSkillList").Invoke(null, null)!;
             var getSkill = AccessTools.Method("SpaceCore.Skills:GetSkill");

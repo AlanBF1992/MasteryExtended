@@ -270,10 +270,9 @@ namespace MasteryExtended.Patches
         {
             int which = (int)__instance.GetInstanceField("which")!;
             bool canClaim = (bool)__instance.GetInstanceField("canClaim")!;
-            if (__instance.mainButton != null)
-            {
-                __instance.mainButton.name = "";
-            }
+
+            __instance.mainButton?.name = "";
+
             if (__instance.mainButton?.containsPoint(x, y) == true && !canClaim)
             {
                 bool freeLevel = MasteryTrackerMenu.getCurrentMasteryLevel() > (int)Game1.stats.Get("masteryLevelsSpent");

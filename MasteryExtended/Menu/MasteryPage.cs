@@ -37,9 +37,9 @@ namespace MasteryExtended.Menu
             {
                 previousPageButton.sourceRect.X = 42;
             }
-            else if (previousPageButton != null)
+            else
             {
-                previousPageButton.sourceRect.X = 0;
+                previousPageButton?.sourceRect.X = 0;
             }
 
             // Next button
@@ -47,9 +47,9 @@ namespace MasteryExtended.Menu
             {
                 nextPageButton.sourceRect.X = 42;
             }
-            else if (nextPageButton != null)
+            else
             {
-                nextPageButton.sourceRect.X = 0;
+                nextPageButton?.sourceRect.X = 0;
             }
 
             base.performHoverAction(x, y);
