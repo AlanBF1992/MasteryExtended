@@ -21,6 +21,10 @@ namespace MasteryExtended.Skills.Professions
 
         public Rectangle TextureBounds { get; set; } = new Rectangle(0, 0, 16, 16);
 
+        public Action GetImmediateProfessionPerk { get; set; } = () => { };
+
+        public Action RemoveImmediateProfessionPerk { get; set; } = () => { };
+
         /*****************
         * Public methods *
         ******************/
@@ -43,7 +47,7 @@ namespace MasteryExtended.Skills.Professions
         }
 
         // SpaceCore Professions
-        public Profession(int id, Func<string> name, Func<string> description, int levelRequired, Profession? requiredProfession, Func<Texture2D>? textureSource, Rectangle? textureBounds = null)
+        public Profession(int id, Func<string> name, Func<string> description, int levelRequired, Profession? requiredProfession, Func<Texture2D>? textureSource, Rectangle? textureBounds = null, Action? getImmediateProfessionPerk = null, Action? removeImmediateProfessionPerk = null)
         {
             Id = id;
             GetName = name;
@@ -63,6 +67,17 @@ namespace MasteryExtended.Skills.Professions
             {
                 TextureBounds = textureBounds.Value;
             }
+
+
+            if (getImmediateProfessionPerk is not null)
+            {
+                GetImmediateProfessionPerk = getImmediateProfessionPerk;
+            }
+
+            if (removeImmediateProfessionPerk is not null)
+            {
+                RemoveImmediateProfessionPerk = removeImmediateProfessionPerk;
+            }
         }
 
         /***********
@@ -71,19 +86,18 @@ namespace MasteryExtended.Skills.Professions
 
         public void AddProfessionToPlayer()
         {
-            // Modify for custom skills later
             Game1.player.professions.Add(Id);
+            GetImmediateProfessionPerk();
         }
 
         public void RemoveProfessionFromPlayer()
         {
-            // Modify for custom skills later
             Game1.player.professions.Remove(Id);
+            RemoveImmediateProfessionPerk();
         }
 
         public bool IsProfessionUnlocked()
         {
-            // Modify for custom skills later
             return Game1.player.professions.Contains(Id);
         }
 

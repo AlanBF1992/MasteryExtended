@@ -18,6 +18,7 @@ namespace MasteryExtended.Compatibility.WoL
         {
             WoLPatches(harmony);
             helper.Events.GameLoop.SaveLoaded += fixExperienceCurve;
+            helper.Events.GameLoop.GameLaunched += removeImmediatePerks;
             helper.Events.GameLoop.UpdateTicked += GMCMConfigWoL;
             helper.Events.GameLoop.DayStarted += (_, _) => reloadIcons(); // Reload icons to ensure WoL icons display correctly
             ModEntry.MaxMasteryLevels += 20;
@@ -25,6 +26,15 @@ namespace MasteryExtended.Compatibility.WoL
             {
                 skill.ProfessionChooserLevels.AddRange([15, 20]);
             }
+        }
+
+        /// <summary>Remove Immediate Perks of vanilla professions</summary>
+        private static void removeImmediatePerks(object? sender, GameLaunchedEventArgs e)
+        {
+            Profession.Fighter.GetImmediateProfessionPerk = () => { };
+            Profession.Fighter.RemoveImmediateProfessionPerk = () => { };
+            Profession.Defender.GetImmediateProfessionPerk = () => { };
+            Profession.Defender.RemoveImmediateProfessionPerk = () => { };
         }
 
         /// <summary>Makes SpaceCore Skills only able to go to lvl 10</summary>

@@ -1,4 +1,6 @@
-﻿namespace MasteryExtended.Skills.Professions
+﻿using StardewValley;
+
+namespace MasteryExtended.Skills.Professions
 {
     public partial class Profession
     {
@@ -45,10 +47,44 @@
         /**********
          * Combat *
          **********/
-        public static Profession Fighter { get; } = new Profession(24, 5);
+        public static Profession Fighter { get; } = new Profession(24, 5)
+        {
+            GetImmediateProfessionPerk = () =>
+            {
+                Game1.player.maxHealth += 15;
+                Game1.player.health = Game1.player.maxHealth;
+                Game1.player.stamina = Game1.player.MaxStamina;
+            },
+
+            RemoveImmediateProfessionPerk = () =>
+            {
+                Game1.player.maxHealth -= 15;
+                if (Game1.player.health > Game1.player.maxHealth)
+                {
+                    Game1.player.health = Game1.player.maxHealth;
+                }
+            }
+        };
         public static Profession Scout { get; } = new Profession(25, 5);
         public static Profession Brute { get; } = new Profession(26, 10, Fighter);
-        public static Profession Defender { get; } = new Profession(27, 10, Fighter);
+        public static Profession Defender { get; } = new Profession(27, 10, Fighter)
+        {
+            GetImmediateProfessionPerk = () =>
+            {
+                Game1.player.maxHealth += 25;
+                Game1.player.health = Game1.player.maxHealth;
+                Game1.player.stamina = Game1.player.MaxStamina;
+            },
+
+            RemoveImmediateProfessionPerk = () =>
+            {
+                Game1.player.maxHealth -= 25;
+                if (Game1.player.health > Game1.player.maxHealth)
+                {
+                    Game1.player.health = Game1.player.maxHealth;
+                }
+            }
+        };
         public static Profession Acrobat { get; } = new Profession(28, 10, Scout);
         public static Profession Desperado { get; } = new Profession(29, 10, Scout);
     }

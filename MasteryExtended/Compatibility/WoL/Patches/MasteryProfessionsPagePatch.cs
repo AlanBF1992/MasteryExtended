@@ -52,8 +52,10 @@ namespace MasteryExtended.Compatibility.WoL.Patches
 
             if (levelsNotSpent <= 0) return true;
 
-            foreach (ClickableTextureComponent c in __instance.PageTextureComponents.Where(c => c.bounds.Contains(x, y) && c.myAlternateID == 2))
+            foreach (ClickableTextureComponent c in __instance.PageTextureComponents)
             {
+                if (c.myAlternateID != 2 || !c.bounds.Contains(x, y)) continue;
+
                 var reqProf = __instance.InnerSkill.Professions.Find(p => p.Id == c.myID)!.RequiredProfessions;
                 bool canPrestige = reqProf == null || Game1.player.professions.Contains(reqProf.Id + 100);
                 if (!canPrestige) continue;
@@ -82,8 +84,10 @@ namespace MasteryExtended.Compatibility.WoL.Patches
         {
             if (__instance.InnerSkill.Id is < 0 or > 4) return;
 
-            foreach (ClickableTextureComponent c in __instance.PageTextureComponents.Where(c => c.bounds.Contains(x, y)))
+            foreach (ClickableTextureComponent c in __instance.PageTextureComponents)
             {
+                if (!c.bounds.Contains(x, y)) continue;
+
                 Game1.SetFreeCursorDrag();
                 dynamic dalionProf = profMethod.Invoke(null, [c.myID])!;
 
@@ -100,6 +104,8 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                         __instance.HoverText = dalionProf.GetDescription(false) + "\n\n= Already prestiged =\n" + dalionProf.GetDescription(true);
                         break;
                 }
+
+                break;
             }
         }
     }

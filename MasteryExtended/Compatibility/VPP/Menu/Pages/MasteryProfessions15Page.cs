@@ -337,25 +337,30 @@ namespace MasteryExtended.Compatibility.VPP.Menu.Pages
             int levelsAchieved = MasteryTrackerMenu.getCurrentMasteryLevel();
             int levelsNotSpent = levelsAchieved - (int)Game1.stats.Get("masteryLevelsSpent");
 
-            foreach (ClickableTextureComponent c in PageTextureComponents)
+            if (levelsNotSpent > 0)
             {
-                if (c.bounds.Contains(x, y) && c.myAlternateID == 1 && levelsNotSpent > 0)
+                foreach (ClickableTextureComponent c in PageTextureComponents)
                 {
-                    // Add the profession and spend the mastery
-                    var professionToAdd = innerSkill.Professions.Find(p => p.Id == c.myID)!;
-                    professionToAdd.AddProfessionToPlayer();
-                    Game1.stats.Increment("masteryLevelsSpent");
-                    c.myAlternateID++;
-
-                    // Update the map
-                    Game1.currentLocation.MakeMapModifications(true);
-
-                    // Show which one was added
-                    if (ModEntry.Config.ConfirmProfession)
+                    if (c.bounds.Contains(x, y) && c.myAlternateID == 1)
                     {
-                        performHoverAction(0, 0);
-                        Game1.afterDialogues = () => SetChildMenu(null);
-                        SetChildMenu(new DialogueBox(Game1.content.LoadString("Strings\\UI:MasteryExtended_AddedProfession", innerSkill.GetName(), professionToAdd.GetName())));
+                        // Add the profession and spend the mastery
+                        var professionToAdd = innerSkill.Professions.Find(p => p.Id == c.myID)!;
+                        professionToAdd.AddProfessionToPlayer();
+                        Game1.stats.Increment("masteryLevelsSpent");
+                        c.myAlternateID++;
+
+                        // Update the map
+                        Game1.currentLocation.MakeMapModifications(true);
+
+                        // Show which one was added
+                        if (ModEntry.Config.ConfirmProfession)
+                        {
+                            performHoverAction(0, 0);
+                            Game1.afterDialogues = () => SetChildMenu(null);
+                            SetChildMenu(new DialogueBox(Game1.content.LoadString("Strings\\UI:MasteryExtended_AddedProfession", innerSkill.GetName(), professionToAdd.GetName())));
+                        }
+
+                        break;
                     }
                 }
             }
