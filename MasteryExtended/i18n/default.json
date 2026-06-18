@@ -122,7 +122,7 @@
   "power-dog-mason-name": "Mason",
   "power-dog-mason-description": "Rocks in the mines drop an extra stone. They also have a chance to drop Clay, Marble, Sandstone, Granite or Limestone.",
   "power-dog-woodlander-name": "Woodlander",
-  "power-dog-woodlander-description": "Fertilized trees grow immediately to adult stage, can grow side by side and drop extra wood. Also can craft double the amount of Tent Kits.",
+  "power-dog-woodlander-description": "Fertilized trees grow 3 stages instead of 1, can grow side by side and drop extra wood (or hardwood). Also can craft double the amount of Tent Kits.",
   "power-dog-baitbinder-name": "Baitbinder",
   "power-dog-baitbinder-description": "Heavily increase the Specific Bait chances when fishing or in Crab Pots. Allows the use of Specific Baits when becoming a Luremaster.",
   "power-dog-runesmith-name": "Runesmith",
@@ -135,5 +135,5 @@
   "dog-statue-menu-got-all-powers": "You got all the Powers",
   "dog-statue-menu-need-more-mastery-or-levels": "You need more Mastery or to Level Up your Skills",
   "dog-statue-menu-question-what-power-dialogue": "What Power are you interested in?",
-  "dog-statue-menu-question-unlock-dialogue": "Unlock Power?",
+  "dog-statue-menu-question-unlock-dialogue": "Unlock Power?"
 }

@@ -262,7 +262,7 @@ namespace MasteryExtended
                 transpiler: new HarmonyMethod(typeof(ObjectPatch), nameof(ObjectPatch.placementActionTranspiler))
             );
 
-            // Grow to stage 5 if fertilized
+            // Grow 3 stages if fertilized
             harmony.Patch(
                 original: AccessTools.Method(typeof(Tree), nameof(Tree.dayUpdate)),
                 transpiler: new HarmonyMethod(typeof(TreePatch), nameof(TreePatch.dayUpdateTranspiler))

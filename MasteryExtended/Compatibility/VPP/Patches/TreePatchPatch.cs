@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
 using StardewModdingAPI;
-using StardewValley.TerrainFeatures;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -20,21 +19,25 @@ namespace MasteryExtended.Compatibility.VPP.Patches
             try
             {
                 CodeMatcher matcher = new(instructions);
-                MethodInfo checkGroveTendingTalentInfo = AccessTools.Method(typeof(TreePatchPatch), nameof(checkGroveTendingTalent));
+                MethodInfo timesApplyFertilizerInfo = AccessTools.Method(typeof(TreePatchPatch), nameof(timesApplyFertilizer));
 
-                // From: growthStage.Value++
-                // To:   checkGroveTendingTalent(this)
+                // From: int baseGrowth = IsFertilizedByWoodlander(tree)? 3: 1
+                // To:   int baseGrowth = (IsFertilizedByWoodlander(tree)? 3: 1) * timesApplyFertilizer()
                 matcher
                     .MatchStartForward(
-                        new CodeMatch(OpCodes.Ldarg_0),
-                        new CodeMatch(OpCodes.Ldfld),
-                        new CodeMatch(OpCodes.Dup)
+                        new CodeMatch(OpCodes.Stloc_0)
                     )
-                    .ThrowIfNotMatch("TreePatch.dayUpdateTranspiler: IL code not found")
+                    .ThrowIfNotMatch("TreePatchPatch.checkGrowthStageTranspiler: IL code not found")
+                ;
+
+                matcher.Opcode = OpCodes.Call;
+                matcher.Operand = timesApplyFertilizerInfo;
+
+                matcher
                     .Advance(1)
-                    .RemoveInstructions(8)
                     .Insert(
-                        new CodeInstruction(OpCodes.Call, checkGroveTendingTalentInfo)
+                        new CodeInstruction(OpCodes.Mul),
+                        new CodeInstruction(OpCodes.Stloc_0)
                     )
                 ;
 
@@ -51,16 +54,14 @@ namespace MasteryExtended.Compatibility.VPP.Patches
          * METHODS *
          ***********/
 
-        private static void checkGroveTendingTalent(Tree tree)
+        private static bool checkGroveTendingTalent()
         {
-            if ((bool)VPPCurrentPlayerHasTalent.Invoke(null, [TalentGroveTending.GetValue(null), -1, null, true])!)
-            {
-                tree.growthStage.Value += 2;
-            }
-            else
-            {
-                tree.growthStage.Value++;
-            }
+            return (bool)VPPCurrentPlayerHasTalent.Invoke(null, [TalentGroveTending.GetValue(null), -1, null, true])!;
+        }
+
+        private static int timesApplyFertilizer()
+        {
+            return checkGroveTendingTalent() ? 2 : 1;
         }
     }
 }

@@ -122,7 +122,7 @@
   "power-dog-mason-name": "Mampostero",
   "power-dog-mason-description": "Las rocas en las minas otorgan una piedra extra. Pueden también otorgar Arcilla, Mármol, Arenisca, Granito o Piedra caliza.",
   "power-dog-woodlander-name": "Silvanus",
-  "power-dog-woodlander-description": "Los árboles fertilizados crecen de inmediato a la etapa adulta, pueden crecer uno al lado del otro y producen madera extra. La receta de Tiendas de campaña produce el doble.",
+  "power-dog-woodlander-description": "Los árboles fertilizados crecen de 3 etapas en vez de 1, pueden crecer uno al lado del otro y producen madera (o madera noble) extra. La receta de Tiendas de campaña produce el doble.",
   "power-dog-baitbinder-name": "Cebista",
   "power-dog-baitbinder-description": "Aumenta fuertemente la probabilidad de funcionamiento del Cebo especializado cuando se pesca o se usa en Trampas para cangrejo. Permite el uso de Cebo especializado en Trampas con la profesión As del señuelo.",
   "power-dog-runesmith-name": "Forjador rúnico",
@@ -135,5 +135,5 @@
   "dog-statue-menu-got-all-powers": "Tienes todos los Poderes",
   "dog-statue-menu-need-more-mastery-or-levels": "Necesitas más Maestría o subir de nivel tus Habilidades",
   "dog-statue-menu-question-what-power-dialogue": "¿Qué Poder te interesa?",
-  "dog-statue-menu-question-unlock-dialogue": "¿Desbloquear Poder?",
+  "dog-statue-menu-question-unlock-dialogue": "¿Desbloquear Poder?"
 }

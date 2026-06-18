@@ -127,14 +127,8 @@ namespace MasteryExtended.Patches
 
         internal static void checkGrowthStage(Tree tree)
         {
-            if (tree.growthStage.Value >= 5 || !IsFertilizedByWoodlander(tree))
-            {
-                tree.growthStage.Value++;
-            }
-            else
-            {
-                tree.growthStage.Value = 5;
-            }
+            int baseGrowth = IsFertilizedByWoodlander(tree)? 3: 1;
+            tree.growthStage.Value = Math.Min(tree.GetMaxSizeHere(), tree.growthStage.Value + baseGrowth);
         }
         internal static int extraHardwood(Tree tree)
         {
