@@ -842,15 +842,37 @@ namespace MasteryExtended
         // Powers
         private static void PowersAssetRequested(object? sender, AssetRequestedEventArgs e)
         {
-            if (ModEntry.Config.BooksQuantity == BooksQuantityOption.None) return;
+            if (!e.NameWithoutLocale.IsEquivalentTo("Data/Powers")) return;
 
-            if (e.NameWithoutLocale.IsEquivalentTo("Data/Powers"))
+            if (ModEntry.Config.BooksQuantity != BooksQuantityOption.None)
             {
                 e.Edit(rawInfo =>
                 {
                     var data = rawInfo.AsDictionary<string, PowersData>().Data;
 
-                    foreach (PowerInfo powerInfo in PowerInfo.PowerList)
+                    foreach (PowerInfo powerInfo in PowerInfo.BookPowersList)
+                    {
+                        PowersData toAdd = new()
+                        {
+                            DisplayName = Game1.content.LoadString(powerInfo.DisplayNamePath),
+                            Description = Game1.content.LoadString(powerInfo.PowerDescriptionPath, powerInfo.GetSubstitutions()),
+                            TexturePath = powerInfo.TexturePath,
+                            TexturePosition = new Point(powerInfo.SpriteIndex % 6 * 16, powerInfo.SpriteIndex / 6 * 16),
+                            UnlockedCondition = powerInfo.PowerUnlockCondition
+                        };
+
+                        data.TryAdd(powerInfo.Id, toAdd);
+                    }
+                });
+            }
+
+            if (ModEntry.Config.EnableDogPowers)
+            {
+                e.Edit(rawInfo =>
+                {
+                    var data = rawInfo.AsDictionary<string, PowersData>().Data;
+
+                    foreach (PowerInfo powerInfo in PowerInfo.DogPowerList)
                     {
                         PowersData toAdd = new()
                         {

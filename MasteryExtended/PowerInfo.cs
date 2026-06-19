@@ -290,144 +290,148 @@ namespace MasteryExtended
             IsDogStatueUnlock = isDogStatueUnlock;
         }
 
-        private static readonly PowerInfo[] powerList = [
-                new PowerInfo(
-                    $"{ModEntry.ModManifest.UniqueID}_BookMastery_SkillFarming_ID",
-                    "Strings\\UI:MasteryExtended_BookMastery_SkillFarming_BookName",
-                    "Strings\\UI:MasteryExtended_BookPower_FarmingMastery_BookDescription",
-                    $"Tilesheets/{ModEntry.ModManifest.UniqueID}/MasteryBooks",
-                    24,
-                    $"ANY \"{ModEntry.ModManifest.UniqueID}_BookQuantityConfig Full, ANY " +
-                        $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionCoopmaster_ID 1\\\" " +
-                        $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionShepherd_ID 1\\\" " +
-                        $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionArtisan_ID 1\\\" " +
-                        $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionAgriculturist_ID 1\\\"\" " +
-                        $"\"{ModEntry.ModManifest.UniqueID}_BookQuantityConfig Lite, PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_SkillFarming_ID 1\"",
-                    [() => ModEntry.Config.BooksQuantity == BooksQuantityOption.Full? ((int)(FarmerPatch.ExtraMasteryExperienceMultiplier(0, false) * 100)).ToString(): "50"]
-                ),
-                new PowerInfo(
-                    $"{ModEntry.ModManifest.UniqueID}_BookMastery_SkillFishing_ID",
-                    "Strings\\UI:MasteryExtended_BookMastery_SkillFishing_BookName",
-                    "Strings\\UI:MasteryExtended_BookPower_FishingMastery_BookDescription",
-                    $"Tilesheets/{ModEntry.ModManifest.UniqueID}/MasteryBooks",
-                    25,
-                    $"ANY \"{ModEntry.ModManifest.UniqueID}_BookQuantityConfig Full, ANY " +
-                        $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionAngler_ID 1\\\" " +
-                        $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionPirate_ID 1\\\" " +
-                        $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionMariner_ID 1\\\" " +
-                        $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionLuremaster_ID 1\\\"\" " +
-                        $"\"{ModEntry.ModManifest.UniqueID}_BookQuantityConfig Lite, PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_SkillFishing_ID 1\"",
-                    [() => ModEntry.Config.BooksQuantity == BooksQuantityOption.Full? ((int)(FarmerPatch.ExtraMasteryExperienceMultiplier(1, false) * 100)).ToString(): "50"]
-                ),
-                new PowerInfo(
-                    $"{ModEntry.ModManifest.UniqueID}_BookMastery_SkillForaging_ID",
-                    "Strings\\UI:MasteryExtended_BookMastery_SkillForaging_BookName",
-                    "Strings\\UI:MasteryExtended_BookPower_ForagingMastery_BookDescription",
-                    $"Tilesheets/{ModEntry.ModManifest.UniqueID}/MasteryBooks",
-                    26,
-                    $"ANY \"{ModEntry.ModManifest.UniqueID}_BookQuantityConfig Full, ANY " +
-                        $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionLumberjack_ID 1\\\" " +
-                        $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionTapper_ID 1\\\" " +
-                        $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionBotanist_ID 1\\\" " +
-                        $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionTracker_ID 1\\\"\" " +
-                        $"\"{ModEntry.ModManifest.UniqueID}_BookQuantityConfig Lite, PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_SkillForaging_ID 1\"",
-                    [() => ModEntry.Config.BooksQuantity == BooksQuantityOption.Full? ((int)(FarmerPatch.ExtraMasteryExperienceMultiplier(2, false) * 100)).ToString(): "50"]
-                ),
-                new PowerInfo(
-                    $"{ModEntry.ModManifest.UniqueID}_BookMastery_SkillMining_ID",
-                    "Strings\\UI:MasteryExtended_BookMastery_SkillMining_BookName",
-                    "Strings\\UI:MasteryExtended_BookPower_MiningMastery_BookDescription",
-                    $"Tilesheets/{ModEntry.ModManifest.UniqueID}/MasteryBooks",
-                    27,
-                    $"ANY \"{ModEntry.ModManifest.UniqueID}_BookQuantityConfig Full, ANY " +
-                        $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionBlacksmith_ID 1\\\" " +
-                        $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionProspector_ID 1\\\" " +
-                        $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionExcavator_ID 1\\\" " +
-                        $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionGemologist_ID 1\\\"\" " +
-                        $"\"{ModEntry.ModManifest.UniqueID}_BookQuantityConfig Lite, PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_SkillMining_ID 1\"",
-                    [() => ModEntry.Config.BooksQuantity == BooksQuantityOption.Full? ((int)(FarmerPatch.ExtraMasteryExperienceMultiplier(3, false) * 100)).ToString(): "50"]
-                ),
-                new PowerInfo(
-                    $"{ModEntry.ModManifest.UniqueID}_BookMastery_SkillCombat_ID",
-                    "Strings\\UI:MasteryExtended_BookMastery_SkillCombat_BookName",
-                    "Strings\\UI:MasteryExtended_BookPower_CombatMastery_BookDescription",
-                    $"Tilesheets/{ModEntry.ModManifest.UniqueID}/MasteryBooks",
-                    28,
-                    $"ANY \"{ModEntry.ModManifest.UniqueID}_BookQuantityConfig Full, ANY " +
-                        $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionBrute_ID 1\\\" " +
-                        $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionDefender_ID 1\\\" " +
-                        $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionAcrobat_ID 1\\\" " +
-                        $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionDesperado_ID 1\\\"\" " +
-                        $"\"{ModEntry.ModManifest.UniqueID}_BookQuantityConfig Lite, PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_SkillCombat_ID 1\"",
-                    [() => ModEntry.Config.BooksQuantity == BooksQuantityOption.Full? ((int)(FarmerPatch.ExtraMasteryExperienceMultiplier(4, false) * 100)).ToString(): "50"]
-                ),
-                new PowerInfo(
-                    $"{ModEntry.ModManifest.UniqueID}_BookMastery_Unlock_ID",
-                    "Strings\\UI:MasteryExtended_BookMastery_Unlock_BookName",
-                    "Strings\\UI:MasteryExtended_BookMastery_Unlock_BookDescription",
-                    $"Tilesheets/{ModEntry.ModManifest.UniqueID}/MasteryBooks",
-                    11,
-                    $"!{ModEntry.ModManifest.UniqueID}_BookQuantityConfig None, PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_Unlock_ID 1",
-                    [() => "50"]
-                ),
-                new PowerInfo(
-                    $"{ModEntry.ModManifest.UniqueID}_BookMastery_Complete_ID",
-                    "Strings\\UI:MasteryExtended_BookMastery_Complete_BookName",
-                    "Strings\\UI:MasteryExtended_BookMastery_Complete_BookDescription",
-                    $"Tilesheets/{ModEntry.ModManifest.UniqueID}/MasteryBooks",
-                    5,
-                    $"!{ModEntry.ModManifest.UniqueID}_BookQuantityConfig Lite, PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_Complete_ID 1",
-                    [() => "50"]
-                ),
-                new PowerInfo(
-                    $"{ModEntry.ModManifest.UniqueID}_Reaper",
-                    "Strings\\UI:MasteryExtended_ReaperName",
-                    "Strings\\UI:MasteryExtended_ReaperDescription",
-                    $"Tilesheets/{ModEntry.ModManifest.UniqueID}/DogPowers",
-                    0,
-                    $"PLAYER_MOD_DATA Current {ModEntry.ModManifest.UniqueID}/ExtraMastery/Reaper true"
-                ),
-                new PowerInfo(
-                    $"{ModEntry.ModManifest.UniqueID}_Mason",
-                    "Strings\\UI:MasteryExtended_MasonName",
-                    "Strings\\UI:MasteryExtended_MasonDescription",
-                    $"Tilesheets/{ModEntry.ModManifest.UniqueID}/DogPowers",
-                    3,
-                    $"PLAYER_MOD_DATA Current {ModEntry.ModManifest.UniqueID}/ExtraMastery/Mason true"
-                ),
-                new PowerInfo(
-                    $"{ModEntry.ModManifest.UniqueID}_Woodlander",
-                    "Strings\\UI:MasteryExtended_WoodlanderName",
-                    "Strings\\UI:MasteryExtended_WoodlanderDescription",
-                    $"Tilesheets/{ModEntry.ModManifest.UniqueID}/DogPowers",
-                    2,
-                    $"PLAYER_MOD_DATA Current {ModEntry.ModManifest.UniqueID}/ExtraMastery/Woodlander true"
-                ),
-                new PowerInfo(
-                    $"{ModEntry.ModManifest.UniqueID}_Baitbinder",
-                    "Strings\\UI:MasteryExtended_BaitbinderName",
-                    "Strings\\UI:MasteryExtended_BaitbinderDescription",
-                    $"Tilesheets/{ModEntry.ModManifest.UniqueID}/DogPowers",
-                    1,
-                    $"PLAYER_MOD_DATA Current {ModEntry.ModManifest.UniqueID}/ExtraMastery/Baitbinder true"
-                ),
-                new PowerInfo(
-                    $"{ModEntry.ModManifest.UniqueID}_Runesmith",
-                    "Strings\\UI:MasteryExtended_RunesmithName",
-                    "Strings\\UI:MasteryExtended_RunesmithDescription",
-                    $"Tilesheets/{ModEntry.ModManifest.UniqueID}/DogPowers",
-                    4,
-                    $"PLAYER_MOD_DATA Current {ModEntry.ModManifest.UniqueID}/ExtraMastery/Runesmith true"
-                ),
-                new PowerInfo(
-                    $"{ModEntry.ModManifest.UniqueID}_Attractive",
-                    "Strings\\UI:MasteryExtended_AttractiveName",
-                    "Strings\\UI:MasteryExtended_AttractiveDescription",
-                    $"Tilesheets/{ModEntry.ModManifest.UniqueID}/DogPowers",
-                    5,
-                    $"PLAYER_MOD_DATA Current {ModEntry.ModManifest.UniqueID}/ExtraMastery/Attractive true"
-                ),
-            ];
-        internal static IReadOnlyList<PowerInfo> PowerList => powerList;
+        private static readonly PowerInfo[] bookPowersList = [
+            new PowerInfo(
+                $"{ModEntry.ModManifest.UniqueID}_BookMastery_SkillFarming_ID",
+                "Strings\\UI:MasteryExtended_BookMastery_SkillFarming_BookName",
+                "Strings\\UI:MasteryExtended_BookPower_FarmingMastery_BookDescription",
+                $"Tilesheets/{ModEntry.ModManifest.UniqueID}/MasteryBooks",
+                24,
+                $"ANY \"{ModEntry.ModManifest.UniqueID}_BookQuantityConfig Full, ANY " +
+                    $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionCoopmaster_ID 1\\\" " +
+                    $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionShepherd_ID 1\\\" " +
+                    $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionArtisan_ID 1\\\" " +
+                    $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionAgriculturist_ID 1\\\"\" " +
+                    $"\"{ModEntry.ModManifest.UniqueID}_BookQuantityConfig Lite, PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_SkillFarming_ID 1\"",
+                [() => ModEntry.Config.BooksQuantity == BooksQuantityOption.Full? ((int)(FarmerPatch.ExtraMasteryExperienceMultiplier(0, false) * 100)).ToString(): "50"]
+            ),
+            new PowerInfo(
+                $"{ModEntry.ModManifest.UniqueID}_BookMastery_SkillFishing_ID",
+                "Strings\\UI:MasteryExtended_BookMastery_SkillFishing_BookName",
+                "Strings\\UI:MasteryExtended_BookPower_FishingMastery_BookDescription",
+                $"Tilesheets/{ModEntry.ModManifest.UniqueID}/MasteryBooks",
+                25,
+                $"ANY \"{ModEntry.ModManifest.UniqueID}_BookQuantityConfig Full, ANY " +
+                    $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionAngler_ID 1\\\" " +
+                    $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionPirate_ID 1\\\" " +
+                    $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionMariner_ID 1\\\" " +
+                    $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionLuremaster_ID 1\\\"\" " +
+                    $"\"{ModEntry.ModManifest.UniqueID}_BookQuantityConfig Lite, PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_SkillFishing_ID 1\"",
+                [() => ModEntry.Config.BooksQuantity == BooksQuantityOption.Full? ((int)(FarmerPatch.ExtraMasteryExperienceMultiplier(1, false) * 100)).ToString(): "50"]
+            ),
+            new PowerInfo(
+                $"{ModEntry.ModManifest.UniqueID}_BookMastery_SkillForaging_ID",
+                "Strings\\UI:MasteryExtended_BookMastery_SkillForaging_BookName",
+                "Strings\\UI:MasteryExtended_BookPower_ForagingMastery_BookDescription",
+                $"Tilesheets/{ModEntry.ModManifest.UniqueID}/MasteryBooks",
+                26,
+                $"ANY \"{ModEntry.ModManifest.UniqueID}_BookQuantityConfig Full, ANY " +
+                    $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionLumberjack_ID 1\\\" " +
+                    $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionTapper_ID 1\\\" " +
+                    $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionBotanist_ID 1\\\" " +
+                    $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionTracker_ID 1\\\"\" " +
+                    $"\"{ModEntry.ModManifest.UniqueID}_BookQuantityConfig Lite, PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_SkillForaging_ID 1\"",
+                [() => ModEntry.Config.BooksQuantity == BooksQuantityOption.Full? ((int)(FarmerPatch.ExtraMasteryExperienceMultiplier(2, false) * 100)).ToString(): "50"]
+            ),
+            new PowerInfo(
+                $"{ModEntry.ModManifest.UniqueID}_BookMastery_SkillMining_ID",
+                "Strings\\UI:MasteryExtended_BookMastery_SkillMining_BookName",
+                "Strings\\UI:MasteryExtended_BookPower_MiningMastery_BookDescription",
+                $"Tilesheets/{ModEntry.ModManifest.UniqueID}/MasteryBooks",
+                27,
+                $"ANY \"{ModEntry.ModManifest.UniqueID}_BookQuantityConfig Full, ANY " +
+                    $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionBlacksmith_ID 1\\\" " +
+                    $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionProspector_ID 1\\\" " +
+                    $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionExcavator_ID 1\\\" " +
+                    $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionGemologist_ID 1\\\"\" " +
+                    $"\"{ModEntry.ModManifest.UniqueID}_BookQuantityConfig Lite, PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_SkillMining_ID 1\"",
+                [() => ModEntry.Config.BooksQuantity == BooksQuantityOption.Full? ((int)(FarmerPatch.ExtraMasteryExperienceMultiplier(3, false) * 100)).ToString(): "50"]
+            ),
+            new PowerInfo(
+                $"{ModEntry.ModManifest.UniqueID}_BookMastery_SkillCombat_ID",
+                "Strings\\UI:MasteryExtended_BookMastery_SkillCombat_BookName",
+                "Strings\\UI:MasteryExtended_BookPower_CombatMastery_BookDescription",
+                $"Tilesheets/{ModEntry.ModManifest.UniqueID}/MasteryBooks",
+                28,
+                $"ANY \"{ModEntry.ModManifest.UniqueID}_BookQuantityConfig Full, ANY " +
+                    $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionBrute_ID 1\\\" " +
+                    $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionDefender_ID 1\\\" " +
+                    $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionAcrobat_ID 1\\\" " +
+                    $"\\\"PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_ProfessionDesperado_ID 1\\\"\" " +
+                    $"\"{ModEntry.ModManifest.UniqueID}_BookQuantityConfig Lite, PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_SkillCombat_ID 1\"",
+                [() => ModEntry.Config.BooksQuantity == BooksQuantityOption.Full? ((int)(FarmerPatch.ExtraMasteryExperienceMultiplier(4, false) * 100)).ToString(): "50"]
+            ),
+            new PowerInfo(
+                $"{ModEntry.ModManifest.UniqueID}_BookMastery_Unlock_ID",
+                "Strings\\UI:MasteryExtended_BookMastery_Unlock_BookName",
+                "Strings\\UI:MasteryExtended_BookMastery_Unlock_BookDescription",
+                $"Tilesheets/{ModEntry.ModManifest.UniqueID}/MasteryBooks",
+                11,
+                $"!{ModEntry.ModManifest.UniqueID}_BookQuantityConfig None, PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_Unlock_ID 1",
+                [() => "50"]
+            ),
+            new PowerInfo(
+                $"{ModEntry.ModManifest.UniqueID}_BookMastery_Complete_ID",
+                "Strings\\UI:MasteryExtended_BookMastery_Complete_BookName",
+                "Strings\\UI:MasteryExtended_BookMastery_Complete_BookDescription",
+                $"Tilesheets/{ModEntry.ModManifest.UniqueID}/MasteryBooks",
+                5,
+                $"!{ModEntry.ModManifest.UniqueID}_BookQuantityConfig Lite, PLAYER_STAT Current {ModEntry.ModManifest.UniqueID}_BookMastery_Complete_ID 1",
+                [() => "50"]
+            ),
+        ];
+        private static readonly PowerInfo[] dogPowersList = [
+            new PowerInfo(
+                $"{ModEntry.ModManifest.UniqueID}_Reaper",
+                "Strings\\UI:MasteryExtended_ReaperName",
+                "Strings\\UI:MasteryExtended_ReaperDescription",
+                $"Tilesheets/{ModEntry.ModManifest.UniqueID}/DogPowers",
+                0,
+                $"PLAYER_MOD_DATA Current {ModEntry.ModManifest.UniqueID}/ExtraMastery/Reaper true"
+            ),
+            new PowerInfo(
+                $"{ModEntry.ModManifest.UniqueID}_Mason",
+                "Strings\\UI:MasteryExtended_MasonName",
+                "Strings\\UI:MasteryExtended_MasonDescription",
+                $"Tilesheets/{ModEntry.ModManifest.UniqueID}/DogPowers",
+                3,
+                $"PLAYER_MOD_DATA Current {ModEntry.ModManifest.UniqueID}/ExtraMastery/Mason true"
+            ),
+            new PowerInfo(
+                $"{ModEntry.ModManifest.UniqueID}_Woodlander",
+                "Strings\\UI:MasteryExtended_WoodlanderName",
+                "Strings\\UI:MasteryExtended_WoodlanderDescription",
+                $"Tilesheets/{ModEntry.ModManifest.UniqueID}/DogPowers",
+                2,
+                $"PLAYER_MOD_DATA Current {ModEntry.ModManifest.UniqueID}/ExtraMastery/Woodlander true"
+            ),
+            new PowerInfo(
+                $"{ModEntry.ModManifest.UniqueID}_Baitbinder",
+                "Strings\\UI:MasteryExtended_BaitbinderName",
+                "Strings\\UI:MasteryExtended_BaitbinderDescription",
+                $"Tilesheets/{ModEntry.ModManifest.UniqueID}/DogPowers",
+                1,
+                $"PLAYER_MOD_DATA Current {ModEntry.ModManifest.UniqueID}/ExtraMastery/Baitbinder true"
+            ),
+            new PowerInfo(
+                $"{ModEntry.ModManifest.UniqueID}_Runesmith",
+                "Strings\\UI:MasteryExtended_RunesmithName",
+                "Strings\\UI:MasteryExtended_RunesmithDescription",
+                $"Tilesheets/{ModEntry.ModManifest.UniqueID}/DogPowers",
+                4,
+                $"PLAYER_MOD_DATA Current {ModEntry.ModManifest.UniqueID}/ExtraMastery/Runesmith true"
+            ),
+            new PowerInfo(
+                $"{ModEntry.ModManifest.UniqueID}_Attractive",
+                "Strings\\UI:MasteryExtended_AttractiveName",
+                "Strings\\UI:MasteryExtended_AttractiveDescription",
+                $"Tilesheets/{ModEntry.ModManifest.UniqueID}/DogPowers",
+                5,
+                $"PLAYER_MOD_DATA Current {ModEntry.ModManifest.UniqueID}/ExtraMastery/Attractive true"
+            ),
+        ];
+
+        internal static IReadOnlyList<PowerInfo> BookPowersList => bookPowersList;
+        internal static IReadOnlyList<PowerInfo> DogPowerList => dogPowersList;
     }
 }

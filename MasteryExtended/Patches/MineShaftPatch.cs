@@ -153,13 +153,16 @@ namespace MasteryExtended.Patches
                 return;
             }
 
-            long farmerId = who?.UniqueMultiplayerID ?? 0;
+            long farmerId = who.UniqueMultiplayerID;
+
             Game1.createObjectDebris("(O)390", x, y, farmerId, location); // Stone
 
             switch (r.NextDouble())
             {
-                case < 0.75:
+                case < 0.8:
                     Game1.createObjectDebris("(O)330", x, y, farmerId, location); // Clay
+                    break;
+                case double _ when ModEntry.Config.MasonDrops != MasonDropsOption.Everything:
                     break;
                 case < 0.85:
                     Game1.createObjectDebris("(O)567", x, y, farmerId, location); // Marble
@@ -178,7 +181,8 @@ namespace MasteryExtended.Patches
 
         internal static bool isFarmerMason(Farmer who)
         {
-            return who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Mason", out string value)
+            return ModEntry.Config.EnableDogPowers
+                && who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Mason", out string value)
                 && bool.Parse(value);
         }
     }

@@ -265,7 +265,8 @@ namespace MasteryExtended.Patches
 
         internal static bool isFarmerAttractive(Farmer who)
         {
-            return who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Attractive", out string value)
+            return ModEntry.Config.EnableDogPowers
+                && who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Attractive", out string value)
                 && bool.Parse(value);
         }
     }

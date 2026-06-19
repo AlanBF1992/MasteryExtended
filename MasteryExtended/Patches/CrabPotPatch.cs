@@ -145,7 +145,8 @@ namespace MasteryExtended.Patches
         internal static bool isFarmerBaitbinder(Farmer who)
         {
             //who ??= Game1.player;
-            return who is not null && who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Baitbinder", out string value)
+            return ModEntry.Config.EnableDogPowers
+                && who is not null && who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Baitbinder", out string value)
                 && bool.Parse(value);
         }
     }

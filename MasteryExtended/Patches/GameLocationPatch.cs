@@ -114,7 +114,8 @@ namespace MasteryExtended.Patches
 
         internal static bool performActionPrefix(GameLocation __instance, string[] action, Farmer who, Location tileLocation, ref bool __result)
         {
-            if (__instance.ShouldIgnoreAction(action, who, tileLocation)
+            if (!ModEntry.Config.EnableDogPowers
+                || __instance.ShouldIgnoreAction(action, who, tileLocation)
                 || !ArgUtility.TryGet(action, 0, out var actionType, out var _, allowBlank: true, "string actionType")
                 || !who.IsLocalPlayer
                 || !actionType.Equals("DogStatue"))
@@ -216,7 +217,7 @@ namespace MasteryExtended.Patches
 
                     if (powerId == "Cancel") break;
 
-                    PowerInfo power = PowerInfo.PowerList.First(x => x.Id.EndsWith(powerId));
+                    PowerInfo power = PowerInfo.DogPowerList.First(x => x.Id.EndsWith(powerId));
                     string powerName = Game1.content.LoadString(power.DisplayNamePath);
                     string powerDesc = Game1.content.LoadString(power.PowerDescriptionPath, power.GetSubstitutions());
 
@@ -364,8 +365,7 @@ namespace MasteryExtended.Patches
 
         internal static int fishingTries(Farmer who)
         {
-            if (!CrabPotPatch.isFarmerBaitbinder(who)) return 2;
-            return 5;
+            return CrabPotPatch.isFarmerBaitbinder(who) ? 5 : 2;
         }
     }
 }

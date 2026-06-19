@@ -300,14 +300,16 @@ namespace MasteryExtended.Patches
         internal static bool isFarmerReaper(Farmer who)
         {
             who ??= Game1.player;
-            return who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Reaper", out string value)
+            return ModEntry.Config.EnableDogPowers
+                && who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Reaper", out string value)
                 && bool.Parse(value);
         }
 
         internal static bool isFarmerRunesmith(Farmer who)
         {
             who ??= Game1.player;
-            return who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Runesmith", out string value)
+            return ModEntry.Config.EnableDogPowers
+                && who.modData.TryGetValue($"{ModEntry.ModManifest.UniqueID}/ExtraMastery/Runesmith", out string value)
                 && bool.Parse(value);
         }
     }
