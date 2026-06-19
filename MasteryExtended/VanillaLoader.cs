@@ -406,6 +406,44 @@ namespace MasteryExtended
                 interval: 5000
             );
 
+            // Enable Extra Powers
+            configMenu.AddBoolOption(
+                mod: ModEntry.ModManifest,
+                getValue: () => ModEntry.Config.EnableDogPowers,
+                setValue: (value) => ModEntry.Config.EnableDogPowers = value,
+                name: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_EnableDogPowersName"),
+                tooltip: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_EnableDogPowersTooltip")
+            );
+
+            // What to drop with Mason
+            configMenu.AddTextOption(
+                mod: ModEntry.ModManifest,
+                getValue: () => ModEntry.Config.MasonDrops.ToString("D"),
+                setValue: value =>
+                {
+                    if (Enum.TryParse(value, true, out MasonDropsOption option))
+                    {
+                        ModEntry.Config.MasonDrops = option;
+                    }
+                    else
+                    {
+                        ModEntry.Config.MasonDrops = (MasonDropsOption)int.Parse(value);
+                    }
+                    ModEntry.ModHelper.GameContent.InvalidateCache("Data\\Powers");
+                },
+                name: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_MasonDropName", Game1.content.LoadString("Strings\\UI:MasteryExtended_MasonName")),
+                tooltip: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_MasonDropTooltip", Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_MasonDropOption0")),
+                allowedValues: [.. Enum.GetValues<MasonDropsOption>().Cast<int>().Select(x => x.ToString())],
+                formatAllowedValue: (value) =>
+                {
+                    return value switch
+                    {
+                        "0" or "1" => Game1.content.LoadString($"Strings\\UI:MasteryExtended_GMCM_MasonDropOption{value}"),
+                        _ => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_MasonDropOption?"),
+                    };
+                }
+            );
+
             /***********************
              * Skill Menu Settings *
              ***********************/
@@ -431,7 +469,6 @@ namespace MasteryExtended
                 name: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_ProfessionNameHoverName"),
                 tooltip: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_ProfessionNameHoverTooltip")
             );
-
 
             /************************
              * Cave Access Settings *
@@ -467,7 +504,6 @@ namespace MasteryExtended
                         _ => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_HowToAccessCave?"),
                     };
                 });
-
 
             // Include Custom Skills on the count?
             configMenu.AddBoolOption(
@@ -758,6 +794,15 @@ namespace MasteryExtended
                     editor.Data.Add("MasteryExtended_RunesmithDescription", ModEntry.ModHelper.Translation.Get("power-dog-runesmith-description"));
                     editor.Data.Add("MasteryExtended_AttractiveName", ModEntry.ModHelper.Translation.Get("power-dog-attractive-name"));
                     editor.Data.Add("MasteryExtended_AttractiveDescription", ModEntry.ModHelper.Translation.Get("power-dog-attractive-description"));
+
+                    editor.Data.Add("MasteryExtended_GMCM_EnableDogPowersName", ModEntry.ModHelper.Translation.Get("gmcm-enable-dog-powers-name"));
+                    editor.Data.Add("MasteryExtended_GMCM_EnableDogPowersTooltip", ModEntry.ModHelper.Translation.Get("gmcm-enable-dog-powers-tooltip"));
+
+                    editor.Data.Add("MasteryExtended_GMCM_MasonDropName", ModEntry.ModHelper.Translation.Get("gmcm-mason-drop-name"));
+                    editor.Data.Add("MasteryExtended_GMCM_MasonDropTooltip", ModEntry.ModHelper.Translation.Get("gmcm-mason-drop-tooltip"));
+                    editor.Data.Add("MasteryExtended_GMCM_MasonDropOption0", ModEntry.ModHelper.Translation.Get("gmcm-mason-drop-0"));
+                    editor.Data.Add("MasteryExtended_GMCM_MasonDropOption1", ModEntry.ModHelper.Translation.Get("gmcm-mason-drop-1"));
+                    editor.Data.Add("MasteryExtended_GMCM_MasonDropOption?", ModEntry.ModHelper.Translation.Get("gmcm-mason-drop-?"));
                 });
             }
             else if (e.NameWithoutLocale.IsEquivalentTo(PathUtilities.NormalizeAssetName("Strings/Locations")))

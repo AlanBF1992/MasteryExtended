@@ -18,8 +18,14 @@
     public enum PillarsVsProfessionsOption
     {
         Professions = 0,
-        Pillars     = 1,
-        None        = 2
+        Pillars = 1,
+        None = 2
+    }
+
+    public enum MasonDropsOption
+    {
+        Everything = 0,
+        StoneAndClay = 1
     }
 
     /// <summary>The mod configuration class from the player.</summary>
@@ -59,6 +65,9 @@
         public BooksQuantityOption BooksQuantity { get; set; } = BooksQuantityOption.Full;
         // Book Price
         public int BookPrice { get; set; } = 25000;
-
+        // Enable extra Powers
+        public bool EnableDogPowers { get; set; } = true;
+        // What to drop with Mason
+        public MasonDropsOption MasonDrops { get; set; } = MasonDropsOption.Everything;
     }
 }

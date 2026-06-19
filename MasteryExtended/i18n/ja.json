@@ -135,5 +135,12 @@
   "dog-statue-menu-got-all-powers": "You got all the Powers",
   "dog-statue-menu-need-more-mastery-or-levels": "You need more Mastery or to Level Up your Skills",
   "dog-statue-menu-question-what-power-dialogue": "What Power are you interested in?",
-  "dog-statue-menu-question-unlock-dialogue": "Unlock Power?"
+  "dog-statue-menu-question-unlock-dialogue": "Unlock Power?",
+  "gmcm-enable-dog-powers-name": "Enable Dog Powers?",
+  "gmcm-enable-dog-powers-tooltip": "Powers granted by the Dog Statue on the Sewers.\nDefault: true",
+  "gmcm-mason-drop-name": "{0} Power Drops",
+  "gmcm-mason-drop-tooltip": "What is dropped when breaking rocks.\nDefault: \"{0}\"",
+  "gmcm-mason-drop-0": "Every item",
+  "gmcm-mason-drop-1": "Only Stone and Clay",
+  "gmcm-mason-drop-?": "???"
 }
