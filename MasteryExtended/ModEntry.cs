@@ -4,7 +4,6 @@ using MasteryExtended.Compatibility.VPP;
 using MasteryExtended.Compatibility.WoL;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
-using StardewValley;
 
 namespace MasteryExtended
 {

@@ -77,13 +77,19 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
                                        (Func<string>)(() => i.First.GetDescription()),
                                        i.Level,
                                        required,
-                                       i.First.Icon is null ? null: (Func<Texture2D>)(() => i.First.Icon));
+                                       i.First.Icon is null ? null: (Func<Texture2D>)(() => i.First.Icon),
+                                       null,
+                                       (Action)(() => i.First.DoImmediateProfessionPerk()),
+                                       (Action)(() => i.First.UndoImmediateProfessionPerk()));
                 Profession second = new(i.Second.GetVanillaId(),
                                         (Func<string>)(() => i.Second.GetName()),
                                         (Func<string>)(() => i.Second.GetDescription()),
                                         i.Level,
                                         required,
-                                        i.Second.Icon is null ? null : (Func<Texture2D>)(() => i.Second.Icon));
+                                        i.Second.Icon is null ? null : (Func<Texture2D>)(() => i.Second.Icon),
+                                        null,
+                                        (Action)(() => i.Second.DoImmediateProfessionPerk()),
+                                        (Action)(() => i.Second.UndoImmediateProfessionPerk()));
 
                 myProfessions.Add(first);
                 myProfessions.Add(second);
