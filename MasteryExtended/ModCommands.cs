@@ -1,4 +1,5 @@
 ﻿using MasteryExtended.Menu.Pages;
+using MasteryExtended.Patches;
 using MasteryExtended.Skills;
 using StardewModdingAPI;
 using StardewValley;
@@ -54,7 +55,17 @@ namespace MasteryExtended
 
             Utilities.CalculateClaimedPillars();
 
-            int totalSpentLevels = (int)Game1.player.stats.Get("mastery_total_pillars") + spentLevelsInProfessions;
+            int spentLevelsInDogPowers = new[]
+            {
+                MeleeWeaponPatch.isFarmerReaper(Game1.player),
+                MineShaftPatch.isFarmerMason(Game1.player),
+                TreePatch.isFarmerWoodlander(Game1.player),
+                CrabPotPatch.isFarmerBaitbinder(Game1.player),
+                MeleeWeaponPatch.isFarmerRunesmith(Game1.player),
+                FarmerPatch.isFarmerAttractive(Game1.player)
+            }.Count(x => x);
+
+            int totalSpentLevels = Utilities.GetClaimedPillars() + spentLevelsInProfessions + spentLevelsInDogPowers;
 
             Game1.stats.Set("masteryLevelsSpent", totalSpentLevels);
         }
