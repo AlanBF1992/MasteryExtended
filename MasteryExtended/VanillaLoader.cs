@@ -29,7 +29,11 @@ namespace MasteryExtended
         internal static void Loader(IModHelper helper, Harmony harmony)
         {
             ModEntry.MaxMasteryLevels += 25;
-            ModEntry.MaxMasteryLevels += 6;
+
+            if (ModEntry.Config.EnableDogPowers)
+            {
+                ModEntry.MaxMasteryLevels += 6;
+            }
 
             VanillaPatches(harmony);
 
@@ -410,7 +414,17 @@ namespace MasteryExtended
             configMenu.AddBoolOption(
                 mod: ModEntry.ModManifest,
                 getValue: () => ModEntry.Config.EnableDogPowers,
-                setValue: (value) => ModEntry.Config.EnableDogPowers = value,
+                setValue: (value) => {
+                    if (ModEntry.Config.EnableDogPowers && !value)
+                    {
+                        ModEntry.MaxMasteryLevels -= 6;
+                    }
+                    else if (!ModEntry.Config.EnableDogPowers && value)
+                    {
+                        ModEntry.MaxMasteryLevels += 6;
+                    }
+                    ModEntry.Config.EnableDogPowers = value;
+                },
                 name: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_EnableDogPowersName"),
                 tooltip: () => Game1.content.LoadString("Strings\\UI:MasteryExtended_GMCM_EnableDogPowersTooltip")
             );
