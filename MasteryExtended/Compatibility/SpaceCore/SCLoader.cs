@@ -1,15 +1,21 @@
 ﻿using HarmonyLib;
 using MasteryExtended.Compatibility.SpaceCore.Patches;
+using MasteryExtended.Menu.Pages;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
+using StardewModdingAPI.Events;
+using System.Collections;
+using System.Reflection;
 
 namespace MasteryExtended.Compatibility.SpaceCore
 {
     internal static class SCLoader
     {
-        internal static void Loader(IModHelper _1, Harmony harmony)
+        internal static void Loader(IModHelper helper, Harmony harmony)
         {
             SpaceCorePatches(harmony);
+
+            helper.Events.GameLoop.GameLaunched += checkAlreadyRegisteredSkills;
         }
 
         /// <summary>Base patches for the mod.</summary>
@@ -55,6 +61,22 @@ namespace MasteryExtended.Compatibility.SpaceCore
                 original: AccessTools.Method("SpaceCore.Interface.NewSkillsPage:performHoverAction"),
                 transpiler: new HarmonyMethod(typeof(SCNewSkillsPagePatch), nameof(SCNewSkillsPagePatch.performHoverActionTranspiler))
             );
+        }
+
+        /**********
+         * EVENTS *
+         **********/
+        private static void checkAlreadyRegisteredSkills(object? sender, GameLaunchedEventArgs e)
+        {
+            IDictionary skillsDict = (IDictionary)AccessTools.Field("SpaceCore.Skills:SkillsByName").GetValue(null)!;
+
+            foreach (string id in skillsDict.Keys)
+            {
+                if (!SCSkillsPatch.allSkillAdded.Contains(id))
+                {
+                    SCSkillsPatch.RegisterSkillPostfix(skillsDict[id]!);
+                }
+            }
         }
     }
 }

@@ -15,7 +15,7 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
     {
         internal readonly static IMonitor LogMonitor = ModEntry.LogMonitor;
 
-        private static readonly IEnumerable<string> allSkillAdded = [];
+        internal static readonly List<string> allSkillAdded = [];
         private static bool checkCookingSkills = true;
 
         /***********
@@ -105,7 +105,7 @@ namespace MasteryExtended.Compatibility.SpaceCore.Patches
                               [5, 10]);
 
             MasterySkillsPage.skills.Add(newSkill);
-            allSkillAdded.AddItem((string)skill.Id);
+            allSkillAdded.Add((string)skill.Id);
             ModEntry.MaxMasteryLevels += 4;
             ModEntry.SkillsAvailable++;
 
