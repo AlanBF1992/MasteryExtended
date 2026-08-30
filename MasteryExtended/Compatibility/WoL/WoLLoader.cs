@@ -99,6 +99,7 @@ namespace MasteryExtended.Compatibility.WoL
         /// <summary>All the patches to make WoL work</summary>
         private static void WoLPatches(Harmony harmony)
         {
+            bool OldVersion = !ModEntry.ModHelper.ModRegistry.Get("DaLion.Professions")!.Manifest.Version.IsNewerThan("1.4.3");
             /*************************************
              * Vanilla Skill Experience with WoL *
              *************************************/
@@ -185,10 +186,13 @@ namespace MasteryExtended.Compatibility.WoL
             );
 
             // Fix message
-            harmony.Patch(
-                original: AccessTools.Method("DaLion.Professions.Framework.Patchers.Prestige.GameLocationPerformActionPatcher:GameLocationPerformActionPrefix"),
-                prefix: new HarmonyMethod(typeof(DaLionUnpatcher), nameof(DaLionUnpatcher.UnpatcherBoolPrefix))
-            );
+            if (OldVersion)
+            {
+                harmony.Patch(
+                    original: AccessTools.Method("DaLion.Professions.Framework.Patchers.Prestige.GameLocationPerformActionPatcher:GameLocationPerformActionPrefix"),
+                    prefix: new HarmonyMethod(typeof(DaLionUnpatcher), nameof(DaLionUnpatcher.UnpatcherBoolPrefix))
+                );
+            }
 
             // Fix MasteryExtended placement
             harmony.Patch(
@@ -228,10 +232,13 @@ namespace MasteryExtended.Compatibility.WoL
             );
 
             // Allows +2 capacity to Barn and Coop simultaneously
-            harmony.Patch(
-                original: AccessTools.Method("DaLion.Professions.Framework.Events.GameLoop.DayStarted.RevalidateBuildingsDayStartedEvent:OnDayStartedImpl"),
-                transpiler: new HarmonyMethod(typeof(RevalidateBuildingsDayStartedEventPatch), nameof(RevalidateBuildingsDayStartedEventPatch.OnDayStartedImplTranspiler))
-            );
+            if (OldVersion)
+            {
+                harmony.Patch(
+                    original: AccessTools.Method("DaLion.Professions.Framework.Events.GameLoop.DayStarted.RevalidateBuildingsDayStartedEvent:OnDayStartedImpl"),
+                    transpiler: new HarmonyMethod(typeof(RevalidateBuildingsDayStartedEventPatch), nameof(RevalidateBuildingsDayStartedEventPatch.OnDayStartedImplTranspiler))
+                );
+            }
         }
     }
 }

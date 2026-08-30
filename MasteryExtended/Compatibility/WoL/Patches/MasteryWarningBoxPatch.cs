@@ -21,15 +21,34 @@ namespace MasteryExtended.Compatibility.WoL.Patches
             {
                 CodeMatcher matcher = new(instructions, generator);
 
+                MethodInfo getMasteryLock = AccessTools.PropertyGetter("DaLion.Professions.Framework.Configs.MasteriesConfig:LockMasteryUntilFullReset");
                 MethodInfo masteryOldWarningInfo = AccessTools.Method("DaLion.Professions.I18n:Prestige_Mastery_Warning");
                 MethodInfo masteryNewWarningInfo = AccessTools.Method(typeof(MasteryWarningBoxPatch), nameof(newWarning));
                 MethodInfo newWidthInfo = AccessTools.Method(typeof(MasteryWarningBoxPatch), nameof(newWidth));
                 FieldInfo widthFieldInfo = AccessTools.Field(typeof(IClickableMenu), nameof(IClickableMenu.width));
                 CodeInstruction setWidthFieldInstruction = new(OpCodes.Stfld, widthFieldInfo);
 
+                // From: Config.Masteries.LockMasteryUntilFullReset
+                // To:   false
+                for (int i = 0; i < 2; i++)
+                {
+                    matcher
+                        .MatchStartForward(
+                            new CodeMatch(OpCodes.Callvirt, getMasteryLock)
+                        )
+                        .ThrowIfNotMatch($"WoL ctorTranspiler: IL Code 0-{i} not found")
+                        .Advance(1)
+                        .Insert(
+                            new CodeInstruction(OpCodes.Pop),
+                            new CodeInstruction(OpCodes.Ldc_I4_0)
+                        )
+                    ;
+                }
+
                 // From: I18n.Prestige_Mastery_Lock()
                 // To:   newWarning()
                 matcher
+                    .Start()
                     .MatchStartForward(
                         new CodeMatch(OpCodes.Call, masteryOldWarningInfo)
                     )

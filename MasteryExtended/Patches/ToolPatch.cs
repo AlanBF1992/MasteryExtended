@@ -1,5 +1,4 @@
-﻿
-using HarmonyLib;
+﻿using HarmonyLib;
 using StardewModdingAPI;
 using StardewValley.Tools;
 using System.Reflection;

@@ -1,11 +1,9 @@
 ﻿using HarmonyLib;
 using MasteryExtended.Compatibility.SpaceCore.Patches;
-using MasteryExtended.Menu.Pages;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using System.Collections;
-using System.Reflection;
 
 namespace MasteryExtended.Compatibility.SpaceCore
 {
