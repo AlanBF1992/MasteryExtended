@@ -8,8 +8,8 @@ namespace MasteryExtended.Compatibility.VPP.Patches
     internal static class TreePatchPatch
     {
         internal readonly static IMonitor LogMonitor = ModEntry.LogMonitor;
-        internal static readonly FieldInfo TalentGroveTending = AccessTools.Field("VanillaPlusProfessions.Constants:Talent_GroveTending");
-        internal static readonly MethodInfo VPPCurrentPlayerHasTalent = AccessTools.Method("VanillaPlusProfessions.Utilities.TalentUtility:CurrentPlayerHasTalent");
+        internal static readonly FieldInfo TalentGroveTendingInfo = AccessTools.Field("VanillaPlusProfessions.Constants:Talent_GroveTending");
+        internal static readonly MethodInfo VPPCurrentPlayerHasTalentInfo = AccessTools.Method("VanillaPlusProfessions.Utilities.TalentUtility:CurrentPlayerHasTalent");
 
         /***********
          * PATCHES *
@@ -56,7 +56,7 @@ namespace MasteryExtended.Compatibility.VPP.Patches
 
         private static bool checkGroveTendingTalent()
         {
-            return (bool)VPPCurrentPlayerHasTalent.Invoke(null, [TalentGroveTending.GetValue(null), -1, null, true])!;
+            return (bool)VPPCurrentPlayerHasTalentInfo.Invoke(null, [TalentGroveTendingInfo.GetValue(null), -1, null, true])!;
         }
 
         private static int timesApplyFertilizer()

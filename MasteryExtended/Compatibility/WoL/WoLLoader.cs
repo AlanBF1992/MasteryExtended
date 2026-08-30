@@ -99,7 +99,8 @@ namespace MasteryExtended.Compatibility.WoL
         /// <summary>All the patches to make WoL work</summary>
         private static void WoLPatches(Harmony harmony)
         {
-            bool OldVersion = !ModEntry.ModHelper.ModRegistry.Get("DaLion.Professions")!.Manifest.Version.IsNewerThan("1.4.3");
+            bool OldVersion = !ModEntry.ModHelper.ModRegistry.Get("DaLion.Professions")!.Manifest.Version.IsNewerThan("1.4.2");
+
             /*************************************
              * Vanilla Skill Experience with WoL *
              *************************************/
@@ -185,15 +186,6 @@ namespace MasteryExtended.Compatibility.WoL
                 prefix: new HarmonyMethod(typeof(DaLionUnpatcher), nameof(DaLionUnpatcher.UnpatcherBoolPrefix))
             );
 
-            // Fix message
-            if (OldVersion)
-            {
-                harmony.Patch(
-                    original: AccessTools.Method("DaLion.Professions.Framework.Patchers.Prestige.GameLocationPerformActionPatcher:GameLocationPerformActionPrefix"),
-                    prefix: new HarmonyMethod(typeof(DaLionUnpatcher), nameof(DaLionUnpatcher.UnpatcherBoolPrefix))
-                );
-            }
-
             // Fix MasteryExtended placement
             harmony.Patch(
                 original: AccessTools.Method("DaLion.Professions.Framework.Patchers.Prestige.Integration.NewSkillsPagePerformHoverActionPatcher:NewSkillsPagePerformHoverActionPostfix"),
@@ -231,12 +223,27 @@ namespace MasteryExtended.Compatibility.WoL
                 transpiler: new HarmonyMethod(typeof(ProfessionPatch), nameof(ProfessionPatch.RemoveProfessionFromPlayerTranspiler))
             );
 
-            // Allows +2 capacity to Barn and Coop simultaneously
+
             if (OldVersion)
             {
+                // Fix message in door to the cave
+                harmony.Patch(
+                    original: AccessTools.Method("DaLion.Professions.Framework.Patchers.Prestige.GameLocationPerformActionPatcher:GameLocationPerformActionPrefix"),
+                    prefix: new HarmonyMethod(typeof(DaLionUnpatcher), nameof(DaLionUnpatcher.UnpatcherBoolPrefix))
+                );
+
+                // Allows +2 capacity to Barn and Coop simultaneously
                 harmony.Patch(
                     original: AccessTools.Method("DaLion.Professions.Framework.Events.GameLoop.DayStarted.RevalidateBuildingsDayStartedEvent:OnDayStartedImpl"),
                     transpiler: new HarmonyMethod(typeof(RevalidateBuildingsDayStartedEventPatch), nameof(RevalidateBuildingsDayStartedEventPatch.OnDayStartedImplTranspiler))
+                );
+            }
+            else
+            {
+                // Fix message in door to the cave
+                harmony.Patch(
+                    original: AccessTools.Method("DaLion.Professions.Framework.Patchers.GameLocationPerformActionPatcher:GameLocationPerformActionPrefix"),
+                    transpiler: new HarmonyMethod(typeof(GameLocationPerformActionPatcherPatch), nameof(GameLocationPerformActionPatcherPatch.GameLocationPerformActionPrefixTranspiler))
                 );
             }
         }

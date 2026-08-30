@@ -10,7 +10,7 @@ namespace MasteryExtended.Compatibility.WoL.Patches
 {
     internal static class MasteryProfessionsPagePatch
     {
-        internal readonly static MethodInfo profMethod = AccessTools.Method("DaLion.Professions.Framework.VanillaProfession:FromValue", [typeof(int)]);
+        internal readonly static MethodInfo profMethodInfo = AccessTools.Method("DaLion.Professions.Framework.VanillaProfession:FromValue", [typeof(int)]);
 
         /***********
          * PATCHES *
@@ -89,7 +89,7 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                 if (!c.bounds.Contains(x, y)) continue;
 
                 Game1.SetFreeCursorDrag();
-                dynamic dalionProf = profMethod.Invoke(null, [c.myID])!;
+                dynamic dalionProf = profMethodInfo.Invoke(null, [c.myID])!;
 
                 switch (c.myAlternateID)
                 {

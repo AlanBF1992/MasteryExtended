@@ -19,7 +19,7 @@ namespace MasteryExtended.Compatibility.WoL.Patches
             {
                 CodeMatcher matcher = new(instructions, generator);
 
-                MethodInfo removePrestigedinfo = AccessTools.Method(typeof(ProfessionPatch), nameof(removePrestiged));
+                MethodInfo removePrestigedInfo = AccessTools.Method(typeof(ProfessionPatch), nameof(removePrestiged));
 
                 matcher
                     .MatchStartForward(
@@ -28,7 +28,7 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                     .ThrowIfNotMatch("ProfessionPatch.RemoveProfessionFromPlayerTranspiler: IL code not found")
                     .Insert(
                         new CodeInstruction(OpCodes.Dup),
-                        new CodeInstruction(OpCodes.Call, removePrestigedinfo)
+                        new CodeInstruction(OpCodes.Call, removePrestigedInfo)
                     )
                 ;
 
