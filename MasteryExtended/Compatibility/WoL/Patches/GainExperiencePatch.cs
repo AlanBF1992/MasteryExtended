@@ -42,16 +42,25 @@ namespace MasteryExtended.Compatibility.WoL.Patches
                     .Set(OpCodes.Brfalse_S, alwaysTrue)
                 ;
 
-                // From: Game1.stats.Increment("MasteryExp", howMuch);
+                // From: Game1.stats.Increment("MasteryExp", blabla);
                 // To:   Game1.stats.Increment("MasteryExp", howMuchWhich(howMuch, which));
                 matcher
-                    .MatchEndForward(
-                        new CodeMatch(OpCodes.Ldstr),
-                        new CodeMatch(OpCodes.Ldarg_2)
+                    .MatchStartForward(
+                        new CodeMatch(OpCodes.Ldstr, "MasteryExp")
                     )
                     .ThrowIfNotMatch("WoL FarmerGainExperiencePrefixTranspiler: IL code 2 not found")
-                    .Advance(2)
+                    .Advance(1)
+                ;
+
+                while (matcher.Opcode != OpCodes.Callvirt)
+                {
+                    matcher.RemoveInstruction();
+                }
+
+                matcher
                     .InsertAndAdvance(
+                        new CodeInstruction(OpCodes.Ldarg_2),
+                        new CodeInstruction(OpCodes.Ldind_I4),
                         new CodeInstruction(OpCodes.Ldarg_1),   //which
                         new CodeInstruction(OpCodes.Call, howMuchWhichInfo)
                     )

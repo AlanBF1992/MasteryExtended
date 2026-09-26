@@ -28,6 +28,17 @@ namespace MasteryExtended
         /// <summary>The mod data for the player.</summary>
         public static ModData Data { get; internal set; } = null!;
 
+        /// <summary>The mods that are not compatible with this mod.</summary>
+        public static readonly string[] IncompatibleMods =
+        [
+            "NCarigon.RelaxedMastery",
+            "tlitookilakin.ProfessionBooks",
+            "alphablackwolf.skillPrestige",
+            "TimBukTwo.SkillMasteryPrestige",
+            "Falson.ExperienceMultiplier",
+            "cantorsdust.AllProfessions"
+        ];
+
         /// <summary>Max Mastery Levels, including 5 for the pillars.</summary>
         public static int MaxMasteryLevels { get; internal set; } = 0;
 
@@ -49,6 +60,15 @@ namespace MasteryExtended
             Config = helper.ReadConfig<ModConfig>();
 
             Harmony harmony = new(ModManifest.UniqueID);
+
+            IEnumerable<string> incompatibleMods = IncompatibleMods.Where(helper.ModRegistry.IsLoaded);
+
+            foreach (string mod in incompatibleMods)
+            {
+                LogMonitor.Log($"Incompatible Mod Detected: {mod}. Mastery Extended will not load.", LogLevel.Error);
+            }
+
+            if (incompatibleMods.Any()) return;
 
             // Vanilla Patches
             VanillaLoader.Loader(helper, harmony);
